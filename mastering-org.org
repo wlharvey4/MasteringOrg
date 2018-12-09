@@ -46,7 +46,7 @@
 * Glossary
   - ~#+KEY:~ :: *In-buffer setting* ==> See [[https://orgmode.org/org.html#In_002dbuffer-settings][In-Buffer Settings]]
 
-                _In-buffer settings_ start with ‘#+’, followed by a keyword, a colon, and then a
+                /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a
                 word for each setting.  There are dozens upon dozens of these.  To see an
                 alphabetical list, look in the index under ~#~ ==> [[https://orgmode.org/org.html#Main-Index][#-Index]]
 
@@ -55,8 +55,16 @@
                 first.
 
                 - ~C-c C-c~ :: activate changes to in-buffer settings
-  - TAGS ::
-  - PROPERTIES :: 
+  - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
+                     context.  ==> See [[https://orgmode.org/org.html#Tags][Tags]].  They can be stacked (called a /list of tags/):
+                     ~:tag1:tag2:~
+
+                      Tags are normal words containing /letters/, /numbers/, /underscores (_)/,
+                      and /ampersands (@)/.
+  - PROPERTY (~:PROPERTY:value~) :: A property is a key-value pair associated with an entry.
+       Depending on how one is set up, it can be associated with a single entry or with a tree, or
+       with every entry in a file.  Like a tag, a property is delimited on both ends by colons, so
+       this is a property: ~:A_PROPERTY:Some value~.  The key portion is case-insensitive.
 * Editing
 
 * Navigating
