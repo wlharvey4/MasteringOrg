@@ -1,9 +1,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2018-12-09 Sun 22:31>
+#+DATE:<2018-12-10 Mon 09:00>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.1
+#+MACRO:version 0.2
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -46,31 +46,104 @@
 * Glossary
   - ~#+KEY:~ :: *In-buffer setting* ==> See [[https://orgmode.org/org.html#In_002dbuffer-settings][In-Buffer Settings]]
 
-                /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a
-                word for each setting.  There are dozens upon dozens of these.  To see an
-                alphabetical list of (most) of them, look in the index under ~#~ ==> [[https://orgmode.org/org.html#Main-Index][#-Index]].
-                Unfortunately, not all are in the index.
+    /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a word for each
+                setting.  There are dozens upon dozens of these.  To see an alphabetical list of
+                (most) of them, look in the index under ~#~.  Unfortunately, not all are in the
+                index.
 
-                You will see numerous /in-buffer settings/ scattered throughout the manual and
-                tutorials, but they are not introduced prior, so they can be somewhat cryptic at
-                first.
+    ==> [[https://orgmode.org/org.html#Main-Index][#-Index]]
 
-                In addition to /in-buffer settings/, there is another similar construct called
-                *OPTIONS* (~#+OPTIONS:~) which is used to set in-buffer settings as well (primarily
-                for export settings).  Unfortunately, the manual uses the term 'options' for
-                in-buffer settings as well as ~OPTIONS~.
+    You will see numerous /in-buffer settings/ scattered throughout the manual and tutorials, but
+                they are not introduced prior, so they can be somewhat cryptic at first.
 
-                - ~C-c C-c~ :: activate changes to in-buffer settings
-  - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
-                     context.  ==> See [[https://orgmode.org/org.html#Tags][Tags]].  They can be stacked (called a /list of tags/):
-                     ~:tag1:tag2:~
+    In addition to /in-buffer settings/, there is another similar construct called *OPTIONS*
+                (~#+OPTIONS:~) which is used to set in-buffer settings as well (primarily for
+                export settings).  /Options/ uses a large set of short, abbreviated key-value pairs
+                ([[https://orgmode.org/manual/Export-settings.html#Export-settings][Options]]).  Unfortunately, the manual uses the term 'options' for in-buffer
+                settings as well as ~OPTIONS~.
 
-                      Tags are normal words containing /letters/, /numbers/, /underscores (_)/,
-                      and /ampersands (@)/.
+  - Drawer (~:DRAWERNAME:~) :: A place to hide content and settings.  A drawer name is delimited by
+       colons.  A drawer must be terminated by an ~:END:~ keyword.  Anything can go inside a
+       /drawer/ except a heading and another drawer.
+
+       ~C-c C-x d~ :: ~(org-insert-drawer &optional ARG DRAWER)~; interactively insert a drawer at
+       point; with an active region, put the region inside a drawer; with a prefix argument, insert
+       a /property drawer/ (see [[property-drawer][Property Drawer]]; see [[logbook-drawer][Logbook Drawer]]).
+
+  - Keyword :: A ~TODO~ state, e.g. one of: ~TODO~ ~DONE~.  These are the default states.  You can
+               customize the states using ~TODO~ kewords, e.g., ~TODO~ -> ~FEEDBACK~ -> ~VERIFY~ ->
+               ~DONE~ | ~VERIFIED~.
+
+               Org offers many facets to this functionality, all of which is configurable.  See
+               [[https://orgmode.org/manual/Workflow-states.html#Workflow-states][TODO Keywords]] and [[https://orgmode.org/manual/TODO-extensions.html#TODO-extensions][Extended TODO Keywords]].
+
+  - Outline :: Org is implemented on top of Outline mode.  Outlines allow a document to be
+               organized in a hierarchical structure.  An overview of this structure is achieved by
+               *folding* (/hiding/) large parts of the document to show only the general document
+               structure and the parts currently being worked on.
+
+    + ~<TAB>~ :: ~(org-cycle &optional ARG)~
+
+         This function has many different semantic meanings depending upon its context and how many
+         arguments precede it.
+
+         When point is at the beginning of a headline, rotate the subtree through 3 different
+                 states (called /local cycling/): FOLDED -> CHILDREN -> SUBTREE
+
+         When called with a single prefix ~C-u~, rotate the buffer through 3 states (/global
+         cycling/): OVERVIEW -> CONTENTS -> SHOW ALL
+
+         When called with two prefix arguments (~C-u C-u~) switch to the startup visibility.
+
+         When called with three prefix arguments (~C-u C-u C-u~) show the entire buffer, including
+                 drawers.
+
+    + ~<S-TAB>~ :: ~(org-shifttab & optional ARG)~
+
+         Global visibility cycling (unless within a table; then ~(org-table-previous-field)~;
+
   - PROPERTY (~:PROPERTY:value~) :: A property is a key-value pair associated with an entry.
        Depending on how one is set up, it can be associated with a single entry or with a tree, or
        with every entry in a file.  Like a tag, a property is delimited on both ends by colons, so
        this is a property: ~:A_PROPERTY:Some value~.  The key portion is case-insensitive.
+
+  - Property Drawer (~:PROPERTIES:...:END:~)<<property-drawer>> :: A drawer called ~:PROPERTIES:~,
+       inside of which are kept various individual properties.
+
+       ~C-u C-c C-x d~ :: (org-insert-drawer &optional ARG); insert a property drawer below the
+       current headline.
+
+  - Logbook Drawer (~:LOGBOOK:...:END:~)<<logbook-drawer>> :: A special drawer to store /state change notes/ and /clock
+       times/.  See [[state-change][State Change]].
+
+  - ~TODO~ STATE CHANGE<<state-change>> :: keep track of when a state change occurred and maybe
+       take a note about this change.  You can either record just a timestamp, or a time-stamped
+       note for a change.  These records will be inserted after the headline as an itemized list,
+       newest first.
+
+       To keep the notes hidden and out of the way, place them into a special drawer called
+       ~:LOGBOOK:~.  [[logbook-drawer][Logbook Drawer]]   Globally customize the variable ~org-log-into-drawer~ to get
+       this behavior.  You can also set a property called ~:LOG-INTO-DRAWER:DrawerName~.
+
+       ~C-c C-z~ :: ~(org-add-note)~  add a note to the current entry
+
+       To time-stamp when a ~TODO~ is changed to ~DONE~, set the variable ~org-log-done~ to the
+       value of ~time~, or use the in-buffer setting of ~#+STARTUP: logdone~.  A line ~CLOSED:
+       [timestamp]~ will be inserted.
+
+       To also record a note when cycling a ~TODO~ to ~DONE~, set the variable ~org-log-done~ to
+       the value ~note~ instead, or add an in-buffer setting of ~#+STARTUP: lognotedone~.
+
+       To customize special logging for other state changes, see [[https://orgmode.org/manual/Tracking-TODO-state-changes.html#Tracking-TODO-state-changes][Tracking TODO State Changes]]
+
+  - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
+                     context.
+    ==> See [[https://orgmode.org/org.html#Tags][Tags]].  They can be stacked (called a /list of tags/): ~:tag1:tag2:~
+
+    Tags are normal words containing /letters/, /numbers/, /underscores (_)/, and /ampersands (@)/.
+
+    + ~C-c C-c~ :: activate changes to in-buffer settings
+
 * Editing
 
 * Navigating
