@@ -1,9 +1,10 @@
+# -*- mode: org; fill-column: 99; -*-
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2018-12-10 Mon 09:00>
+#+DATE:<2018-12-10 Mon 11:03>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2
+#+MACRO:version 0.2.1
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -62,6 +63,41 @@
                 ([[https://orgmode.org/manual/Export-settings.html#Export-settings][Options]]).  Unfortunately, the manual uses the term 'options' for in-buffer
                 settings as well as ~OPTIONS~.
 
+  - Capture :: *Capture* lets you quickly store notes with little interruption of your work
+               flow [fn:remember].  Capturing is controlled by ~org-remember.el~.
+
+    + Set Up Capture :: set a default target file for notes, and define a global key for
+      capturing new material.
+      : (setq org-default-notes-file (concat org-directory "/notes.org"))
+      : (define-key global-map "\C-cc" 'org-capture)
+
+    + Use Capture :: ~C-c c~ is the basic command ~(org-capture)~; it has some alternates:
+
+      + ~(org-capture &optional ARG)~ :: ~C-c c~; with a prefix ~C-u C-c c~, find the last stored
+           capture; with two prefixes ~C-u C-u C-c c~, visit the last stored capture in a separate
+           buffer.  Can also jump to the bookmark ~org-capture-last-stored~.  With a zero prefix
+           ~C-0 C-c c~, insert the capture at point.
+      + ~(org-capture-finalize)~ :: ~C-c C-c~
+      + ~(org-capture-refile)~ :: ~C-c C-w~
+      + ~(org-capture-kill)~ :: ~C-c C-k~
+
+[fn:remember] Org’s method for capturing new items is heavily inspired by John Wiegley excellent
+~remember.el~ package.]
+
+
+  - Capture Templates :: You can use templates for different types of capture items, and for
+       different target locations.  Because the code is quite complex, you should create new
+       templates using the customize interface, using ~C-c c C~.
+
+    See [[https://orgmode.org/manual/Capture-templates.html#Capture-templates][Capture Templates]] for full details
+
+  - Category :: The /category/ is a broad label assigned to each agenda item.  By default, the
+                category is simply derived from the file name.  You can specify a file-wide
+                category using the in-buffer setting ~#+CATEGORY: Value~ outside of a heading.  A
+                different in-buffer category can be added to a heading, or you can give each entry
+                its own category with the ~:CATEGORY:Value~ property.  The AGENDA VIEW uses the
+                category as the first item in a line.
+
   - Drawer (~:DRAWERNAME:~) :: A place to hide content and settings.  A drawer name is delimited by
        colons.  A drawer must be terminated by an ~:END:~ keyword.  Anything can go inside a
        /drawer/ except a heading and another drawer.
@@ -69,6 +105,25 @@
        ~C-c C-x d~ :: ~(org-insert-drawer &optional ARG DRAWER)~; interactively insert a drawer at
        point; with an active region, put the region inside a drawer; with a prefix argument, insert
        a /property drawer/ (see [[property-drawer][Property Drawer]]; see [[logbook-drawer][Logbook Drawer]]).
+
+  - Footnote (~[fn:m]~) :: A footnote is started by a /footnote marker/ in square brackets in
+       column 0, no indentation allowed. It ends at the next footnote definition, headline, or
+       after two consecutive empty lines.  The /footnote reference/ is simply the /marker/ in
+       square brackets, inside text.  Markers always start with ~fn:~.
+
+       Footnote Example:
+       : The Org homepage[fn:1] now looks a lot better than it used to.
+       : ...
+       : [fn:1] The link is: https://orgmode.org
+
+       Footnotes may also be *named footnotes*: ~[fn:name]~ (name must be unique).
+
+       Footnames may also be *inline footnotes*: ~[fn:inline definition]~.  This is basically a
+       LaTeX-like anonymous footnote where the definition is given directly at the reference point.
+
+       Finally, a hybrid footnote with both a label and an in-line definition, allowing further
+       references to the same footnote.
+       : [fn:name:a definition]
 
   - Keyword :: A ~TODO~ state, e.g. one of: ~TODO~ ~DONE~.  These are the default states.  You can
                customize the states using ~TODO~ kewords, e.g., ~TODO~ -> ~FEEDBACK~ -> ~VERIFY~ ->
