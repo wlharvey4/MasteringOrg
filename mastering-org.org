@@ -1,7 +1,7 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2018-12-09 Sun 13:18>
+#+DATE:<2018-12-09 Sun 22:31>
 #+VERSION:{{{version}}}
 #+MACRO:version 0.1
 
@@ -48,11 +48,17 @@
 
                 /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a
                 word for each setting.  There are dozens upon dozens of these.  To see an
-                alphabetical list, look in the index under ~#~ ==> [[https://orgmode.org/org.html#Main-Index][#-Index]]
+                alphabetical list of (most) of them, look in the index under ~#~ ==> [[https://orgmode.org/org.html#Main-Index][#-Index]].
+                Unfortunately, not all are in the index.
 
                 You will see numerous /in-buffer settings/ scattered throughout the manual and
                 tutorials, but they are not introduced prior, so they can be somewhat cryptic at
                 first.
+
+                In addition to /in-buffer settings/, there is another similar construct called
+                *OPTIONS* (~#+OPTIONS:~) which is used to set in-buffer settings as well (primarily
+                for export settings).  Unfortunately, the manual uses the term 'options' for
+                in-buffer settings as well as ~OPTIONS~.
 
                 - ~C-c C-c~ :: activate changes to in-buffer settings
   - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
