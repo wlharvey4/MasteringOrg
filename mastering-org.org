@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2018-12-11 Tue 22:17>
+#+DATE:<2018-12-13 Thu 23:22>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.2
+#+MACRO:version 0.2.3
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -45,23 +45,8 @@
 #+LATEX_HEADER:
 
 * Glossary
-  - ~#+KEY:~ :: *In-buffer setting* ==> See [[https://orgmode.org/org.html#In_002dbuffer-settings][In-Buffer Settings]]
 
-    /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a word for each
-                setting.  There are dozens upon dozens of these.  To see an alphabetical list of
-                (most) of them, look in the index under ~#~.  Unfortunately, not all are in the
-                index.
-
-    ==> [[https://orgmode.org/org.html#Main-Index][#-Index]]
-
-    You will see numerous /in-buffer settings/ scattered throughout the manual and tutorials, but
-                they are not introduced prior, so they can be somewhat cryptic at first.
-
-    In addition to /in-buffer settings/, there is another similar construct called *OPTIONS*
-                (~#+OPTIONS:~) which is used to set in-buffer settings as well (primarily for
-                export settings).  /Options/ uses a large set of short, abbreviated key-value pairs
-                ([[https://orgmode.org/manual/Export-settings.html#Export-settings][Options]]).  Unfortunately, the manual uses the term 'options' for in-buffer
-                settings as well as ~OPTIONS~.
+** Agenda
 
   - Agenda :: Org can select items based on various criteria and display them in a separate
               buffer. Six different view types are provided, one of which is ~agenda~: like a
@@ -74,11 +59,17 @@
                       in this directory will be part of the list.  Add and remove files
                       from this list using ~C-c [~ and ~C-c ]~.
 
+    + Cycling through agenda files :: ~C-,'~ ~(org-cycle-agenda-files)~
+
+    + Switch between buffers :: ~M-x org-switchb <RET>~ ~iswitchb~ like interface
+
     + Agenda Dispatcher :: The views are created through a dispatcher, which should be bound to a
          global key—for example ~C-c a~.  After pressing ~C-c a~, an additional letter is required
          to execute a command.  ~a~ produces a calendar-like /agenda/ view.  ~t~ produces a list of
          ~TODO~ items.  ~m~ produces headlines matching a ~TAGS~ expression.  There are others as
          well.  See [[https://orgmode.org/manual/Agenda-dispatcher.html#Agenda-dispatcher][Agender Dispatcher]].
+
+** Capture
 
   - Capture :: *Capture* lets you quickly store notes with little interruption of your work
                flow [fn:remember].  Capturing is controlled by ~org-remember.el~.
@@ -108,12 +99,16 @@
 
     See [[https://orgmode.org/manual/Capture-templates.html#Capture-templates][Capture Templates]] for full details
 
+** Category
+
   - Category :: The /category/ is a broad label assigned to each agenda item.  By default, the
                 category is simply derived from the file name.  You can specify a file-wide
                 category using the in-buffer setting ~#+CATEGORY: Value~ outside of a heading.  A
                 different in-buffer category can be added to a heading, or you can give each entry
                 its own category with the ~:CATEGORY:Value~ property.  The AGENDA VIEW uses the
                 category as the first item in a line.
+
+** Drawer
 
   - Drawer (~:DRAWERNAME:~) :: A place to hide content and settings.  A drawer name is delimited by
        colons.  A drawer must be terminated by an ~:END:~ keyword.  Anything can go inside a
@@ -122,6 +117,8 @@
        ~C-c C-x d~ :: ~(org-insert-drawer &optional ARG DRAWER)~; interactively insert a drawer at
        point; with an active region, put the region inside a drawer; with a prefix argument, insert
        a /property drawer/ (see [[property-drawer][Property Drawer]]; see [[logbook-drawer][Logbook Drawer]]).
+
+** Footnote
 
   - Footnote (~[fn:m]~) :: A footnote is started by a /footnote marker/ in square brackets in
        column 0, no indentation allowed. It ends at the next footnote definition, headline, or
@@ -141,13 +138,7 @@
        Finally, a hybrid footnote with both a label and an in-line definition, allowing further
        references to the same footnote.
        : [fn:name:a definition]
-
-  - Keyword :: A ~TODO~ state, e.g. one of: ~TODO~ ~DONE~.  These are the default states.  You can
-               customize the states using ~TODO~ kewords, e.g., ~TODO~ -> ~FEEDBACK~ -> ~VERIFY~ ->
-               ~DONE~ | ~VERIFIED~.
-
-               Org offers many facets to this functionality, all of which is configurable.  See
-               [[https://orgmode.org/manual/Workflow-states.html#Workflow-states][TODO Keywords]] and [[https://orgmode.org/manual/TODO-extensions.html#TODO-extensions][Extended TODO Keywords]].
+** Hyperlink
 
   - Hyperlink :: A link to another place in a file, another file, Usenet article, email, etc.
                  Links are categorized as /internal/ or /external/.  [[info:org#Handling%20links][Handling Links]]
@@ -208,6 +199,37 @@
         the image as a clickable link; if there is no description, that image will be inlined
         into the exported HTML file.
 
+** Key
+
+  - ~#+KEY:~ :: *In-buffer setting* ==> See [[https://orgmode.org/org.html#In_002dbuffer-settings][In-Buffer Settings]]
+
+    /In-buffer settings/ start with ‘#+’, followed by a keyword, a colon, and then a word for each
+                setting.  There are dozens upon dozens of these.  To see an alphabetical list of
+                (most) of them, look in the index under ~#~.  Unfortunately, not all are in the
+                index.
+
+    ==> [[https://orgmode.org/org.html#Main-Index][#-Index]]
+
+    You will see numerous /in-buffer settings/ scattered throughout the manual and tutorials, but
+                they are not introduced prior, so they can be somewhat cryptic at first.
+
+    In addition to /in-buffer settings/, there is another similar construct called *OPTIONS*
+                (~#+OPTIONS:~) which is used to set in-buffer settings as well (primarily for
+                export settings).  /Options/ uses a large set of short, abbreviated key-value pairs
+                ([[https://orgmode.org/manual/Export-settings.html#Export-settings][Options]]).  Unfortunately, the manual uses the term 'options' for in-buffer
+                settings as well as ~OPTIONS~.
+
+** Keyword
+
+  - Keyword :: A ~TODO~ state, e.g. one of: ~TODO~ ~DONE~.  These are the default states.  You can
+               customize the states using ~TODO~ kewords, e.g., ~TODO~ -> ~FEEDBACK~ -> ~VERIFY~ ->
+               ~DONE~ | ~VERIFIED~.
+
+               Org offers many facets to this functionality, all of which is configurable.  See
+               [[https://orgmode.org/manual/Workflow-states.html#Workflow-states][TODO Keywords]] and [[https://orgmode.org/manual/TODO-extensions.html#TODO-extensions][Extended TODO Keywords]].
+
+** Outline
+
   - Outline :: Org is implemented on top of Outline mode.  Outlines allow a document to be
                organized in a hierarchical structure.  An overview of this structure is achieved by
                *folding* (/hiding/) large parts of the document to show only the general document
@@ -233,6 +255,8 @@
 
          Global visibility cycling (unless within a table; then ~(org-table-previous-field)~;
 
+** Property
+
   - PROPERTY (~:PROPERTY:value~) :: A property is a key-value pair associated with an entry.
        Depending on how one is set up, it can be associated with a single entry or with a tree, or
        with every entry in a file.  Like a tag, a property is delimited on both ends by colons, so
@@ -247,6 +271,8 @@
   - Logbook Drawer (~:LOGBOOK:...:END:~)<<logbook-drawer>> :: A special drawer to store /state change notes/ and /clock
        times/.  See [[state-change][State Change]].
 
+** Refile
+
   - REFILE :: Refile or copy /captured/ data (see [[capture][Capture]])
 
     + ~(org-refile)~ :: ~C-c C-w~ Refile the entry or region at point. This command
@@ -259,6 +285,18 @@
 
     + ~(org-copy)~ :: Copying works like refiling, except that the original note is not
                       deleted.
+
+** TAG
+
+  - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
+                     context.
+    ==> See [[https://orgmode.org/org.html#Tags][Tags]].  They can be stacked (called a /list of tags/): ~:tag1:tag2:~
+
+    Tags are normal words containing /letters/, /numbers/, /underscores (_)/, and /ampersands (@)/.
+
+    + ~C-c C-c~ :: activate changes to in-buffer settings
+
+** ~TODO~
 
   - ~TODO~ STATE CHANGE<<state-change>> :: keep track of when a state change occurred and maybe
        take a note about this change.  You can either record just a timestamp, or a time-stamped
@@ -339,6 +377,21 @@
                        current buffer.
 
     + ~l~ :: in the agenda, ~l~ key shows which tasks have been worked on or closed in a day
+
+** View
+ - An organized view of specific types of items through a collection process across all org files.
+   1. agenda view --- dated items
+   2. todo view --- action items
+      + ~C-c a t~ ~(org-todo-list)~ global todo list
+      + ~C-c a T~ specific todo keyword
+   3. match view --- headlines based upon tags, properties, todo states
+      + ~C-c a m~ ~(org-tags-view)~
+      + ~C-c a M~ specific tags
+   4. search view --- entries with specified keywords
+      + ~C-c a s~ ~(org-search-view)~
+   5. stuck projects view --- projects that cannot ``move''
+   6. custom view --- special searches and combinations of views
+      + ~C-c a #~ ~(org-agenda-list-stuck-projects)~
 
 * Editing
 
