@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2018-12-13 Thu 23:22>
+#+DATE:<2019-02-22 Fri 10:06>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.3
+#+MACRO:version 0.2.4
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -396,3 +396,156 @@
 * Editing
 
 * Navigating
+
+* Capture
+
+  Quickly store notes in the flow.  Based upon John Wiegley's =Remember= package.
+
+** Setup
+
+   - Set a default target file for notes
+     : (setq org-default-notes-file (concat org-directory "/notes.org"))
+
+   - Define a global key for capturing new material.  See Org Activation
+     : (global-set-key (kbd "C-c c") 'org-capture)
+
+** Using
+
+   - ORG-CAPTURE :: Display the capture templates menu
+     : ~C-c c: (org-capture)~
+
+     If you have templates defined, it offers these templates for selection; otherwise, use a new
+     Org outline node as the default template.  It inserts the template into the target file and
+     switches to an indirect buffer narrowed to this new node.  You may then insert the information
+     you want.
+
+     You can also call =capture= from the *agenda*
+     : k c
+
+     Any timestamps inserted by the selected capture template defaults to the date at point in the
+                    agenda
+
+   - ORG-CAPTURE-FINALIZE :: Resume your work
+     : ~[C-u] C-c C-c: (org-capture-finalize)~
+
+     - Return to the window configuration before the capture process and resume your work.
+
+     - When called with a prefix argument, finalize and then jump to the captured item.
+
+   - ORG-CAPTURE-REFILE :: Refile the note to an appropriate place
+     : ~C-c C-w: (org-capture-refile)~
+
+     This is a normal refiling command that will be executed; =point='s position is important.
+     Make sure =point= is on the appropriate parent node.  See [[info:org#Refile%20and%20Copy][Refile and Copy]].
+
+     Any prefix argument given to this command is passed on to the ~org-refile~ command.
+
+   - ORG-CAPTURE-KILL :: Abort
+     : ~C-c C-k: (org-capture-kill)~
+
+     Abort the capture procedure and return to the previous state.
+
+** Capture Templates
+
+   You can use templates for different types of capture items, and for different target locations.
+   Create templates using the =customize= interface.  Customize the variable
+   ~org-capture-templates~.
+
+*** Elements
+
+    Each entry in org-capture-templates is a list with the following items:
+
+    - keys ::
+        the key(s) that select the template, as string characters (``a'' to use a single key)
+      (``bt'' to use two keys).
+
+      When using several keys, keys using the same prefix key must be sequential in the list and
+      preceded by a 2-element entry explaining the prefix key:
+      : ("b" "Templates for marking stuff to buy")
+      If you do not define a template for the C key, this key opens the Customize buffer for this
+      complex variable.
+
+    - description ::
+                     A short string describing the template
+
+    - type ::
+              The type of entry, a symbol.
+
+      - ~entry~
+
+        An Org mode node, with a headline. Will be filed as the child of the target entry or as a
+        top-level entry. The target file should be an Org file.
+
+      - ~item~
+
+        A plain list item, placed in the first plain list at the target location. Again the target
+        file should be an Org file.
+
+      - ~checkitem~
+
+        A checkbox item. This only differs from the plain list item by the default template.
+
+      - ~table-line~
+
+        A new line in the first table at the target location. Where exactly the line will be
+        inserted depends on the properties ~:prepend~ and ~:table-line-pos~
+
+      - ~plain~
+
+        Text to be inserted as it is.
+
+    - target ::
+
+      Specification of where the captured item should be placed.
+
+      - targets usually define a node and entries will become children of this node.
+
+      - other types will be added to the table or list in the body of this node.
+
+      - most target specifications contain a file name.  If that file name is the empty string, it
+        defaults to ~org-default-notes-file~.
+
+      - a file can also be given as a variable or as a function called with no argument.
+
+      - when an absolute path is not specified for a target, it is taken as relative to
+        ~org-directory~.
+
+      Valid values are:
+
+      - ~(file "path/to/file")~ ::
+           Text will be placed at the beginning or end of that file.
+
+      - ~(id "id of existing org entry")~ ::
+           Filing as child of this entry, or in the body of the entry.
+
+      - ~(file+headline "filename" "node headline")~ ::
+           Fast configuration if the target heading is unique in the file.
+
+      - ~(file+olp "filename" "Level 1 heading" "Level 2" ...)~ ::
+           For non-unique headings, the full path is safer.
+
+      - ~(file+regexp "filename" "regexp to find location")~ ::
+           Use a regular expression to position point.
+
+      - ~(file+olp+datetree "filename" [ "Level 1 heading" ...])~ ::
+           This target creates a heading in a date tree for today’s date.  If the optional outline
+           path is given, the tree will be built under the node it is pointing to, instead of at
+           top level.
+
+      - ~(file+function "filename" function-finding-location)~ ::
+           A function to find the right location in the file.
+
+      - ~(clock)~ ::
+                     File to the entry that is currently being clocked.
+
+      - ~(function function-finding-location)~ ::
+           Most general way: write your own function which both visits the file and moves point to
+           the right location.
+
+    - template
+
+    - properties
+
+*** Explansion
+
+*** In Context
