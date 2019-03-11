@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2019-02-22 Fri 10:06>
+#+DATE:<2019-03-10 Sun 23:05>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.4
+#+MACRO:version 0.2.5
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -68,6 +68,41 @@
          to execute a command.  ~a~ produces a calendar-like /agenda/ view.  ~t~ produces a list of
          ~TODO~ items.  ~m~ produces headlines matching a ~TAGS~ expression.  There are others as
          well.  See [[https://orgmode.org/manual/Agenda-dispatcher.html#Agenda-dispatcher][Agender Dispatcher]].
+
+** Babel
+   - Babel :: [[https://orgmode.org/worg/org-contrib/babel/][active code in Org-mode]]
+
+              Babel is Org-mode's ability to execute source code within Org-mode documents.  Babel
+              started life as Org-babel, an extension to Org-mode.  It was integrated into the
+              Org-mode core at version 7.0. The author of Babel is Eric Schulte. The secondary
+              author is Dan Davison.
+
+              [[https://orgmode.org/worg/org-contrib/babel/languages.html][List of supported languages]] with information on requirements, configuration
+              instructions, and pointers to language specific documentation.
+
+   - Babel Tutorial :: https://orgmode.org/worg/org-contrib/babel/intro.html
+
+                       An online set of installation and setup instructions, as well as an overview
+                       of the main features of Babel, with plenty of examples.
+
+   - Reference Card :: [[https://org-babel.readthedocs.io/en/latest/][Org Babel Reference Card]]
+
+   - Babel Documentation :: https://orgmode.org/manual/Working-with-source-code.html
+
+   - Literate Programming ::
+
+        [[https://www.jstatsoft.org/article/view/v046i03][A Multi-Language Computing Environment for Literate Programming and Reproducible Research]]
+
+        A journal paper providing the most up to date and complete introduction to using Org-mode
+        and Babel for Reproducible research and literate programming.
+
+        [[https://caiorss.github.io/Emacs-Elisp-Programming/Org-mode-recipes.html][Literate Programming Recipes]]
+
+        [[http://www.howardism.org/Technical/Emacs/literate-programming-tutorial.html][Introduction to Literate Programming]]
+
+   - Examples and Uses :: [[https://orgmode.org/worg/org-contrib/babel/uses.html][Source Code Blocks: Uses]]
+
+        [[http://eschulte.github.io/org-scraps/][Scraps]]
 
 ** Capture
 
@@ -393,6 +428,12 @@
    6. custom view --- special searches and combinations of views
       + ~C-c a #~ ~(org-agenda-list-stuck-projects)~
 
+* Basics
+
+** Org Mode Basics
+
+- http://www.star.bris.ac.uk/bjm/org-basics.html
+
 * Editing
 
 * Navigating
@@ -549,3 +590,9 @@
 *** Explansion
 
 *** In Context
+
+* Examples
+
+** Examples and Cookbook
+
+- [[http://ehneilsen.net/notebook/orgExamples/org-examples.html][Emacs org-mode examples and cookbook]]
