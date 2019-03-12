@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2019-03-11 Mon 18:19>
+#+DATE:<2019-03-11 Mon 21:40>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.6
+#+MACRO:version 0.2.7
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -627,6 +627,11 @@
       subtrees (instead of having a physical Org file for each document)?  Once again, great to see
       more Org mode out in the wild :)
 
+    - [[http://www.modernemacs.com/post/org-mode-blogging/][An Emacs Blogging Workflow]]
+
+      Hugo is a static site generator. It natively supports org-mode, builds fast, and has live
+      reloading.
+
   - [[http://donw.io/post/github-comments/][Using Github for Comments]]
 
   - [[https://github.com/bastibe/org-static-blog][ORG-STATIC-BLOG]]
@@ -639,4 +644,108 @@
 
     - [[https://github.com/xiaoxinghu/gatsby-orga][gatsby orga starter project]]
 
-    - [[https://www.reddit.com/r/orgmode/comments/7wjmwr/orga_the_ultimate_orgmode_parser_in_javascript/][Orga the Ultimate org-mode parser in JavaScript]]
+      - [[https://www.reddit.com/r/orgmode/comments/7wjmwr/orga_the_ultimate_orgmode_parser_in_javascript/][Orga the Ultimate org-mode parser in JavaScript]]
+
+    - [[http://endlessparentheses.com/how-i-blog-one-year-of-posts-in-a-single-org-file.html][How I blog: One year of posts in a single org file]]
+
+      *When this blog was conceived, I decided that I wanted it to be entirely contained in a
+      single org file*, and that this would also be my Emacs init file.... Before anything else, it
+      should go without saying that the content of the posts is written in org-mode. The engine I
+      use for exporting is a large wrapper around ox-jekyll, and the posts are all pushed to Github
+      and rendered by their built-in Jekyll support.
+
+      - <<single-file>>Why keep a blog in [[single-file-fail][a single file]]?
+
+      First of all because org, once you learn its knobs and bobs, is just plain powerful.... This
+      is a small difference, but it applies all around. If I want to link to a previous post, I
+      find it with C-c C-j and then move back with C-u C-SPC, all without leaving the buffer. When
+      I look at the posts list, the tags are listed right beside the title, I don’t have to open a
+      file to see them.... You see, if posts were separate files I would have to copy the snippets
+      to a separate org file, and then write about them there, and then export them to Jekyll. In
+      this scenario, I just know I would eventually change some snippet (a healthy init file is a
+      fluid creature) and forget to update the corresponding org file, and the thought of leaving
+      out-dated code lying around sent a chill through my spine. Not to mention, this whole flow of
+      “init file → org post → jekyll post” has one layer too many for my taste, and redundancy is
+      an evil I slay with a chainsaw.
+
+    - [[https://github.com/yoshinari-nomura/org-octopress][Org-octopress – org-mode in octopress.]]
+
+      Org-octopress is a package to help users those who want to write blog articles in org-style
+      using Octopress (or Jekyll).
+
+    - [[https://www.sadiqpk.org/blog/2018/08/08/blogging-with-org-mode.html][Blogging with Emacs org-mode]]
+
+      <<single-file-fail>>All pages of this website has been designed in org-mode. Not just this
+      blog. The [[https://gitlab.com/sadiq/sadiq.gitlab.io][repository]] contain source code for the complete website.... For about a year, I
+      have been trying to find a suitable workflow to blog using Emacs org-mode. *My idea was to
+      put all articles (posts) in [[single-file][a single org file]], which failed misserably* for the following
+      reasons:
+
+      - The default org-mode html export is designed to work on seperate files. So single file org
+        export requires custom code which I don't want to write.
+
+      - I wish to link to the source org file from each html article, which is not possible if
+        every article is written in a single file.
+
+      - Last year, I did write around 500 lines of code, which worked. Pretty much all of them were
+        unmaintainable hacks. A few days back, I gave it a try again. This time, with a different
+        design:
+
+      - Each article is written in seperate org files, with dated directory names. Eg.: A
+        hello-world.org file in 2018/08/08 dir for Hello World article.
+
+      - Manually created blog index and atom feeds so that I don't have to wait another year to
+        pass the salt.
+
+    - [[https://orgmode.org/worg/org-blog-wiki.html][Blogs and Wikis with Org]]
+
+    - [[https://orgmode.org/worg/org-web.html][Web Pages Made with Org-Mode]]
+
+    - [[https://orgmode.org/worg/org-tutorials/org-publish-html-tutorial.html][Publishing Org-mode files to HTML]]
+
+    - [[https://justin.abrah.ms/emacs/orgmode_static_site_generator.html][Writing a static site generator using org-mode.]]
+
+      This site is now generated through org-mode, an emacs library which is used for
+      outlining. The generation of the HTML lies in the export functionality of outlines. The
+      benefits of this system is that its easy, uses a tool that I'm already familiar with, and
+      extensible.
+
+      The heart of my blog lies in org-modes export format. You can find the documentation for it here. This post, currently looks something like the picture above. Standard org-mode stuff.
+
+      The exporting stuff lives in a small amount of elisp (which is in a non-exported node of my
+      ~index.org~ (which turns into ~index.html~)). When I export my org project, it publishes via
+      tramp to my server's web root.
+
+    - [[https://justin.abrah.ms/emacs/literate_programming.html][Literate programming with org-babel]]
+
+    - [[https://pavpanchekha.com/blog/org-mode-publish.html][Using Org-mode to Publish a Web Site]]
+
+      This blog is written with Org-mode from Emacs, and deployed using a git hook.
+
+    - [[http://danamlund.dk/emacs/orgsite.html][Example of making and managing a website with emacs org-mode]]
+
+    - [[https://trashbird1240.wordpress.com/2012/01/17/set-up-a-website-using-emacs-org-mode/][Set up a website using Emacs’ Org Mode]]
+
+    - [[https://jgkamat.gitlab.io/blog/website1.html][Creating A Blog in Org Mode]]
+
+      Org is a very powerful tool, but most of the org setups I've seen hasn't used it to its full
+      potential. This website is one example of a complex, multi-page project built in org. This
+      post is a 'brief' overview of how it was created.
+
+    - [[https://ogbe.net/blog/blogging_with_org.html][Blogging using org-mode (and nothing else)]]
+
+      Obviously, the Org publishing feature was all that I needed. I whipped up a nice little
+      configuration that produces this website from a set of Org source files, some custom CSS and
+      HTML, and some custom Elisp.
+
+    - [[https://bastibe.de/2013-11-13-blogging-with-emacs.html][Blogging with Emacs]]
+
+    - [[https://thibaultmarin.github.io/blog/posts/2016-11-13-Personal_website_in_org.html][Personal website in org]] <<
+
+      This post describes the configuration for this website, which is statically generated using
+      emacs and org-mode. Org-mode's publishing functionality is used to generate the HTML content
+      from source org files.
+
+    - [[http://www.bobnewell.net/publish/35years/orgpublish.html][Publishing with Org-Publish]]
+
+    - [[https://www.baty.net/2015/publishing-my-notes-using-org-mode/][Publishing My Notes Using Org Mode]]
