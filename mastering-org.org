@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2019-03-10 Sun 23:05>
+#+DATE:<2019-03-11 Mon 18:19>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.5
+#+MACRO:version 0.2.6
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -596,3 +596,47 @@
 ** Examples and Cookbook
 
 - [[http://ehneilsen.net/notebook/orgExamples/org-examples.html][Emacs org-mode examples and cookbook]]
+
+* Blogging with Org
+
+  - [[https://explog.in/][expLog]] & https://explog.in/config.html
+
+  - [[https://cestlaz.github.io/posts/using-emacs-35-blogging/][Using Emacs 35 - Blogging]]
+
+  - [[https://www.reddit.com/r/emacs/comments/857ab1/blogging_with_emacs/][Hugo also has good direct support for org-mode]]
+
+    #+BEGIN_QUOTE
+    Anyhow, if it's any comfort, hugo is a really fast static site generator that live updates the
+    browser as soon as I C-x C-s my Org file (which auto-triggers the export to .md via ox-hugo)
+    #+END_QUOTE
+
+    - [[https://github.com/kaushalmodi/ox-hugo][ox-hugo]]
+
+      I develop an Org exporter called =ox-hugo= which is basically a Markdown (with bits and
+      pieces of HTML where Markdown falls short) exporter + TOML/YAML front-matter generator for
+      Hugo static sites.  In the process of supporting basically the whole of the Org syntax that I
+      know of, and making any Org document exportable almost in par with ox-html, I ended up with
+      this [[https://github.com/kaushalmodi/ox-hugo/blob/master/test/site/content-org/all-posts.org][humongous test file]]. It covers probably every niche of Org syntax that I or folks who
+      filed issues on the repo could think of (a recent one being.. variations in Org syntax for
+      inline vs standalone images, hyperlinked vs not, with/without HTML target attribute being set
+      via =#+ATTR_HTML=, with/without captions). I am mentioning that file with hopes that orga is
+      able to support all kinds of Org syntax in that. Many tests in there are for testing the Hugo
+      front-matter export, but majority of that test file should work for your project too.  In
+      addition, how does orga support subtree properties, tags, etc which is critical for folks
+      using a single Org file (like that test file) to store all their Org documents organized as
+      subtrees (instead of having a physical Org file for each document)?  Once again, great to see
+      more Org mode out in the wild :)
+
+  - [[http://donw.io/post/github-comments/][Using Github for Comments]]
+
+  - [[https://github.com/bastibe/org-static-blog][ORG-STATIC-BLOG]]
+
+  - [[https://github.com/novoid/lazyblorg][lazyblorg – blogging with Org-mode for very lazy people]]
+
+  - [[https://xiaoxinghu.github.io/orgajs/][ORGA]]
+
+    - [[https://github.com/xiaoxinghu/orgajs][orgajs on Github]]
+
+    - [[https://github.com/xiaoxinghu/gatsby-orga][gatsby orga starter project]]
+
+    - [[https://www.reddit.com/r/orgmode/comments/7wjmwr/orga_the_ultimate_orgmode_parser_in_javascript/][Orga the Ultimate org-mode parser in JavaScript]]
