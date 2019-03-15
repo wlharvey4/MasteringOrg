@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:wlharvey4@mac.com
-#+DATE:<2019-03-10 Sun 23:05>
+#+DATE:<2019-03-14 Thu 17:51>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.5
+#+MACRO:version 0.2.6
 
 #+TEXINFO_FILENAME:mastering-org.info
 #+TEXINFO_CLASS: info
@@ -49,7 +49,7 @@
 ** Agenda
 
   - Agenda :: Org can select items based on various criteria and display them in a separate
-              buffer. Six different view types are provided, one of which is ~agenda~: like a
+              buffer. Six different [[*View][view types]] are provided, one of which is ~agenda~: like a
               calendar and shows information for specific dates.  The extracted information is
               displayed in a special /agenda/ buffer.
 
@@ -173,6 +173,28 @@
        Finally, a hybrid footnote with both a label and an in-line definition, allowing further
        references to the same footnote.
        : [fn:name:a definition]
+** Global Key Bindings
+
+   Three Org commands should be accessible anywhere in Emacs (not just in Org); they should be
+   bound to GLOBALLY AVAILABLE KEYS (reserved for users): see [[info:elisp#Key%20Binding%20Conventions][info:elisp#Key Binding Conventions]]
+   #+begin_quote
+   Don’t define ‘C-c LETTER’ as a key in Lisp programs.  Sequences consisting of ‘C-c’ and a letter
+   (either upper or lower case) are reserved for users; they are the *only* sequences reserved for
+   users, so do not block them.
+   #+end_quote
+
+   - =C-c l= :: org-store-link
+
+                (global-set-key (kbd "C-c l") 'org-store-link)
+
+   - =C-c a= :: [[*Agenda][org-agenda]]
+
+                (global-set-key (kbd "C-c a") 'org-agenda)
+
+   - =C-c c= :: [[*Capture][org-capture]]
+
+                (global-set-key (kbd "C-c c") 'org-capture)
+
 ** Hyperlink
 
   - Hyperlink :: A link to another place in a file, another file, Usenet article, email, etc.
