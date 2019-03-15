@@ -1,48 +1,10 @@
 # -*- mode: org; fill-column: 99; -*-
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
-#+EMAIL:wlharvey4@mac.com
-#+DATE:<2019-03-14 Thu 17:51>
+#+EMAIL:pinecone062@gmail.com
+#+DATE:<2019-03-15 Fri 16:59>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.2.6
-
-#+TEXINFO_FILENAME:mastering-org.info
-#+TEXINFO_CLASS: info
-#+TEXINFO_HEADER:
-#+TEXINFO_POST_HEADER:
-#+SUBTITLE:Version {{{version}}} {{{time(%F %R)}}}
-#+SUBAUTHOR:
-#+TEXINFO_DIR_CATEGORY:Org-Mode
-#+TEXINFO_DIR_TITLE:Mastering Org-Mode
-#+TEXINFO_DIR_DESC:How to master org-mode in a decade
-#+TEXINFO_PRINTED_TITLE:How To Master Org-Mode In A Decade
-
-#+LATEX_CLASS: article
-#+LATEX_CLASS_OPTIONS:
-#+LATEX_HEADER:
-#+LATEX_HEADER_EXTRA:
-#+DESCRIPTION:
-#+KEYWORDS:
-#+SUBTITLE:
-#+LATEX_COMPILER: pdflatex
-#+DATE: \today
-
-#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
-#+OPTIONS: html-preamble:t html-scripts:t html-style:t
-#+OPTIONS: html5-fancy:nil tex:t
-#+HTML_DOCTYPE: xhtml-strict
-#+HTML_CONTAINER: div
-#+DESCRIPTION:
-#+KEYWORDS:
-#+HTML_LINK_HOME:
-#+HTML_LINK_UP:
-#+HTML_MATHJAX:
-#+HTML_HEAD:
-#+HTML_HEAD_EXTRA:
-#+SUBTITLE:
-#+INFOJS_OPT:
-#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.14)
-#+LATEX_HEADER:
+#+MACRO:version 0.3.0
 
 * Glossary
 
@@ -64,7 +26,7 @@
     + Switch between buffers :: ~M-x org-switchb <RET>~ ~iswitchb~ like interface
 
     + Agenda Dispatcher :: The views are created through a dispatcher, which should be bound to a
-         global key—for example ~C-c a~.  After pressing ~C-c a~, an additional letter is required
+         [[*Global Key Bindings][global key]]---for example ~C-c a~.  After pressing ~C-c a~, an additional letter is required
          to execute a command.  ~a~ produces a calendar-like /agenda/ view.  ~t~ produces a list of
          ~TODO~ items.  ~m~ produces headlines matching a ~TAGS~ expression.  There are others as
          well.  See [[https://orgmode.org/manual/Agenda-dispatcher.html#Agenda-dispatcher][Agender Dispatcher]].
@@ -343,15 +305,114 @@
     + ~(org-copy)~ :: Copying works like refiling, except that the original note is not
                       deleted.
 
-** TAG
+** Tags
 
-  - TAG (~:tag:~) :: Words delimited by colons (~:~) added to the end of a headline to give extra
-                     context.
-    ==> See [[https://orgmode.org/org.html#Tags][Tags]].  They can be stacked (called a /list of tags/): ~:tag1:tag2:~
+   Implement labels and contexts for cross-correlating information by assigning *tags* to
+   headlines.  Every headline can contain a list of *:tags:*.
 
-    Tags are normal words containing /letters/, /numbers/, /underscores (_)/, and /ampersands (@)/.
+   - Tags :: normal words containing /letters/, /numbers/, /underscores (_)/, and /ampersands (@)/
+             delimited by colons =:tag:=.  They can be stacked (called a /list of tags/):
+             =:tag1:tag2:=
 
-    + ~C-c C-c~ :: activate changes to in-buffer settings
+      ==> See [[https://orgmode.org/org.html#Tags][Tags]]
+
+     + =C-c C-q= :: ~org-set-tags-command~
+
+     + ~C-c C-c~ :: call ~org-set-tags-command~ when on a headline; activate changes to in-buffer
+                    settings
+
+
+   - Inheritance :: All subheadings inherit tags from parent headings
+
+   - =#+FILETAGS:= :: Assign tags to all headings in a file
+
+   - =#+TAGS:= :: Name default tags to choose from for a file
+
+   - =#+STARTUP: noptag= :: disable persistent tags alist
+
+
+*** Tag Variables
+
+   - ~org-tag-alist~ :: globally defined preferred set of tags
+
+     + /fast tag selection/ mechanism; set globally:
+       : (setq org-tag-alist '(("@work" . ?w) ("@home" . ?h) ("laptop" . ?l)))
+       mutually exclusive groups:
+       : (setq org-tag-alist ''((:startgroup . nil) ("@work" . ?w) ("@home" . ?h) (:endgroup . nil) ("laptop" . ?l)))
+       set file locally (*must =C-c C-c= toactivate*):
+       : #+TAGS: @work(w) @home(h) @tennisclub(t) labtop(l) pc(p)
+       mutually exclusive groups:
+       : #+TAGS: { @work(w) @home(h) @tennisclub(t) } laptop(l) pc(p)
+
+       =C-c C-c= works to display a splash window; see [[info:org#Setting%20Tags][manual]] for fine tuning splash window.
+
+       A special interface lists:
+       - inherited tags
+       - tags in current headline
+       - list of all valid tags
+
+       Special keys:
+       - =<TAB>= : enter any tag
+       - =<SPC>= : clear all tags
+       - =<RET>= : accept modified set
+       - =C-g=   : abort
+       - =q=     : abort (if not assigned)
+       - =!=     : turn off mutually-exclusve groups
+       - =C-c=   : toggle auto-exit
+
+   - ~org-tag-persistent-alist~ :: globally defined in addition to =#+TAGS=
+
+   - ~org-tag-faces~ :: variable in which to specify special faces for specific tags
+
+   - ~org-use-tag-inheritance~ ::
+
+   - ~org-tags-exclude-from-inheritance~ ::
+
+   - ~org-tags-match-list-sublevels~ ::
+
+   - ~org-agenda-use-tag-inheritance~ ::
+
+   - ~org-tags-column~ ::
+
+   - ~org-fast-tag-selection-single-key~ ::
+
+   - ~org-complete-tags-always-offer-all-agenda-tags~ ::
+
+*** Tag Hierarchy
+
+    Tags can be defined in *hierarchies*.  Defining multiple /group tags/ and nesting them creates
+    a *hierarchy*.  Can create a /taxonomy/ of terms to classify nodes.  When searching for a group
+    tag, the search returns all members of the group and subgroups.
+
+    : #+TAGS: [ GTD : Control Persp ]
+    : #+TAGS: [ Control : Context Task ]
+    : #+TAGS: [ Persp : Vision Goal AOF Project ]
+
+    - GTD
+      + Persp
+        - Vision
+        - Goal
+        - AOF
+        - Project
+      + Control
+        - Context
+        - Task
+
+
+    #+BEGIN_EXAMPLE
+         (setq org-tag-alist '((:startgrouptag)
+                           ("GTD")
+                           (:grouptags)
+                           ("Control")
+                           ("Persp")
+                           (:endgrouptag)
+                           (:startgrouptag)
+                           ("Control")
+                           (:grouptags)
+                           ("Context")
+                           ("Task")
+                           (:endgrouptag)))
+    #+END_EXAMPLE
 
 ** ~TODO~
 
@@ -619,6 +680,43 @@
 
 - [[http://ehneilsen.net/notebook/orgExamples/org-examples.html][Emacs org-mode examples and cookbook]]
 
+* Issues
+
+** ~jit-lock~ Interfering with ~org-goto~
+
+   #+CINDEX:jit-lock
+   - ``Not enabling jit-lock: it does not work in indirect buffer.''
+
+     Received when running the command ~org-goto~ (i.e., =C-c C-j=)
+
+     [[https://emacs.stackexchange.com/questions/36374/jit-lock-message-it-does-not-work-in-indirect-buffer-does-not-allow-me-to-use][jit-lock message...]]
+
+     #+BEGIN_QUOTE
+     If someone came to the same issue (or related), know that I solved it by not loading twice org
+     from different packages (Elpa and Melpa) in Emacs.
+     -- [[https://emacs.stackexchange.com/users/15574/rafael-nagel][Rafael Nagel]]
+     #+END_QUOTE
+
+     - ~jit-lock.el~ :: Just-in-time fontification, triggered by C redisplay code.
+
+       - ~(defun jit-lock-mode (arg) ...)~ :: ``Toggle Just-in-time Lock mode''
+
+            When in an indirect buffer, ~jit-lock-mode~ won't work, and this message appears.  That
+            begs the question why it appears during a call to ~org-goto~.
+
+     - Resolution ::
+                     My setup included an ~org~ directory inside of MacPorts EmacsMac
+                     ~Contents/Resources/lisp/~, as well as an ~org-9.2.2~ inside of my
+                     ~/.emacs.d/~ which I installed yesterday.  Upon removing the ~org~ directory
+                     and restarting, the error message no longer appeared and ~org-goto~ worked.
+                     No idea why problem occurred other than my system is loading too many packages
+                     because of the duplication.  <<mult-load-dirs>>This issue should probably be
+                     investigated.
+
+*** TODO Do Multiple Load Directories Interfere With Each Other
+
+    See [[mult-load-dirs][mult-load-dirs]]
+
 * Blogging with Org
 
   - [[https://explog.in/][expLog]] & https://explog.in/config.html
@@ -771,3 +869,59 @@
     - [[http://www.bobnewell.net/publish/35years/orgpublish.html][Publishing with Org-Publish]]
 
     - [[https://www.baty.net/2015/publishing-my-notes-using-org-mode/][Publishing My Notes Using Org Mode]]
+
+* Index
+  :PROPERTIES:
+  :index:    cp
+  :END:
+
+* EXPORT SETTINGS                                                  :noexport:
+
+** OPTIONS
+
+   #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+   #+OPTIONS: html-preamble:t html-scripts:t html-style:t
+   #+OPTIONS: html5-fancy:nil tex:t
+   #+INFOJS_OPT:
+
+** GENERAL
+
+   #+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.14)
+
+** TEXINFO EXPORTS
+
+   #+TEXINFO_FILENAME:mastering-org.info
+   #+TEXINFO_CLASS: info
+   #+TEXINFO_HEADER:
+   #+TEXINFO_POST_HEADER:
+   #+SUBTITLE:Version {{{version}}} {{{time(%F %R)}}}
+   #+SUBAUTHOR:
+   #+TEXINFO_DIR_CATEGORY:Org-Mode
+   #+TEXINFO_DIR_TITLE:Mastering Org-Mode
+   #+TEXINFO_DIR_DESC:How to master org-mode in a decade
+   #+TEXINFO_PRINTED_TITLE:How To Master Org-Mode In A Decade
+
+** LATEX EXPORTS
+
+   #+LATEX_CLASS: article
+   #+LATEX_CLASS_OPTIONS:
+   #+LATEX_HEADER:
+   #+LATEX_HEADER_EXTRA:
+   #+DESCRIPTION:
+   #+KEYWORDS:
+   #+SUBTITLE:
+   #+LATEX_COMPILER: pdflatex
+
+** HTML EXPORTS
+
+   #+HTML_DOCTYPE: xhtml-strict
+   #+HTML_CONTAINER: div
+   #+DESCRIPTION:
+   #+KEYWORDS:
+   #+HTML_LINK_HOME:
+   #+HTML_LINK_UP:
+   #+HTML_MATHJAX:
+   #+HTML_HEAD:
+   #+HTML_HEAD_EXTRA:
+   #+SUBTITLE:
+
