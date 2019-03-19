@@ -2,9 +2,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-03-15 Fri 16:59>
+#+DATE:<2019-03-18 Mon 14:20>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.3.0
+#+MACRO:version 0.3.1
 
 * Glossary
 
@@ -723,6 +723,15 @@
                      because of the duplication.  <<mult-load-dirs>>This issue should probably be
                      investigated.
 
+<<<<<<< HEAD
+=======
+     - Note :: *Important* you need to do this [install new Org-mode] in a session where no =.org=
+               file has been visited, i.e., where no Org built-in function have been
+               loaded. Otherwise autoload Org functions will mess up the
+               installation.[fn::https://orgmode.org/manual/Installation.html]] I probably
+               installed a new Org-mode after first visiting an org-file and ``messed things up.''
+
+>>>>>>> 9fecd2510bcc615810ebfee7dee9985d1ec2f47a
 *** TODO Do Multiple Load Directories Interfere With Each Other
 
     See [[mult-load-dirs][mult-load-dirs]]
