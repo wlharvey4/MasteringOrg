@@ -1111,7 +1111,6 @@ are suggested bindings:
      + =whitestart= beginning of white lines before first char
      + =t= everywhere except headline
      + =exc-hl-bol= everywhere except start of headline
-
 - ~org-cycle-global-at-bob~ ::
 
      When non-=nil=, ~<TAB>~ at very beginning of file (not on a headline), runs global cycling.
