@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-03-19 Tue 19:52>
+#+DATE:<2019-03-19 Tue 22:23>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.4.0
+#+MACRO:version 0.4.1
 
 * Glossary
 
@@ -564,11 +564,17 @@ are suggested bindings:
 ** Initial Visibility
 
 - By default, initial global state is OVERVIEW (show only top-level headlines)
+  + ~C-u C-u <TAB>~ switch to startup visibility state as determined by ~org-startup-folder~
+    variable and VISIBILITY properties.
+  + ~org-cycle-global-at-bob~ set to =t=, can use ~<TAB>~ to cycle when point is on the first line
 
 - When ~org-agenda-inihibit-startup~ is non-=nil=, Org does not honor the default visibility state
   when opening a file for the agenda (to speed things up).  It is by default set to =nil=.
 
-- configure with ~org-startup-folded~, or on a per-file basis.  Possible values are:
+- configure with ~org-startup-folded~, or on a per-file basis with =#+STARTUP:=, or per-item basis
+  with =VISIBILITY= property.
+
+  Possible values for the first two are:
   + overview|fold
   + content|
   + showall|nofold
@@ -1094,6 +1100,17 @@ are suggested bindings:
     backward-delete right before ellipses.
 
      Check if in invisible region before inserting or deleting a character.
+
+- ~org-cycle-emulate-tab~ ::
+
+     Default value is =t=.
+
+     Where should ~org-cycle~ emulate ~<TAB>~.
+     + =nil=
+     + =white= complete white lines
+     + =whitestart= beginning of white lines before first char
+     + =t= everywhere except headline
+     + =exc-hl-bol= everywhere except start of headline
 
 - ~org-cycle-global-at-bob~ ::
 
