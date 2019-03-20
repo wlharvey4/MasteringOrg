@@ -1,10 +1,11 @@
 # -*- mode: org; fill-column: 99; -*-
+
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-03-18 Mon 14:20>
+#+DATE:<2019-03-19 Tue 19:52>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.3.1
+#+MACRO:version 0.4.0
 
 * Glossary
 
@@ -36,7 +37,7 @@
     + Switch between buffers :: ~M-x org-switchb <RET>~ ~iswitchb~ like interface
 
     + Agenda Dispatcher :: The views are created through a dispatcher, which should be bound to a
-         [[*Global Key Bindings][global key]]---for example ~C-c a~.  After pressing ~C-c a~, an additional letter is required
+         [[*Global Keys][global key]]---for example ~C-c a~.  After pressing ~C-c a~, an additional letter is required
          to execute a command.  ~a~ produces a calendar-like /agenda/ view.  ~t~ produces a list of
          ~TODO~ items.  ~m~ produces headlines matching a ~TAGS~ expression.  There are others as
          well.  See [[https://orgmode.org/manual/Agenda-dispatcher.html#Agenda-dispatcher][Agender Dispatcher]].
@@ -145,28 +146,6 @@
        Finally, a hybrid footnote with both a label and an in-line definition, allowing further
        references to the same footnote.
        : [fn:name:a definition]
-** Global Key Bindings
-
-   Three Org commands should be accessible anywhere in Emacs (not just in Org); they should be
-   bound to GLOBALLY AVAILABLE KEYS (reserved for users): see [[info:elisp#Key%20Binding%20Conventions][info:elisp#Key Binding Conventions]]
-   #+begin_quote
-   Don’t define ‘C-c LETTER’ as a key in Lisp programs.  Sequences consisting of ‘C-c’ and a letter
-   (either upper or lower case) are reserved for users; they are the *only* sequences reserved for
-   users, so do not block them.
-   #+end_quote
-
-   - =C-c l= :: org-store-link
-
-                (global-set-key (kbd "C-c l") 'org-store-link)
-
-   - =C-c a= :: [[*Agenda][org-agenda]]
-
-                (global-set-key (kbd "C-c a") 'org-agenda)
-
-   - =C-c c= :: [[*Capture][org-capture]]
-
-                (global-set-key (kbd "C-c c") 'org-capture)
-
 ** Hyperlink
 
   - Hyperlink :: A link to another place in a file, another file, Usenet article, email, etc.
@@ -521,15 +500,163 @@
    6. custom view --- special searches and combinations of views
       + ~C-c a #~ ~(org-agenda-list-stuck-projects)~
 
+* Org Setup
+
+** Global Keys
+
+The three Org commands:
+
+- ‘org-store-link’
+- ‘org-capture’
+- ‘org-agenda’
+
+{{{noindent}}} ought to be accessible anywhere in Emacs, not just in Org buffers.
+To that effect, you need to bind them to globally available keys, like the ones reserved for users,
+[[info:elisp#Key%20Binding%20Conventions][Key Binding Conventions]],
+
+{{{noindent}}} i.e., sequences beginning with =C-c= and then a letter (upper or lower case).  Here
+are suggested bindings:
+
+- =C-c a= :: ~org-agenda~   ~(global-set-key (kbd "C-c a") 'org-agenda)~
+
+- =C-c c= :: ~org-capture~  ~(global-set-key (kbd "C-c c") 'org-capture)~
+
+- =C-c l= :: ~org-store-link~ ~(global-set-key (kbd "C-c l") 'org-store-link)~
+
+** Agenda and Capture Setup
+
+   - ~org-directory~: ::
+     Default location in which to look for Org files (originally =$HOME/org=).  Currently
+        =$HOME/.org=.  It is used when:
+     1. a capture template specifies a target file (no absolute path)
+     2. the value of variable ~org-agenda-files~ is a single file
+
+   - ~org-agenda-files~: ::
+     The files to be used for agenda display.  It is originally empty.
+     - If an entry is a directory, then all org-files in it will be part of the file list.
+     - If the value of the variable is a single file name, this file can contain a list of agenda
+       files, which can be given relative to ~org-directory~.  Tilde-expansion and ENVIRONMENT
+       variable substitution is also made.
+     - Entries may be added to and removed from this list with
+       - ~M-x org-agenda-file-to-front~
+       - ~M-x org-remove-file~
+
+   - ~org-default-notes-file~: ::
+        Default target for storing notes.  It is a fallback file for ~org-capture~, for templates
+        that do not specify a target file.
+     - Original value was: ~$HOME/.notes~
+     - Current value is: =$HOME/.org/notes.org=
+
+   - =C-c c= ~(org-capture)~: ::
+                       Capture something using a template from ~org-capture-templates~ and file
+                       it.  The captured text is inserted at its target location and an indirect
+                       buffer is opened allowing you to edit it.  When done, =C-c C-c= lets you
+                       continue with your work.
+     - =C-u C-c c= GOTO file without capturing anything
+
+   - ~org-capture-templates~: ::
+        Templates for the creation of new entries.  It's default value is =nil=.  Most target
+        specifications contain a file name.  If that file name is the empty string, it defaults to
+        ~org-default-notes-file~.  When an absolute path is not specified for a target, it is taken
+        as relative to ~org-directory~.
+     - [[help:org-capture-templates][Documentation]]
+
+** Initial Visibility
+
+- By default, initial global state is OVERVIEW (show only top-level headlines)
+
+- When ~org-agenda-inihibit-startup~ is non-=nil=, Org does not honor the default visibility state
+  when opening a file for the agenda (to speed things up).  It is by default set to =nil=.
+
+- configure with ~org-startup-folded~, or on a per-file basis.  Possible values are:
+  + overview|fold
+  + content|
+  + showall|nofold
+  + showeverything
+
+- org startup options on a per-file basis chosen by =#+STARTUP:= option.
+
+- Visibility property for individual entries;
+
+  =#+VISIBILITY: folded | children | content | all=
+
+- ~C-u C-u <TAB>~ Switch to startup visibility state
+
+- ~org-catch-invisible-edits~ can be used to help prevent unintended edits;
+
 * Basics
 
 ** Org Mode Basics
 
 - http://www.star.bris.ac.uk/bjm/org-basics.html
 
+** Headings
+
+** Todos
+
 * Editing
 
 * Navigating
+
+* Todos
+
+  TODO items are an integral part of the notes file, and intended to be integrated directly while
+  taking notes.  Simply mark an entry as being a TODO item, and the entire context from which the
+  TODO item emerged is always present.  While your notes become scattered throughout your files,
+  Org-mode provides methods to give you an overview of all the things that you have to do.
+
+  - A heading becomes a TODO item when it starts with =TODO=
+
+  - =C-c C-t= ~(org-todo)~: Rotate the TODO state; if fast selection is on (it is), prompt for a
+    keyword, but only after fast access keys have been assigned (not done by default).
+
+  - ~S-M-<RET>~: Insert a new TODO entry below
+
+  - ~S-<RIGHT> S-<LEFT>~ : Cycle through multiple keywords
+
+  - =C-c / t= ~(org-show-todo-tree)~: View TODO items in a sparse tree.
+
+  - =C-c / T=: Search for a specific TODO, or a list =KWD1|KWD2=
+
+  - =C-u C-u C-c / t=: Find all TODO states, both done and not done.
+
+  - ~M-x org-agenda t~ ~(org-todo-list)~: Show the global TODO list.
+
+** =TODO= Variables
+
+   - ~org-todo-keywords~ ::
+        List of TODO entry keyword sequences and their interpretation.
+
+        Original value is: ~((sequence "TODO" "DONE"))~
+
+   - ~org-use-fast-todo-selection~ ::
+        Only works when access keys have actually been assigned by the user.
+
+        Non-nil means use the fast todo selection scheme with ‘C-c C-t’.  When nil, fast selection
+        is never used.
+
+        When =prefix=, use fast selection scheme when called with a prefix arg, =C-u C-c C-t=
+
+        When =t=, when calling with a prefix, force cycling of TODO state.
+
+   - ~org-todo-state-tags-triggers~ ::
+        Tag changes that should be triggered by TODO state changes.  A list.
+
+* Agenda
+
+** Global TODO List
+
+   The global TODO list contains all unfinished TODO items formatted and collected into a single
+   place.
+
+   - =M-x org-agenda t= ~(org-todo-list)~: ::
+     ~(org-agenda)~ starts the agenda dispatcher.  Dispatch agenda commands to collect entries to
+        the agenda buffer.
+
+     =t= means to show the global TODO list.  This collects the TODO items from all agenda files (see Agenda
+        Views::) into a single buffer.
+
+     =T= or =C-u= allows you to select a specific TODO keyword or several using =|=
 
 * Capture
 
@@ -683,6 +810,35 @@
 *** Explansion
 
 *** In Context
+
+** Org Capture Customization
+*** Org Capture Group
+
+    Options concerning capturing new entries.
+
+    - Org Directory
+    - Org Default Notes File
+    - Org Reverse Note Order
+    - Org Datetree Add Timestamp
+
+    - Org Capture Bookmark
+    - Org Capture Templates
+    - Org Capture Templates Contexts
+    - Org Capture Use Agenda Date
+    - Org Capture Prepare Finalize Hook
+    - Org Capture Before Finalize Hook
+    - Org Capture After Finalize Hook
+
+*** Org Refile Group
+
+    - Org Refile Targets
+    - Org Log Refile
+    - Org Outline Path Complete In Steps
+    - Org Refile Active Region Within Subtree
+    - Org Refile Allow Creating Parent Nodes
+    - Org Refile Target Verify Function
+    - Org Refile Use Cache
+    - Org Refile Use Outline Path
 
 * Examples
 
@@ -886,6 +1042,120 @@
 
     - [[https://www.baty.net/2015/publishing-my-notes-using-org-mode/][Publishing My Notes Using Org Mode]]
 
+* Variables
+
+- ~org-agenda-dim-blocked-tasks~ ::
+
+     Non-=nil= means dim blocked tasks in the agenda display.  Default is non-=nil=.  While this
+     causes some overhead during agenda construction, it can be used to advantage.
+     [[help:org-agenda-dim-blocked-tasks]]
+
+- ~org-agenda-inhibit-startup~ ::
+
+     Default value is =nil=.
+
+     When =t=, inhibit startup when preparing agenda buffers (visibility state is not set).  Also
+     ignore =#+STARTUP:= setting when =t=.  The point of this variable is to speed up agenda
+     commands when Org files grow in size and number.
+
+- ~org-agenda-show-inherited-tags~ ::
+
+     Non-nil means show inherited tags in each agenda line.  Default value is =t=.  May be set to a
+     list of agenda types (same as ~org-agenda-use-tag-inheritance~).  When =nil=, never show
+     inherited tags in agenda lines.
+
+     When this option is set to ‘always’, it takes precedence over ‘org-agenda-use-tag-inheritance’
+     and inherited tags are shown in every agenda.
+
+- ~org-agenda-use-tag-inheritance~ ::
+
+     Allowed values are one or more of:
+
+  + =todo=
+  + =search=
+  + =agenda=
+
+  Setting this option to =nil= will speed up non-tags agenda views /a lot/.
+
+  List of agenda view types where to use tag inheritance.  The default value sets tags in every
+     agenda type, i.e., =(todo search agenda)=.  You may want the agenda to be aware of the
+     inherited tags anyway, e.g. for later tag filtering.
+
+  This variable has no effect if ‘org-agenda-show-inherited-tags’ is set to ‘always’.  In that
+     case, the agenda is aware of those tags.
+
+- ~org-catch-invisible-edits~ ::
+
+  + =nil=: do not check; just do invisible edits.  DEFAULT
+  + =error=: throw an error and do not edit
+  + =show=: make point visible, and do the requested edit
+  + =show-and-error=: make point visible, then throw an error and abort.
+  + =smart=: make point visible; do edit in some cases; basically, this allows insertion and
+    backward-delete right before ellipses.
+
+     Check if in invisible region before inserting or deleting a character.
+
+- ~org-cycle-global-at-bob~ ::
+
+     When non-=nil=, ~<TAB>~ at very beginning of file (not on a headline), runs global cycling.
+
+     *NOTE:* This works even if the first line holds a mode line.
+
+- ~org-insert-mode-line-in-empty-file~ ::
+
+     When non-=nil= and ~org-mode~ is called interactively on an empty file, insert =-*- mode: org
+     -*-= into the first line.
+
+- ~org-startup-folded~ ::
+
+     Non-=nil= means entering Org mode will switch to OVERVIEW.
+
+- ~org-tags-exclude-from-inheritance~ ::
+
+     List of tags that should never be inherited.  Default value is =nil=.  Opposite is
+     ~org-use-tag-inheritance~.
+
+- ~org-tags-match-list-sublevels~ ::
+
+     Non-=nil= means list also sublevels of headlines matching a search.  Default value is =t=.
+
+     When set to the symbol ‘indented’, sublevels are indented with leading dots.
+
+     Setting this variable to =nil= causes subtrees of a match to be skipped.
+
+     Applies to tags and property searches, and to stuck projects.
+
+     *NOTE:* This variable is semi-obsolete and probably should always be true.  It is better to
+     limit inheritance to certain tags using the variables ‘org-use-tag-inheritance’ and
+     ‘org-tags-exclude-from-inheritance’.
+
+- ~org-use-tag-inheritance~ ::
+
+     Non-=nil= means tags in levels apply also for sublevels.  Default value is =t=.  If this
+     option is =t=, a match early-on in a tree can lead to a large number of matches in the subtree
+     when constructing the agenda or creating a sparse tree.  If you only want to see the first
+     match in a tree, see ~orgs-tags-match-list-sublevels~.
+
+     When =nil=, only the tags directly given in a specific line apply there.
+
+     May be a list of tags to be inherited, or a regexp to match tags.
+
+* Commands
+
+- ~(org-cycle &optional ARG)~ ::
+
+      ~<TAB>~ Cycle the subtree visibility.
+
+      ~C-u <TAB>~ Global cycling, i.e., ~<S-TAB>~
+
+      ~C-u C-u <TAB>~ Switch to initial visibility
+
+- ~(org-global-cycle &optional ARG)~ ::
+
+     ~<S-TAB>~ | ~<C-u <TAB>~ Cycle the global visibility.
+
+     ~C-<N> <TAB>~ Show contents up to N levels.
+
 * Index
   :PROPERTIES:
   :index:    cp
@@ -940,4 +1210,8 @@
    #+HTML_HEAD:
    #+HTML_HEAD_EXTRA:
    #+SUBTITLE:
+
+** MACROS
+
+#+MACRO:noindent @@texinfo:@noindent@@
 
