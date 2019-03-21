@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-03-19 Tue 22:23>
+#+DATE:<2019-03-20 Wed 19:11>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.4.1
+#+MACRO:version 0.4.2
 
 * Glossary
 
@@ -125,6 +125,15 @@
        ~C-c C-x d~ :: ~(org-insert-drawer &optional ARG DRAWER)~; interactively insert a drawer at
        point; with an active region, put the region inside a drawer; with a prefix argument, insert
        a /property drawer/ (see [[property-drawer][Property Drawer]]; see [[logbook-drawer][Logbook Drawer]]).
+
+  - Property Drawer (~:PROPERTIES:...:END:~)<<property-drawer>> :: A drawer called ~:PROPERTIES:~,
+       inside of which are kept various individual properties.
+
+       ~C-u C-c C-x d~ :: (org-insert-drawer &optional ARG); insert a property drawer below the
+       current headline.
+
+  - Logbook Drawer (~:LOGBOOK:...:END:~)<<logbook-drawer>> :: A special drawer to store /state change notes/ and /clock
+       times/.  See [[state-change][State Change]].
 
 ** Footnote
 
@@ -267,17 +276,27 @@
 
   - PROPERTY (~:PROPERTY:value~) :: A property is a key-value pair associated with an entry.
        Depending on how one is set up, it can be associated with a single entry or with a tree, or
-       with every entry in a file.  Like a tag, a property is delimited on both ends by colons, so
-       this is a property: ~:A_PROPERTY:Some value~.  The key portion is case-insensitive.
+       with every entry in a file (see ~org-use-property-inheritance~).  Like a tag, a property is
+       delimited on both ends by colons, so this is a property: ~:A_PROPERTY:Some value~.  The key
+       portion is case-insensitive.  A property can have only one entry per property drawer.
 
-  - Property Drawer (~:PROPERTIES:...:END:~)<<property-drawer>> :: A drawer called ~:PROPERTIES:~,
-       inside of which are kept various individual properties.
+    - Define /allowed values/ for a property by setting a property =SOMETHING_ALL:value1 value2=
+      for it.  It is inherited.  The values are space-delimited list entries.  To create a
+      globally-inheritable property, use =#+PROPERTY:Something_ALL value1 value=; or set the
+      variable ~org-global-propertiers~.
 
-       ~C-u C-c C-x d~ :: (org-insert-drawer &optional ARG); insert a property drawer below the
-       current headline.
+    - To add to the value of an existing property, append =+= to the property name:
+      : #+PROPERTY: var foo=1
+      : #+PROPERTY: var+ bar=2
+      : :Genres+: additional value
 
-  - Logbook Drawer (~:LOGBOOK:...:END:~)<<logbook-drawer>> :: A special drawer to store /state change notes/ and /clock
-       times/.  See [[state-change][State Change]].
+
+  - Property Commands ::
+
+       - =C-c C-x p= ~(org-set-property)~: Set a property with prompts for name and value.  A
+         property drawer is created if necessary.
+
+       - =C-u M-x
 
 ** Refile
 
@@ -1106,11 +1125,11 @@ are suggested bindings:
      Default value is =t=.
 
      Where should ~org-cycle~ emulate ~<TAB>~.
-     + =nil=
-     + =white= complete white lines
-     + =whitestart= beginning of white lines before first char
-     + =t= everywhere except headline
-     + =exc-hl-bol= everywhere except start of headline
+  + =nil=
+  + =white= complete white lines
+  + =whitestart= beginning of white lines before first char
+  + =t= everywhere except headline
+  + =exc-hl-bol= everywhere except start of headline
 - ~org-cycle-global-at-bob~ ::
 
      When non-=nil=, ~<TAB>~ at very beginning of file (not on a headline), runs global cycling.
@@ -1121,6 +1140,20 @@ are suggested bindings:
 
      When non-=nil= and ~org-mode~ is called interactively on an empty file, insert =-*- mode: org
      -*-= into the first line.
+
+- ~org-global-properties~ ::
+
+     List of property/value pairs that can be inherited by any entry.  This list will be combined
+     with the constant ~org-global-properties-fixed~.
+
+- ~org-global-properties-fixed~ ::
+
+     List of property/value pairs that can be inherited by any entry.  These are fixed values, for
+     the preset properties.  Use ~org-global-properties~ to add to this list.
+
+     Its value is:
+     : (("VISIBILITY_ALL" . "folded children content all")
+     :  ("CLOCK_MODELINE_TOTAL_ALL" . "current today repeat all auto"))
 
 - ~org-startup-folded~ ::
 
@@ -1145,6 +1178,18 @@ are suggested bindings:
      limit inheritance to certain tags using the variables ‘org-use-tag-inheritance’ and
      ‘org-tags-exclude-from-inheritance’.
 
+- ~org-use-property-inheritance~ ::
+
+     Non-=nil= means properties apply also for sublevels.  It is not on by default to prevent slow
+     searches.  When =nil=, only the properties directly given in the current entry count.
+
+     The value may also be a list of properties that should have inheritance, or a regular
+     expression matching properties that should be inherited.
+
+     Some special properties use inheritance under special circumstances: CATEGORY, ARCHIVE,
+     COLUMNS, and the properties ending in "_ALL" when they are used as descriptor for valid values
+     of a property.
+
 - ~org-use-tag-inheritance~ ::
 
      Non-=nil= means tags in levels apply also for sublevels.  Default value is =t=.  If this
@@ -1160,17 +1205,39 @@ are suggested bindings:
 
 - ~(org-cycle &optional ARG)~ ::
 
-      ~<TAB>~ Cycle the subtree visibility.
+  - ~<TAB>~ Cycle the subtree visibility.
 
-      ~C-u <TAB>~ Global cycling, i.e., ~<S-TAB>~
+  - ~C-u <TAB>~ Global cycling, i.e., ~<S-TAB>~
 
-      ~C-u C-u <TAB>~ Switch to initial visibility
+  - ~C-u C-u <TAB>~ Switch to initial visibility
 
 - ~(org-global-cycle &optional ARG)~ ::
 
-     ~<S-TAB>~ | ~<C-u <TAB>~ Cycle the global visibility.
+  - ~<S-TAB>~ | ~<C-u <TAB>~ Cycle the global visibility.
 
-     ~C-<N> <TAB>~ Show contents up to N levels.
+  - ~C-<N> <TAB>~ Show contents up to N levels.
+
+- ~(org-insert-drawer &optional ARG DRAWER)~ ::
+
+  - =C-c C-x d=: insert drawer interactively at point
+
+  - =C-u C-c C-x d=: insert a PROPERTY drawer into the current entry.  (same as next)
+
+  - =C-u M-x org-insert-drawer=: Insert a PROPERTY drawer into the current entry.
+
+- ~(org-property-action)~ ::
+
+     =C-c C-c=: Do an action on properties.  With point in a property drawer, this executes
+     property commands.  A menu is presented.
+
+  - =s=: set
+  - =d=: delete
+  - =D=: global delete
+  - =c=: compute property
+
+- ~(org-set-property PROPERTY VALUE)~ ::
+
+  - =C-c C-x p=: In the current entry, set PROPERTY to VALUE
 
 * Index
   :PROPERTIES:
