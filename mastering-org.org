@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-03-20 Wed 19:11>
+#+DATE:<2019-04-02 Tue 10:11>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.4.2
+#+MACRO:version 0.4.3
 
 * Glossary
 
@@ -541,6 +541,63 @@ are suggested bindings:
 - =C-c c= :: ~org-capture~  ~(global-set-key (kbd "C-c c") 'org-capture)~
 
 - =C-c l= :: ~org-store-link~ ~(global-set-key (kbd "C-c l") 'org-store-link)~
+
+** Set Up Structure Templates and Org Tempo Snippets
+
+#+CINDEX:snippets
+#+CINDEX:Org Tempo
+#+CINDEX:templates, structure
+#+CINDEX:blocks
+#+CINDEX:block templates
+Use key bindings to quickly insert empty structural blocks or wrap existing text in blocks.
+
+  #+CINDEX:@code{org-modules}
+- ~org-modules~ Org Tempo ::
+
+     ENABLE ORG TEMPO by adding it to ~org-modules~ or by loading it in the Emacs init file using:
+     : (require 'org-tempo)
+
+  #+CINDEX:@code{org-tempo-keywords-alist}
+- ~org-tempo-keywords-alist~ ::
+
+     Org Tempo expands snippets to structures defined in this and next alist variable.  ORG TEMPO MUST
+     FIRST BE LOADED TO WORK.  SEE ABOVE.
+
+     This is an alist of KEY characters and corresponding KEYWORDS, just like
+     ‘org-structure-template-alist’.  The tempo snippet "<KEY" will be expanded using the KEYWORD
+     value.  It's initial value is:
+
+     #+begin_example
+     (("L" . "latex")
+      ("H" . "html")
+      ("A" . "ascii")
+      ("i" . "index"))
+     #+end_example
+
+#+CINDEX:@code{org-structure-template-alist}
+- ~org-structure-template-alist~ ::
+
+     An alist of keys and structure block types used by ~org-insert-structure-template~.
+     VALUES CAN BE CUSTOMIZED (added to, modified, deleted).  It's initial value is:
+
+     #+begin_example
+     (("a" . "export ascii")
+      ("c" . "center")
+      ("C" . "comment")
+      ("e" . "example")
+      ("E" . "export")
+      ("h" . "export html")
+      ("l" . "export latex")
+      ("q" . "quote")
+      ("s" . "src")
+      ("v" . "verse"))
+     #+end_example
+
+     #+CINDEX:@code{org-insert-structure-template}
+- ~org-insert-structure-template~ (=C=c C-,=) ::
+
+     Prompt (using keys, e.g., =a=, =c=, etc.), for a type of block structure, and insert the block
+     at point.  If region is active, wrap it in the block.  =#+BEGIN_<TYPE> ... #+END_<TYPE>=
 
 ** Agenda and Capture Setup
 
@@ -1155,9 +1212,18 @@ are suggested bindings:
      : (("VISIBILITY_ALL" . "folded children content all")
      :  ("CLOCK_MODELINE_TOTAL_ALL" . "current today repeat all auto"))
 
+- ~org-modules~ ::
+
+     Modules that should always be loaded together with ~org.el~.
+
 - ~org-startup-folded~ ::
 
      Non-=nil= means entering Org mode will switch to OVERVIEW.
+
+- ~org-structure-template-alist~ ::
+
+     An alist of keys and structure block types used by ‘org-insert-structure-template’ and Org
+     Tempo.
 
 - ~org-tags-exclude-from-inheritance~ ::
 
@@ -1177,6 +1243,11 @@ are suggested bindings:
      *NOTE:* This variable is semi-obsolete and probably should always be true.  It is better to
      limit inheritance to certain tags using the variables ‘org-use-tag-inheritance’ and
      ‘org-tags-exclude-from-inheritance’.
+
+- ~org-tempo-keywords-alist~ ::
+
+     This is an alist of KEY characters and corresponding KEYWORDS, just like
+     ‘org-structure-template-alist’.  The tempo snippet =<KEY= is expanded.
 
 - ~org-use-property-inheritance~ ::
 
