@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-04-02 Tue 10:11>
+#+DATE:<2019-04-17 Wed 09:37>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.4.3
+#+MACRO:version 0.5.0
 
 * Glossary
 
@@ -520,6 +520,8 @@
       + ~C-c a #~ ~(org-agenda-list-stuck-projects)~
 
 * Org Setup
+Org has more than 500 variables for customization.  Org also has per-file settings for some
+variables
 
 ** Global Keys
 
@@ -541,6 +543,176 @@ are suggested bindings:
 - =C-c c= :: ~org-capture~  ~(global-set-key (kbd "C-c c") 'org-capture)~
 
 - =C-c l= :: ~org-store-link~ ~(global-set-key (kbd "C-c l") 'org-store-link)~
+
+** Global Defaults
+
+- =org-agenda-inhibit-startup= ::
+
+     Inhibit startup when preparing agenda buffers.  Current value is =nil=.
+
+     When this variable is =t=, the initialization of the Org agenda buffers is inhibited (variable
+     =org-startup-folded= is ignored): e.g. the visibility state is not set, the tables are not
+     re-aligned, etc.
+
+- =org-display-custom-times= ::
+
+     Non-=nil= means overlay custom formats over all time stamps.  Current value is =nil=.
+     Per-file setting:
+     : #+STARTUP: customtime
+
+- =org-footnote-auto-adjust= ::
+
+     Non-nil means automatically adjust footnotes after insert/delete.  Default value is =nil=.
+     Current value is =t=.
+
+     When this is t, after each insertion or deletion of a footnote, simple =fn:N= footnotes will
+     be renumbered, and all footnotes will be sorted.  If you want to have just sorting or just
+     renumbering, set this variable to =sort= or =renumber=.  Per-file settings:
+     : #+STARTUP: fnadjust | nofnadjust
+
+- =org-footnote-auto-label= ::
+
+     Non-=nil= means define automatically new labels for footnotes.  Current valus is =t=.
+     Possible values are:
+     - =nil= : Prompt the user for each label.
+     - =t=: Create unique labels of the form =[fn:1]=, =[fn:2]=, etc.
+     - =confirm= : Like t, but let the user edit the created value.
+     - =random= : Automatically generate a unique, random label.
+
+- =org-footnote-define-inline= ::
+
+     Non-=nil= means define footnotes inline, at reference location.  Current value is =nil=.  When
+     =nil=, footnotes will be defined in a special section near the end of the document.  When =t=,
+     the =[fn:label:definition]= notation will be used to define the footnote at the reference
+     position.
+
+- =org-hide-block-startup= ::
+
+     Non-=nil= means entering Org mode will fold all blocks.  Current value is =nil=.  Per-file
+     settings:
+     : #+STARTUP: hideblocks | showblocks
+
+- =org-hide-leading-stars= ::
+
+     Non-=nil= means hide the first N-1 stars in a headline.  Default value is =nil=.  Per-file
+     settings:
+     : #+STARTUP: hidestars | showstars
+
+- =org-log-done= ::
+
+                    Information to record when a task moves to the DONE state.
+
+                    Possible values are:
+                    - nil :: Don’t add anything, just change the keyword
+                    - time :: Add a time stamp to the task
+                    - note :: Prompt for a note and add it with template ‘org-log-note-headings’
+
+- =org-log-note-clock-out= ::
+
+     Non-=nil= means record a note when clocking out of an item.  Current value is =nil=.  Per-file
+     settings:
+     : #+STARTUP: lognoteclock-out | nolognoteclock-out
+
+- =org-log-repeat= ::
+
+     Non-=nil= means record moving through the DONE state when triggering repeat.  Current value is
+     =time=.  Possible values are:
+     - =nil= don't force a record
+     - =time= record a time stamp
+     - =note= prompt for a note and add it with template =org-log-note-headings=
+
+     This variable forces taking a note.
+
+     Per-file settings are:
+     : #+STARTUP: nologrepeat | logrepeat | lognoterepeat
+
+     You can have local logging settings for a subtree by setting the LOGGING property to one or
+     more of these keywords.
+
+- =org-odd-levels-only= ::
+
+     Non-=nil= means skip even levels and only use odd levels for the outline.  Current value is
+     =nil=.  Per-file settings:
+     : #+STARTUP: odd | oddeven
+
+- =org-pretty-entities= ::
+
+     Non-=nil= means show entities as UTF8 characters.  Default value is =nil=.  Current value is
+     =t=.  Per-file settings:
+     : #+STARTUP: entitiespretty | entitiesplain
+
+- =org-put-time-stamp-overlays= ::
+
+- =org-tag-alist= ::
+
+     Default tags available in Org files.  Current value is =nil=.  The value of this variable is
+     an =alist=.  One of:
+     : (TAG) a string
+     : (TAG . SELECT) a character
+     : (SPECIAL)
+     where =SPECIAL= is one of
+     : :startgroup | :startgrouptag | :grouptags | :endgroup | :endgrouptag | :newline
+     These keywords are used to define a hierarchy of tags.
+
+     Per-file setting:
+     : #+TAGS: tag1 tag2
+
+- =org-time-stamp-custom-formats= ::
+
+     Custom formats for time stamps.  See =format-time-string= for the syntax.  These are overlaid
+     over the default ISO format if the variable =org-display-custom-times= is set.
+
+- =org-startup-align-all-tables= ::
+
+     Non-nil means align all tables when visiting a file.  Current value is =nil=.  Per-file
+     settings:
+     : #+STARTUP: align | noalign
+
+- =org-startup-folded= ::
+
+     Non-=nil= means entering Org mode will switch to OVERVIEW.  Current value is =t=.  Per-file
+     settings:
+     : #+STARTUP: fold (overview) | nofold (showall) | content | showeverything
+
+- =org-startup-indented= ::
+
+     Non-=nil= means turn on =org-indent-mode= on startup.  Default value is =nil=.  Current value
+     is =Globally= (i.e., =t=).  Per-file settings:
+     : #+STARTUP: indent
+     : #+STARTUP: noindent
+
+- =org-startup-shrink-all-tables= ::
+
+     Non-nil means shrink all table columns with a width cookie.  Current value is =nil=.  Per-file
+     setting:
+     : #+STARTUP: shrink
+
+- =org-startup-with-inline-images= ::
+
+     Non-nil means show inline images when loading a new Org file.  Current value is =nil=.
+     Per-file settings:
+     : #+STARTUP: inlineimages | noinlineimages
+
+- =org-todo-keywords= ::
+
+     List of TODO entry keyword sequences and their interpretation.  It is a list of sequences.
+     Current value is: ~((sequence "TODO" "DONE"))~.  Refer to [[help:org-todo-keywords][Documentation]] for extensive details.
+     Per-file settings:
+     : #+TODO:
+     : #+SEQ_TODO:
+
+- =org-time-stamp-overlay-formats= ::
+
+     Not current defined.  [[info:org#In-buffer%20Settings][To turn on custom format overlays over timestamps]]
+
+** In-Buffer Settings
+In-buffer settings start with =#+=, followed by a keyword, a colon, and then a word for each
+setting.  Org accepts multiple settings on the same line.  Org also accepts multiple lines for a
+keyword.  [[info:org#In-buffer%20Settings][Summary]].
+
+- =C-c C-c= :: Activate new settings added to an Org file
+
+- =#+STARTUP: showall= :: an example of an in-buffer setting.
 
 ** Set Up Structure Templates and Org Tempo Snippets
 
@@ -666,6 +838,100 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 - ~org-catch-invisible-edits~ can be used to help prevent unintended edits;
 
+** Orb Babel Setup
+
+*** Header Args
+- =org-babel-default-header-args= ::
+
+     <<obdha>>System-wide values of header arguments, which defaults to the following value, along with an
+     example of how to modify it in the ~.emacs~ file:
+
+     #+begin_src emacs-lisp
+     ((:session . "none")
+      (:results . "replace")
+      (:exports . "code")
+      (:cache   . "no")
+      (:noweb   . "no")
+      (:hlines  . "no")
+      (:tangle  . "no"))
+
+     (setq org-babel-default-header-args
+         (cons '(:noweb . "yes")
+             (assq-delete-all :noweb org-babel-default-header-args)))
+     #+end_src
+
+     Each language can have separate default header arguments by customizing the variable
+     =org-babel-default-header-args:<LANG>=, where =<LANG>= is the name of the language.
+
+- =PROPERTY= keyword ::
+
+     For header arguments applicable to the buffer, use ‘PROPERTY’ keyword ([[*Property][Property]]) anywhere in
+     the Org file.
+
+     : #+PROPERTY: header-args:R  :session *R*
+     : #+PROPERTY: header-args    :results silent
+
+- =PROPERTIES= drawer ::
+
+     Header arguments set through Org’s property drawers apply at the sub-tree level on down.  Org
+     ignores =org-use-property-inheritance= setting.  They override properties set in
+     =org-babel-default-header-args=.  Properties can also define language-specific header
+     arguments.
+
+     #+begin_src emacs-lisp
+     * heading
+       :PROPERTIES:
+       :header-args:    :cache yes
+       :END:
+
+     * another heading
+       :PROPERTIES:
+       :header-args:clojure:    :session *clojure-1*
+       :header-args:R:          :session *R*
+       :END:
+     #+end_src
+
+- =HEADER= keyword ::
+
+     Set header arguments for a specific source code block.  Takes precedence over Properties and
+     defaults.
+     : #+HEADER: :var data=2
+
+*** Code Evaluation
+
+- =org-confirm-babel-evaluate= ::
+
+     Variable {{{samp(confirm before evaluation)}}}.  Require confirmation before interactively
+     evaluating code blocks in Org buffers.  The default value of this variable is =t=, meaning
+     confirmation is required for any code block evaluation.  Set to =nil= to turn off confirmation
+     prompts before code evaluation.
+
+     This variable can also be set to a function which takes two arguments:
+     1. the language of the code block; and
+     2. the body of the code block.
+     Such a function should then return a non-=nil= value if the user should be prompted for
+     execution or =nil= if no prompt is required.  Each source code language can be handled
+     separately through this function argument.
+
+- =org-babel-no-eval-on-ctrl-c-ctrl-c= ::
+
+     Remove code block evaluation from the ‘C-c C-c’ key binding.  Default value is =nil=, meaning
+     retain the key binding.
+
+- =org-confirm-shell-link-function= ::
+
+     Non-=nil= means ask for confirmation before executing shell links.
+     : [[shell:<code>][Label]]
+     Just change it to ‘y-or-n-p’ if you want to confirm with a single keystroke rather than having
+     to type "yes".  It's current value is ~yes-or-no-p~.
+
+- =org-confirm-elisp-link-function= ::
+
+     Non-=nil= means ask for confirmation before executing Emacs Lisp links.
+     : [[elisp:(<code>)][Label]]
+     Just change it to ‘y-or-n-p’ if you want to confirm with a single keystroke rather than having
+     to type "yes".
+
 * Basics
 
 ** Org Mode Basics
@@ -675,6 +941,11 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 ** Headings
 
 ** Todos
+
+** Babel
+- https://orgmode.org/worg/org-contrib/babel/
+
+
 
 * Editing
 
@@ -1166,6 +1437,24 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
   This variable has no effect if ‘org-agenda-show-inherited-tags’ is set to ‘always’.  In that
      case, the agenda is aware of those tags.
 
+- =org-babel-default-header-args= ::
+
+    Default arguments to use when evaluating a source block.  [[obdha][Babel default]].  It's default value is:
+
+    #+begin_src emacs-lisp
+    ((:session . "none")
+     (:results . "replace")
+     (:exports . "code")
+     (:cache . "no")
+     (:noweb . "no")
+     (:hlines . "no")
+     (:tangle . "no"))
+    #+end_src
+
+- =org-babel-no-eval-on-ctrl-c-ctrl-c= ::
+
+     Remove code block evaluation from the ‘C-c C-c’ key binding.
+
 - ~org-catch-invisible-edits~ ::
 
   + =nil=: do not check; just do invisible edits.  DEFAULT
@@ -1176,6 +1465,19 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
     backward-delete right before ellipses.
 
      Check if in invisible region before inserting or deleting a character.
+
+- =org-confirm-babel-evaluate= ::
+
+     Confirm before evaluation.  Require confirmation before interactively evaluating code blocks
+     in Org buffers.  The default value of this variable is =t=.
+
+- =org-confirm-elisp-link-function= ::
+
+     Non-=nil= means ask for confirmation before executing Emacs Lisp links.
+
+- =org-confirm-shell-link-function= ::
+
+     Non-=nil= means ask for confirmation before executing shell links.
 
 - ~org-cycle-emulate-tab~ ::
 
@@ -1368,4 +1670,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 ** MACROS
 
 #+MACRO:noindent @@texinfo:@noindent@@
+#+MACRO:code @@texinfo:@code{@@$1@@texinfo:}@@
+#+MACRO:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
