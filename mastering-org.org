@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-04-17 Wed 10:06>
+#+DATE:<2019-04-17 Wed 10:12>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.5.1
+#+MACRO:version 0.5.2
 
 * Glossary
 
@@ -925,7 +925,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      Variable {{{samp(confirm before evaluation)}}}.  Require confirmation before interactively
      evaluating code blocks in Org buffers.  The default value of this variable is =t=, meaning
      confirmation is required for any code block evaluation.  Set to =nil= to turn off confirmation
-     prompts before code evaluation.
+     prompts before code evaluation.  Current value is =nil=.
 
      This variable can also be set to a function which takes two arguments:
      1. the language of the code block; and
