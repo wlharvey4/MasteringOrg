@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-04-17 Wed 09:37>
+#+DATE:<2019-04-17 Wed 10:06>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.5.0
+#+MACRO:version 0.5.1
 
 * Glossary
 
@@ -560,6 +560,8 @@ are suggested bindings:
      Per-file setting:
      : #+STARTUP: customtime
 
+     The formats are defined through the variable =org-time-stamp-custom-formats=.
+
 - =org-footnote-auto-adjust= ::
 
      Non-nil means automatically adjust footnotes after insert/delete.  Default value is =nil=.
@@ -693,6 +695,29 @@ are suggested bindings:
      Per-file settings:
      : #+STARTUP: inlineimages | noinlineimages
 
+- =org-time-stamp-custom-formats= ::
+
+     Custom formats for time stamps.  See the function =format-time-string= for the syntax.
+
+     Current value is: ~("<%m/%d/%y %a>" . "<%m/%d/%y %a %H:%M>")~
+
+     These are overlaid over the default ISO format if the variable =org-display-custom-times= is
+     set.
+
+- =org-time-stamp-rounding-minutes= ::
+
+     Number of minutes to round time stamps to.  Default value was =(0 5).  Current value is =(6
+     6)=.
+
+     These are two values, the first applies when first creating a time stamp. The second applies
+     when changing it with the commands ‘S-up’ and ‘S-down’.  When changing the time stamp, this
+     means that it will change in steps of N minutes, as given by the second value.  When a setting
+     is 0 or 1, insert the time unmodified.
+
+- =org-time-stamp-overlay-formats= ::
+
+     Not current defined.  [[info:org#In-buffer%20Settings][To turn on custom format overlays over timestamps]]
+
 - =org-todo-keywords= ::
 
      List of TODO entry keyword sequences and their interpretation.  It is a list of sequences.
@@ -700,10 +725,6 @@ are suggested bindings:
      Per-file settings:
      : #+TODO:
      : #+SEQ_TODO:
-
-- =org-time-stamp-overlay-formats= ::
-
-     Not current defined.  [[info:org#In-buffer%20Settings][To turn on custom format overlays over timestamps]]
 
 ** In-Buffer Settings
 In-buffer settings start with =#+=, followed by a keyword, a colon, and then a word for each
