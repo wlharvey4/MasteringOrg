@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-05-07 Tue 04:05>
+#+DATE:<2019-05-07 Tue 04:21>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.6.0
+#+MACRO:version 0.6.1
 
 * Glossary
 
@@ -284,9 +284,11 @@
     - with a tree, or
     - with every entry in a file.
 
-    Like a tag, a property is delimited on both ends by colons, so this is a property:
-    =:A_PROPERTY:Some value=.  The key portion is case-insensitive.  A property can have only one
-    entry per property drawer.
+    When they are associated with a single entry or with a tree they need to be inserted into a
+       special drawer with the name =PROPERTIES=.
+
+    If you want to set properties that can be inherited by any entry in a file, use a line like:
+    : #+PROPERTY: var foo=1
 
     - Define /allowed values/ for a property by setting a property =something_ALL:value1 value2=
       for it or set the variable ~org-global-propertiers~.  It is inherited.  The values are
@@ -294,9 +296,25 @@
       : #+PROPERTY:something_ALL value1 value2
 
     - To add to the value of an existing property, append =+= to the property name:
-      : #+PROPERTY: var foo=1
       : #+PROPERTY: var+ bar=2
+      It is also possible to add to the values of inherited properties:
       : :Genres+: additional value
+
+
+  - Property Syntax ::
+
+       Like a tag, a property is delimited on both ends by colons, so this is a property:
+       =:A_PROPERTY:Some value=.  The key portion is case-insensitive.  A property can have only
+       one entry per property drawer.
+
+       #+BEGIN_EXAMPLE
+       *** A Heading
+           :PROPERTIES:
+           :Title:    value
+           :Composer: value
+           :Artist:   value
+           :END:
+       #+END_EXAMPLE
 
 
   - Property Commands ::
@@ -304,7 +322,7 @@
        - =C-c C-x p= ~(org-set-property)~: Set a property with prompts for name and value.  A
          property drawer is created if necessary.
 
-       - =C-u M-x=
+       - =C-u M-x org-insert-drawer=: Insert a property drawer into the current entry.
 
   - ~org-use-property-inheritance~ :: Default value is =nil=.
 
@@ -323,8 +341,6 @@
        - ARCHIVE,
        - COLUMNS, and the properties ending in "_ALL" when they are used as descriptor for valid
          values of a property.
-
-
 ** Publishing
 Publishing Management System
 
