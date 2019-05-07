@@ -3,9 +3,9 @@
 #+TITLE:Mastering Org-Mode
 #+AUTHOR:WLHarvey4
 #+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-04-17 Wed 10:12>
+#+DATE:<2019-05-07 Tue 04:05>
 #+VERSION:{{{version}}}
-#+MACRO:version 0.5.2
+#+MACRO:version 0.6.0
 
 * Glossary
 
@@ -274,16 +274,24 @@
 
 ** Property
 
-  - PROPERTY (~:PROPERTY:value~) :: A property is a key-value pair associated with an entry.
-       Depending on how one is set up, it can be associated with a single entry or with a tree, or
-       with every entry in a file (see ~org-use-property-inheritance~).  Like a tag, a property is
-       delimited on both ends by colons, so this is a property: ~:A_PROPERTY:Some value~.  The key
-       portion is case-insensitive.  A property can have only one entry per property drawer.
+  - PROPERTY (~:PROPERTY:value~) ::
 
-    - Define /allowed values/ for a property by setting a property =SOMETHING_ALL:value1 value2=
-      for it.  It is inherited.  The values are space-delimited list entries.  To create a
-      globally-inheritable property, use =#+PROPERTY:Something_ALL value1 value=; or set the
-      variable ~org-global-propertiers~.
+       A *property* is a key-value pair associated with an entry.
+
+       Depending on how one is set up, it can be associated with (see
+       ~org-use-property-inheritance~):
+    - a single entry or
+    - with a tree, or
+    - with every entry in a file.
+
+    Like a tag, a property is delimited on both ends by colons, so this is a property:
+    =:A_PROPERTY:Some value=.  The key portion is case-insensitive.  A property can have only one
+    entry per property drawer.
+
+    - Define /allowed values/ for a property by setting a property =something_ALL:value1 value2=
+      for it or set the variable ~org-global-propertiers~.  It is inherited.  The values are
+      space-delimited list entries:
+      : #+PROPERTY:something_ALL value1 value2
 
     - To add to the value of an existing property, append =+= to the property name:
       : #+PROPERTY: var foo=1
@@ -296,8 +304,198 @@
        - =C-c C-x p= ~(org-set-property)~: Set a property with prompts for name and value.  A
          property drawer is created if necessary.
 
-       - =C-u M-x
+       - =C-u M-x=
 
+  - ~org-use-property-inheritance~ :: Default value is =nil=.
+
+       When =nil=, only the properties directly given in the current entry count.
+
+       Non-=nil= means properties apply also for sublevels.
+
+       When =t=, every property is inherited.
+
+       The value may also be a list of properties that should have inheritance, or a regular
+       expression matching properties that should be inherited.
+
+       However, note that some special properties use inheritance under special circumstances (not
+       in searches).  Examples are
+       - CATEGORY,
+       - ARCHIVE,
+       - COLUMNS, and the properties ending in "_ALL" when they are used as descriptor for valid
+         values of a property.
+
+
+** Publishing
+Publishing Management System
+
+- automatic HTML conversion of projects composed of interlinked Org files
+- automatically upload your exported HTML pages and related attachments, such as images and source
+  code files, to a web server.
+- convert files into PDF,
+- combine HTML and PDF conversion so that files are available in both formats on the server.
+
+
+/Publishing/ means that a file is copied to the destination directory and possibly transformed in
+the process.  The default transformation is to export Org files as HTML files through the function
+~org-publish-org-to-html~, which calls the HTML exporter.
+
+But you can also publish your content as PDF files using /org-publish-org-to-pdf/, or as ASCII,
+Texinfo, etc., using the corresponding functions.
+
+*** Configuration
+- /org-publish-project-alist/ ::
+
+     Publishing is configured almost entirely through setting the value of one variable, called
+     /org-publish-project-alist/.
+
+     Each element of the list configures one project.  Projects are configured by specifying
+     property values.  An element may be in one of the two following forms:
+
+  1. =("project-name" :property value :property value ...)= a well-formed property list with
+     alternating keys and values,
+
+  2. =("project-name" :components ("project-name" "project-name" ...))= the individual members of
+     the =:components= property are taken to be sub-projects, which group together files requiring
+     different publishing options.
+
+
+  - Project ::
+
+               A *project* defines the set of files that are to be published, as well as the
+               publishing configuration to use when publishing those files.
+
+  - Meta-project ::
+
+                    All the components are also published, in the sequence given.
+
+*** Properties
+  - Properties (mandatory) ::
+
+    - =:base-directory= ::
+         Directory containing publishing source files.
+
+         By default, all files with extension =.org= in the base directory are considered part of
+         the project.  This can be modified.
+
+    - =:publishing-directory= ::
+         Directory where output files are published.
+
+         You can directly publish to a *webserver* using a file name syntax appropriate for the
+         Emacs ~tramp~ package.  Or you can publish to a local directory and use *external tools*
+         to upload your website.
+
+    - =:preparation-function= ::
+         Function or list of functions to be called before starting the publishing process (for
+         example, to run ~make~ for updating files to be published.)  Each preparation function is
+         called with a single argument, the /project property list/.
+
+    - =:completion-function= ::
+         Function or list of functions called after finishing the publishing process (or example,
+         to change permissions of the resulting files).  Each completion function is called with a
+         single argument, the /project property list/.
+
+  - Properties (optional) ::
+
+    - =:base-extension= :: extension of source files as a regular expession.  Set this to the
+         symbol =any= if you want to get all files in =:base-directory=, even without extension.
+
+    - =:exclude= :: Regular expression to match file names that should not be published.
+
+    - =:include= :: List of files to be included regardless of =:base-extension= and =:exclude=.
+
+    - =:recursive= :: Non-=nil= means, check base-directory recursively for files to publish.
+
+
+*** Publishing
+- Publishing ::
+
+  - ~org-publish-org-to-html~ ::
+
+  - ~org-publish-org-to-pdf~ ::
+
+  - ~org-publish-org-to-org~ ::
+
+       This produces ~file.org~ and puts it in the publishing directory.
+
+       Set =:htmlized-source= to =t= to get an htmlized version of this file ~file.org.html~.
+
+  - ~org-publish-attachment~ ::  Other files like images only need to be copied to the publishing
+       destination via this function.
+
+  - =:publishing-function= ::
+
+       For non-Org files, you always need to specify the =:publishing-function=: Function executing
+       the publication of a file.  This may also be a list of functions, which are all called in
+       turn.  The function should take the specified file, make the necessary transformation, if
+       any, and place the result into the destination folder.
+
+       The function must accept three arguments:
+
+    1. a property list containing at least a =:publishing-directory= property
+
+    2. the name of the file to be published
+
+    3. the path to the publishing directory of the output file
+
+  - =:htmlized-source= ::
+
+       Non-nil means, publish htmlized source.
+
+
+- Export Options ::
+
+                    The *property list* can be used to set many export options for the HTML and
+                    LaTeX exporters.  In most cases, these properties correspond to /user
+                    variables/ in Org.  When a property is given a value in
+                    ~org-publish-project-alist~, its setting overrides the value of the
+                    corresponding user variable, if any, during publishing.  Options set within a
+                    file override everything.
+
+                    [[https://orgmode.org/manual/Publishing-options.html#Publishing-options][Export Options]]
+
+- Publishing Links ::
+
+     To create a link from one Org file to another, use:
+     : ‘[[file:foo.org][The foo]]’
+     : ‘[[file:foo.org]]’
+     When published, this link becomes a link to ‘foo.html’.  If you also publish the Org source
+     file and want to link to it, use an ‘http’ link instead of a ‘file:’ link.  You may also link
+     to related files, such as images.
+
+     links between published documents can contain some search option:
+     : '[[file:foo.org::*heading]]'
+     : '[[file:foo.org::#custom-id]]'
+     : '[[file:foo.org::target]]'
+
+- Site Map ::
+
+              The following properties may be used to control publishing of a map of files for a
+              given project.
+
+              [[https://orgmode.org/manual/Site-map.html#Site-map][Site Map]]
+
+- Index ::
+
+           Org mode can generate an index across the files of a publishing project.
+
+  - =:makeindex= ::
+
+                    When non-nil, generate an index in the file ~theindex.org~ and publish
+                    it as ~theindex.html~.  The file only contains a statement
+                    : #+INCLUDE: "theindex.inc"’.
+                    You can then build around this include statement by adding a title,
+                    style information, etc.
+
+  - =INDEX= Keyword ::
+
+       Index entries are specified with =INDEX= keyword.  An entry that contains an exclamation
+       mark creates a sub item.
+
+       #+BEGIN_EXAMPLE
+       *** Curriculum Vitae
+       #+INDEX: CV
+       #+INDEX: Application!CV
+       #+END_EXAMPLE
 ** Refile
 
   - REFILE :: Refile or copy /captured/ data (see [[capture][Capture]])
@@ -965,8 +1163,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 ** Babel
 - https://orgmode.org/worg/org-contrib/babel/
-
-
 
 * Editing
 
@@ -1644,7 +1840,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
    #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
    #+OPTIONS: html-preamble:t html-scripts:t html-style:t
-   #+OPTIONS: html5-fancy:nil tex:t
+   #+OPTIONS: html5-fancy:t tex:t
    #+INFOJS_OPT:
 
 ** GENERAL
@@ -1677,7 +1873,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 ** HTML EXPORTS
 
-   #+HTML_DOCTYPE: xhtml-strict
+   #+HTML_DOCTYPE: xhtml5
    #+HTML_CONTAINER: div
    #+DESCRIPTION:
    #+KEYWORDS:
