@@ -1,11 +1,10 @@
-# -*- mode: org; fill-column: 99; -*-
+# -*- mode:org; fill-column:99; -*-
 
-#+TITLE:Mastering Org-Mode
-#+AUTHOR:WLHarvey4
-#+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-04-17 Wed 10:12>
-#+VERSION:{{{version}}}
-#+MACRO:version 0.5.2
+#+title:Mastering Org-Mode
+#+author:Pinecone062
+#+email:pinecone062@gmail.com
+#+date:2019-05-10 12:14
+#+macro:version 0.6.0
 
 * Glossary
 
@@ -967,7 +966,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 - https://orgmode.org/worg/org-contrib/babel/
 
 
-
 * Editing
 
 * Navigating
@@ -1638,13 +1636,13 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
   :index:    cp
   :END:
 
-* EXPORT SETTINGS                                                  :noexport:
+* Export Settings                                                  :noexport:
 
 ** OPTIONS
 
    #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
    #+OPTIONS: html-preamble:t html-scripts:t html-style:t
-   #+OPTIONS: html5-fancy:nil tex:t
+   #+OPTIONS: html5-fancy:t tex:t
    #+INFOJS_OPT:
 
 ** GENERAL
@@ -1677,7 +1675,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 ** HTML EXPORTS
 
-   #+HTML_DOCTYPE: xhtml-strict
+   #+HTML_DOCTYPE: html5
    #+HTML_CONTAINER: div
    #+DESCRIPTION:
    #+KEYWORDS:
@@ -1694,3 +1692,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 #+MACRO:code @@texinfo:@code{@@$1@@texinfo:}@@
 #+MACRO:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
+* Local Variable Settings
+# Local Variables:
+# time-stamp-pattern: "8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
+# End:
