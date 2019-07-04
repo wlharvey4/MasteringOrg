@@ -1,9 +1,9 @@
-# -*- mode: org; -*-
+# -*- mode:org; fill-column:99; -*-
 
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-07-04 10:47
+#+date:2019-07-04 10:54
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+macro:version 0.6.2
 
@@ -1859,6 +1859,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
   :END:
 
 * Export Settings                                                  :noexport:
+
 ** OPTIONS
 
    #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
@@ -1911,8 +1912,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 #+MACRO:code @@texinfo:@code{@@$1@@texinfo:}@@
 #+MACRO:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
-* Local Variables                                                  :noexport:
+* Local Variable Settings                                          :noexport:
 # Local Variables:
-# time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
-# fill-column:99
+# time-stamp-pattern: "8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
 # End:
