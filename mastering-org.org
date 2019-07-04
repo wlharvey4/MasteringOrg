@@ -1,11 +1,11 @@
-# -*- mode: org; fill-column: 99; -*-
+# -*- mode: org; -*-
 
-#+TITLE:Mastering Org-Mode
-#+AUTHOR:WLHarvey4
-#+EMAIL:pinecone062@gmail.com
-#+DATE:<2019-05-07 Tue 04:21>
-#+VERSION:{{{version}}}
-#+MACRO:version 0.6.1
+#+title:Mastering Org-Mode
+#+author:Pinecone062
+#+email:pinecone062@gmail.com
+#+date:2019-07-04 10:47
+#+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
+#+macro:version 0.6.2
 
 * Glossary
 
@@ -421,8 +421,7 @@ Texinfo, etc., using the corresponding functions.
 
     - =:recursive= :: Non-=nil= means, check base-directory recursively for files to publish.
 
-
-*** Publishing
+*** Publishing Commands and Options
 - Publishing ::
 
   - ~org-publish-org-to-html~ ::
@@ -1074,7 +1073,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 - ~org-catch-invisible-edits~ can be used to help prevent unintended edits;
 
 ** Orb Babel Setup
-
 *** Header Args
 - =org-babel-default-header-args= ::
 
@@ -1133,7 +1131,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      : #+HEADER: :var data=2
 
 *** Code Evaluation
-
 - =org-confirm-babel-evaluate= ::
 
      Variable {{{samp(confirm before evaluation)}}}.  Require confirmation before interactively
@@ -1166,6 +1163,15 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      : [[elisp:(<code>)][Label]]
      Just change it to ‘y-or-n-p’ if you want to confirm with a single keystroke rather than having
      to type "yes".
+
+**** Python Evaluation
+#+cindex:Python, command
+- ~org-babel-python-command~ ::
+
+     Name of the command for executing Python code.  You can customize this variable.
+
+     ~org-babel-python-command~ is a variable defined in ~ob-python.el~.  Its value is =python3=.
+     Its original value was =python=.
 
 * Basics
 
@@ -1688,6 +1694,8 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
      Remove code block evaluation from the ‘C-c C-c’ key binding.
 
+- ~org-babel-python-command~ :: Name of the command for executing Python code (i.e., ~python3~)
+
 - ~org-catch-invisible-edits~ ::
 
   + =nil=: do not check; just do invisible edits.  DEFAULT
@@ -1850,8 +1858,7 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
   :index:    cp
   :END:
 
-* EXPORT SETTINGS                                                  :noexport:
-
+* Export Settings                                                  :noexport:
 ** OPTIONS
 
    #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
@@ -1869,7 +1876,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
    #+TEXINFO_CLASS: info
    #+TEXINFO_HEADER:
    #+TEXINFO_POST_HEADER:
-   #+SUBTITLE:Version {{{version}}} {{{time(%F %R)}}}
    #+SUBAUTHOR:
    #+TEXINFO_DIR_CATEGORY:Org-Mode
    #+TEXINFO_DIR_TITLE:Mastering Org-Mode
@@ -1889,16 +1895,15 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 ** HTML EXPORTS
 
-   #+HTML_DOCTYPE: xhtml5
+   #+HTML_DOCTYPE: html5
    #+HTML_CONTAINER: div
-   #+DESCRIPTION:
-   #+KEYWORDS:
+   #+DESCRIPTION:Some notes about Org-mode
+   #+KEYWORDS:org-mode
    #+HTML_LINK_HOME:
    #+HTML_LINK_UP:
    #+HTML_MATHJAX:
    #+HTML_HEAD:
    #+HTML_HEAD_EXTRA:
-   #+SUBTITLE:
 
 ** MACROS
 
@@ -1906,3 +1911,8 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 #+MACRO:code @@texinfo:@code{@@$1@@texinfo:}@@
 #+MACRO:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
+* Local Variables                                                  :noexport:
+# Local Variables:
+# time-stamp-pattern:"8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
+# fill-column:99
+# End:
