@@ -3,8 +3,9 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-07-23 21:53
-#+macro:version 0.6.1
+#+date:2019-07-23 21:55
+#+macro:version 0.6.3
+#+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
 
@@ -420,8 +421,7 @@ Texinfo, etc., using the corresponding functions.
 
     - =:recursive= :: Non-=nil= means, check base-directory recursively for files to publish.
 
-
-*** Publishing
+*** Publishing Commands and Options
 - Publishing ::
 
   - ~org-publish-org-to-html~ ::
@@ -1073,7 +1073,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 - ~org-catch-invisible-edits~ can be used to help prevent unintended edits;
 
 ** Orb Babel Setup
-
 *** Header Args
 - =org-babel-default-header-args= ::
 
@@ -1132,7 +1131,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      : #+HEADER: :var data=2
 
 *** Code Evaluation
-
 - =org-confirm-babel-evaluate= ::
 
      Variable {{{samp(confirm before evaluation)}}}.  Require confirmation before interactively
@@ -1165,6 +1163,15 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      : [[elisp:(<code>)][Label]]
      Just change it to ‘y-or-n-p’ if you want to confirm with a single keystroke rather than having
      to type "yes".
+
+**** Python Evaluation
+#+cindex:Python, command
+- ~org-babel-python-command~ ::
+
+     Name of the command for executing Python code.  You can customize this variable.
+
+     ~org-babel-python-command~ is a variable defined in ~ob-python.el~.  Its value is =python3=.
+     Its original value was =python=.
 
 * Basics
 ** Org Mode Basics
@@ -1793,6 +1800,8 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 
      Remove code block evaluation from the ‘C-c C-c’ key binding.
 
+- ~org-babel-python-command~ :: Name of the command for executing Python code (i.e., ~python3~)
+
 - ~org-catch-invisible-edits~ ::
 
   + =nil=: do not check; just do invisible edits.  DEFAULT
@@ -1984,7 +1993,6 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
    #+TEXINFO_CLASS: info
    #+TEXINFO_HEADER:
    #+TEXINFO_POST_HEADER:
-   #+SUBTITLE:Version {{{version}}} {{{time(%F %R)}}}
    #+SUBAUTHOR:
    #+TEXINFO_DIR_CATEGORY:Org-Mode
    #+TEXINFO_DIR_TITLE:Mastering Org-Mode
@@ -2005,8 +2013,22 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 ** HTML EXPORTS
 
    #+HTML_DOCTYPE: html5
+   #+HTML_CONTAINER: div
+   #+DESCRIPTION:Some notes about Org-mode
+   #+KEYWORDS:org-mode
+   #+HTML_LINK_HOME:
+   #+HTML_LINK_UP:
+   #+HTML_MATHJAX:
+   #+HTML_HEAD:
+   #+HTML_HEAD_EXTRA:
 
-* Local Variable Settings
+** MACROS
+
+#+MACRO:noindent @@texinfo:@noindent@@
+#+MACRO:code @@texinfo:@code{@@$1@@texinfo:}@@
+#+MACRO:samp @@texinfo:@samp{@@$1@@texinfo:}@@
+
+* Local Variable Settings                                          :noexport:
 # Local Variables:
 # time-stamp-pattern: "8/^\\#\\+date:%:y-%02m-%02d %02H:%02M$"
 # End:
