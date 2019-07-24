@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-05-10 12:18
-#+macro:version 0.6.0
+#+date:2019-07-23 21:53
+#+macro:version 0.6.1
 
 * Glossary
 
@@ -1167,7 +1167,6 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      to type "yes".
 
 * Basics
-
 ** Org Mode Basics
 
 - http://www.star.bris.ac.uk/bjm/org-basics.html
@@ -1178,6 +1177,113 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
 ** Babel
 - https://orgmode.org/worg/org-contrib/babel/
+
+** Dates and Times
+#+cindex:dates
+#+cindex:times
+=TODO= items can be labeled with a date and/or a time.
+
+#+cindex:timestamp
+The specially formatted string carrying the date and time information is called a =timestamp=.
+
+*** Timestamps
+#+cindex:timestamps
+#+cindex:range of times
+A timestamp is a specification of a date (possibly with a time or a range of times) in a special
+format:
+
+- =<2003-09-16 Tue>=
+
+- =<2003-09-16 Tue 09:39>=
+
+- =<2003-09-16 Tue 12:00-12:30>=
+
+
+#+cindex:custome time format
+#+cindex:agenda
+To use an alternative format, see Custom time format.  A timestamp can appear anywhere in the
+headline or body of an Org tree entry.  Its presence causes entries to be shown on specific dates
+in the agenda (see Weekly/daily agenda).
+
+**** Types of Timestamps
+
+#+cindex:plain timestamp
+- Plain timestamp :: A simple timestamp just assigns a date/time to an item.  In the agenda
+     display, the headline of an entry associated with a plain timestamp is shown exactly on that
+     date.
+
+#+cindex:repeater interval
+- Timestamp with repeater interval :: indicates that it applies not only on the given date, but
+     again and again after a certain interval
+
+#+cindex:diary-style sexp
+#+cindex:calender/diary package
+- Diary-style sexp entries :: special display implemented in the Emacs calendar/diary package
+
+#+cindex:time-date range
+#+cindex:range, time-date
+- Time/Date range :: Two timestamps connected by =--= denote a range.  The headline is shown on the
+     first and last day of the range, and on any dates that are displayed and fall in the range.
+
+- Inactive timestamp :: written with square brackets instead of angular ones.  They do /not/
+     trigger an entry to show up in the agenda.
+
+**** Create Timestamps
+All commands listed below produce timestamps in the correct format.
+
+#+findex:@command{org-time-stamp}
+#+cindex:insert timestamp
+- ~(org-time-stamp)~ =C-c .= :: Prompt for a date and insert a corresponding timestamp.  When point
+     is at an existing timestamp in the buffer, the command is used to modify this timestamp
+     instead of inserting a new one.  When this command is used twice in succession, a time range
+     is inserted.
+
+#+findex:@command{org-time-stamp-inactive}
+#+cindex:inactive timestamp
+- ~(org-time-stamp-inactive)~ =C-c != :: insert an inactive timestamp that does not cause an agenda
+     entry.
+
+#+cindex:normalize timestamp
+- normalize time stamp =C-c C-c= :: Normalize timestamp, insert or fix day name if missing or
+     wrong.
+
+#+findex:@command{org-date-from-calendar}
+- ~(org-date-from-calendar)~ =C-c <= :: Insert a timestamp corresponding to point date in the
+     calendar.
+
+#+findex:@command{org-goto-calendar}
+- ~(org-goto-calendar)~ =C-c >= :: Access the Emacs calendar for the current date. If there is a
+     timestamp in the current line, go to the corresponding date instead.
+
+#+findex:@command{org-open-at-point}
+#+cindex:agenda
+- ~(org-open-at-point)~ =C-c C-o= :: Access the agenda for the date given by the timestamp or
+     -range at point
+
+#+findex:@command{org-timestamp-down-day}
+#+findex:@command{org-timestamp-up-day}
+#+cindex:date, change
+- ~(org-timestamp-down-[u]-day)~ =S-LEFT S-RIGHT= :: Change date at point by one day.
+
+#+findex:@command{org-evaluate-time-range}
+#+cindex:time range, evaluate
+- ~(org-evaluate-time-range)~ =[PRE] C-c C-y= :: Evaluate a time range by computing the difference
+     between start and end.  With a prefix argument, insert result after the time range (in a
+     table: into the following column).
+
+**** Entering Timestamps
+#+cindex:timestamp prompt
+#+cindex:default date/time format
+When Org mode prompts for a date/time, the default is shown in default date/time format.  It in
+fact accepts date/time information in a variety of formats.  Org mode finds whatever information is
+in there and derives anything you have not specified from the default date and time.  The default
+is usually the current date and time, but when modifying an existing timestamp, or when entering
+the second stamp of a range, it is taken from the stamp in the buffer.  Org mode assumes that most
+of the time you want to enter a date in the future.
+
+#+cindex:relative date
+You can specify a relative date by giving, as the first thing in the input: a plus/minus sign, a
+number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 
 * Editing
 
@@ -1848,6 +1954,16 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
   :PROPERTIES:
   :index:    cp
   :END:
+
+* F-Index
+:PROPERTIES:
+:unnumbered: t
+:index:    fn
+:END:
+
+* Macro Definitions
+#+macro:noindent @@texinfo:@noindent @@
+#+macro:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
 * Export Settings                                                  :noexport:
 
