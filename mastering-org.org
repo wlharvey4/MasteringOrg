@@ -3,12 +3,11 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-07-23 21:55
-#+macro:version 0.6.3
+#+date:2019-07-28 07:18
+#+macro:version 0.6.4
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
-
 ** Agenda
 
   - Agenda :: Org can select items based on various criteria and display them in a separate
@@ -525,6 +524,12 @@ Texinfo, etc., using the corresponding functions.
 
     + ~(org-copy)~ :: Copying works like refiling, except that the original note is not
                       deleted.
+
+** Symbols
+#+cindex:symbols
+#+findex:@command{org-entity-help}
+- ~org-entities-help~ :: displays many \LaTeX\ symbols that can be added and their associated
+     commands.
 
 ** Tags
 
