@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-09-13 01:09
-#+macro:version 0.6.5
+#+date:2019-09-13 08:48
+#+macro:version 0.6.6
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -1178,12 +1178,14 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
      ~org-babel-python-command~ is a variable defined in ~ob-python.el~.  Its value is =python3=.
      Its original value was =python=.
 
-** Exporting
+** Exporting Documents
+   #+cindex:export
 Org can convert and export documents to a variety of other formats while retaining as much
 structure (see Document Structure) and markup (see Markup for Rich Contents) as possible.
 
 *** Back-Ends
-The libraries responsible for translating Org files to other formats are called back-ends.  Org
+    #+cindex:back-ends
+The libraries responsible for translating Org files to other formats are called /back-ends/.  Org
 ships with support for the following back-ends:
 
 - ascii (ASCII format) loaded by default
@@ -1199,18 +1201,70 @@ ships with support for the following back-ends:
 
 
 *** Additional Back-Ends
+    #+cindex:@file{contrib} directory
 Users can install libraries for additional formats from the Emacs packaging system.  More libraries
 can be found in the ‘contrib/’ directory.
 
 Additional back-ends can be loaded in either of two ways: 
 
-- by configuring the ~org-export-backends~ variable, or
+
+  #+vindex:@code{org-export-backends}
+- by configuring the ~org-export-backends~ variable (using ~customize-variable~), or
 - by requiring libraries in the Emacs init file.
 
 
 For example, to load the Markdown back-end, add this to your Emacs config:
 
 : (require 'ox-md)
+
+** Time
+
+   #+cindex:time, update
+   #+cindex:hook, @code{before-save-hook}
+   #+cindex:@code{before-save-hook}
+   #+cindex:time stamp
+To update a time stamp automatically, add hook, ~before-save-hook~:
+
+: (add-hook 'before-save-hook 'time-stamp)
+
+*** Time Stamp Pattern
+
+- ~time-stamp-pattern~ :: variable
+
+     Convenience variable setting all ‘time-stamp’ location and format values.  If you must change them for
+some application, do so only in the local variables section of the time-stamped file itself.
+
+     This string has four parts, each of which is optional:
+
+  - ~time-stamp-line-limit~ :: number followed by slash =8/=
+
+  - ~time-stamp-start~ :: regexp identifying the pattern preceding the time stamp
+
+  - ~time-stamp-format~ :: specifies the format of the time stamp inserted
+
+  - ~time-stamp-end~ :: regexp identifying the pattern following the time stamp
+
+
+- ~time-stamp-format~ :: variable
+
+     Format of the string inserted by M-x time-stamp.  This is a string, used verbatim except for
+     character sequences beginning with %.
+
+  - =%4y= :: 4-digit year
+  - =%02m= :: month number
+  - =%02d= :: day of month
+  - =%02H= :: 24-hour clock hour
+  - =%02M= :: minutes
+
+
+- ~format-time-string~ :: built-in function
+
+     : (format-time-string FORMAT-STRING &optional TIME ZONE)
+
+     Use FORMAT-STRING to format the time TIME, or now if omitted or nil. TIME is specified as
+     (HIGH LOW USEC PSEC), as returned by ‘current-time’ or ‘file-attributes’.  It can also be a
+     single integer number of seconds since the epoch.  The obsolete form (HIGH . LOW) is also
+     still accepted.
 
 * Basics
 ** Org Mode Basics
