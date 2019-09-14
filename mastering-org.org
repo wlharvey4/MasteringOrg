@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-07-28 07:18
-#+macro:version 0.6.4
+#+date:2019-09-13 01:09
+#+macro:version 0.6.5
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -1177,6 +1177,40 @@ Use key bindings to quickly insert empty structural blocks or wrap existing text
 
      ~org-babel-python-command~ is a variable defined in ~ob-python.el~.  Its value is =python3=.
      Its original value was =python=.
+
+** Exporting
+Org can convert and export documents to a variety of other formats while retaining as much
+structure (see Document Structure) and markup (see Markup for Rich Contents) as possible.
+
+*** Back-Ends
+The libraries responsible for translating Org files to other formats are called back-ends.  Org
+ships with support for the following back-ends:
+
+- ascii (ASCII format) loaded by default
+- beamer (LaTeX Beamer format)
+- html (HTML format) loaded by default
+- icalendar (iCalendar format) loaded by default
+- latex (LaTeX format) loaded by default
+- md (Markdown format)
+- odt (OpenDocument Text format) loaded by default
+- org (Org format)
+- texinfo (Texinfo format)
+- man (Man page format)
+
+
+*** Additional Back-Ends
+Users can install libraries for additional formats from the Emacs packaging system.  More libraries
+can be found in the ‘contrib/’ directory.
+
+Additional back-ends can be loaded in either of two ways: 
+
+- by configuring the ~org-export-backends~ variable, or
+- by requiring libraries in the Emacs init file.
+
+
+For example, to load the Markdown back-end, add this to your Emacs config:
+
+: (require 'ox-md)
 
 * Basics
 ** Org Mode Basics
