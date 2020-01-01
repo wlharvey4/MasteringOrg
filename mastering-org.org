@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2019-11-15 09:35
-#+macro:version 0.6.7
+#+date:2020-01-01 10:19
+#+macro:version 0.6.9
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -1679,6 +1679,74 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 *** TODO Do Multiple Load Directories Interfere With Each Other
 
     See [[mult-load-dirs][mult-load-dirs]]
+
+** Wholesale changes to LaTeX headers
+:PROPERTIES:
+:source:   "Emacs-orgmode Digest, Vol 167, Issue 1"
+:date:     2020-01-01T09:01
+:END:
+
+*** Query
+:PROPERTIES:
+:from:     "Norman Walsh <ndw@nwalsh.com> "
+:date:     "Dec 31, 2019, at 7:42 AM"
+:END:
+
+On Dec 31, 2019, at 7:42 AM, Norman Walsh <ndw@nwalsh.com> wrote:
+
+Hi,
+
+I want to make wholesale changes to the LaTeX preamble exported from Org mode.  I want to put
+=\RequirePackage= and =\PassOptionsToPackage= calls before the =\documentclass=, I want to write a
+specific set of macros after the =\documentclass=, I want to craft a couple of =\renewcommands=,
+etc.
+
+Where should I begin?
+
+*** Answer 1
+:PROPERTIES:
+:from:     "Berry, Charles <ccberry@health.ucsd.edu>"
+:date:     "Tue, 31 Dec 2019 18:55:36 +0000"
+:END:
+
+Execute this src block:
+
+#+begin_src emacs-lisp :results none
+(info "(org) LaTeX header and sectioning")
+(describe-variable 'org-latex-classes)
+#+end_src
+
+Browse the =*info*= buffer and study the =*Help*= buffer.
+
+Then type
+
+~`M-x customize-variable RET org-latex-classes RET`~
+
+and add your custom class or modify an existing class to your liking.
+
+HTH,
+
+Chuck
+
+*** Answer 2
+:PROPERTIES:
+:from:     "Tim Cross <theophilusx@gmail.com>"
+:date:     "Wed, 01 Jan 2020 06:18:22 +1100"
+:END:
+
+If you want these changes globally, I would start with the ~org-latex-classes~ variable.  There is
+a lot you can do by tweaking the values in this variable.  I found the documentation to be good,
+but dense (i.e. a lot to it, needing a git to digest fully).  The docs for that variable will also
+point you to other variables you can tweak to do what you want.
+
+If you just want to tweak for specific files, =#+LATEX_HEADER= and =#+LATEX_HEADER_EXTRA= might be
+sufficient.  I find these a good place to experiment with different settings.  If they prove more
+widely useful, I will transfer/translate them into the other ~org-latex~ variables.
+
+Finally, doing an =M-x apropos= for ~org-latex-.*~ will likely bring up some additional variables
+which my be of interest/use.
+
+Tim
 
 * Org-Mode as a Day Planner
 - http://www.newartisans.com/2007/08/using-org-mode-as-a-day-planner/
