@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-10 15:34
-#+macro:version Version v0.6.10
+#+date:2020-01-10 16:00
+#+macro:version Version v0.6.11
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -1435,6 +1435,12 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 
 * Agenda
 
+** Agenda Dispatcher
+
+- org-agenda :: =C-c a= (org-agenda &optional ARG ORG-KEYS RESTRICTION)
+
+                Dispatch agenda commands to collect entries to the agenda buffer.
+
 ** Global TODO List
 
    The global TODO list contains all unfinished TODO items formatted and collected into a single
@@ -1451,9 +1457,51 @@ number and a letter—‘d’, ‘w’, ‘m’ or ‘y’
 
 * Capture
 
-  Quickly store notes in the flow.  Based upon John Wiegley's =Remember= package.
+https://orgmode.org/manual/Capture-and-Attachments.html#Capture-and-Attachmenst
 
-** Setup
+Quickly capture new ideas and tasks, and to associate reference material with them.
+
+Quickly store notes in the flow.  Based upon John Wiegley's =Remember= package.
+
+#+cindex:capture
+Process called /capture/
+
+#+cindex:attchments
+Store files related to a task, /attachments/, in a special directory
+
+Parse RSS feeds for information
+
+#+cindex:protocols
+Let external programs (e.g., a web browser), trigger Org to capture material
+- see [[https://orgmode.org/manual/Protocols.html#Protocols][Protocols]]
+
+** Using org-mode as a Day Planner                              :start:here:
+:PROPERTIES:
+:author:   "John Wiegley"
+:uri:      http://newartisans.com/2007/08/using-org-mode-as-a-day-planner/
+:date:     2007-08-20
+:END:
+
+The following document describes how to use Carsten Dominik’s excellent ~org-mode~ Emacs package
+after the fashion of a pen-and-paper day planner.
+
+I discovered that only digital media can truly keep up with my ever-changing world.
+
+Enter ~org-mode~.  This handy system uses a fairly simple, single-file outlining paradigm, upon
+which it overlays concepts like due dates and priorities.  I find its method both non-intrusive and
+easy to edit by hand, which are absolute necessities for me.
+
+I will present my usage of ~org-mode~ as a day planner first by giving some templates you can use
+straight away, and then by explaining my methodology via example uses of ~org-mode~ that employ
+this configuration.
+
+*** Sample Configuration for J Wiegley's org-mode
+
+
+
+** Setup Capture
+
+Quickly store notes with little interruption of your work flow.
 
    - Set a default target file for notes
      : (setq org-default-notes-file (concat org-directory "/notes.org"))
