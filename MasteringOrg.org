@@ -3,9 +3,11 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-15 07:50
-#+macro:version Version 0.7.1
+#+date:2020-01-15 07:53
+#+macro:version Version 0.7.2
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
+
+{{{version}}} compiled {{{date}}}
 
 * Glossary
 ** Agenda
@@ -2575,13 +2577,13 @@ the most benefits from the AWS S3 ~sync~ command.
   :unnumbered: t
   :END:
 
-* F-Index
+* Function Index
 :PROPERTIES:
 :unnumbered: t
 :index:    fn
 :END:
 
-* Macro Definitions
+* Macro Definitions                                                :noexport:
 #+macro:noindent @@texinfo:@noindent @@
 #+macro:samp @@texinfo:@samp{@@$1@@texinfo:}@@
 
