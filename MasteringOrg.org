@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-15 07:58
-#+macro:version Version 0.7.3
+#+date:2020-01-15 08:15
+#+macro:version Version 0.7.4
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 {{{version}}} compiled {{{date}}}
@@ -747,9 +747,10 @@ variables
 
 The three Org commands:
 
-- ‘org-store-link’
-- ‘org-capture’
-- ‘org-agenda’
+- ‘org-agenda’: [[*Agenda][Agenda]]
+- ‘org-store-link’: [[*Hyperlink][Hyperlink]] (store a link to the current location.)
+- ‘org-capture’: [[*Capture][Capture]]
+
 
 {{{noindent}}} ought to be accessible anywhere in Emacs, not just in Org buffers.
 To that effect, you need to bind them to globally available keys, like the ones reserved for users,
