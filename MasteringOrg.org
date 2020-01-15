@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-14 23:08
-#+macro:version Version 0.7.0
+#+date:2020-01-15 07:50
+#+macro:version Version 0.7.1
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -2569,9 +2569,10 @@ the most benefits from the AWS S3 ~sync~ command.
 #+end_src
 
 
-* Index
+* Concept Index
   :PROPERTIES:
   :index:    cp
+  :unnumbered: t
   :END:
 
 * F-Index
