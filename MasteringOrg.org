@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-14 08:54
-#+macro:version Version v0.7.0
+#+date:2020-01-14 23:08
+#+macro:version Version 0.7.0
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 * Glossary
@@ -179,7 +179,7 @@
     + ~C-u C-c C-l~ :: a link to a file will be inserted; may use file name completion to select
                        the name of the file.  (Force an absolute path with 2 ~C-u~ prefixes).
 
-    + ~C-c C-o~ or ~<RET>~:: follow a link; execute a command in a shell link; run an internal
+    + ~C-c C-o~ or ~<RET>~ :: follow a link; execute a command in a shell link; run an internal
       search; create a TAGS view; compiles an agenda for date; visit an external file; run an
       external program (based on file extension); to visit without running, call with a ~C-u~
       prefix;
@@ -1642,9 +1642,9 @@ Quickly store notes with little interruption of your work flow.
            Most general way: write your own function which both visits the file and moves point to
            the right location.
 
-    - template
+    - template ::
 
-    - properties
+    - properties ::
 
 *** Explansion
 
@@ -2223,7 +2223,7 @@ find its method both non-intrusive and easy to edit by hand.
   ### TEXINFO
   ORG   = $(REPO).org
   TEXI  = $(REPO).texi
-  INFO  = $(REPO).info
+  INFO  = $(DIR).info
   PDF   = $(REPO).pdf
   HTML  = $(DIR)/index.html
 
@@ -2405,13 +2405,19 @@ filename to add to the Makefile.
 #+end_src
 
 ** Get Org Lowercase Filename
-This program simply downcases the buffer filename to use as a directory name
-for the HTML output.
+This code looks for the =#+TEXINFO_FILENAME:= in the =#+TEXINFO EXPORTS=
+subtree.  If it doesn’t exist, then it will use the lower-cased filename as a
+fallback default.
 
 #+caption:Get Org Lowercase Filename program
 #+name:get-org-lc-filename
+#+header: :results value
 #+begin_src emacs-lisp :eval yes
-(downcase (file-name-base))
+  (save-excursion
+    (if
+        (re-search-forward "^[[:space:]]+#\\+texinfo_filename:\\(.*\\)" nil t)
+        (file-name-sans-extension (match-string 1))
+      (downcase (file-name-base))))
 #+end_src
 
 ** Get File Version
@@ -2593,7 +2599,7 @@ the most benefits from the AWS S3 ~sync~ command.
 
 ** TEXINFO EXPORTS
 
-   #+TEXINFO_FILENAME:mastering-org.info
+   #+TEXINFO_FILENAME:mastering_org.info
    #+TEXINFO_CLASS: info
    #+TEXINFO_HEADER:
    #+TEXINFO_POST_HEADER:
