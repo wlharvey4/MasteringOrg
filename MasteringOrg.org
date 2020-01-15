@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-15 07:53
-#+macro:version Version 0.7.2
+#+date:2020-01-15 07:58
+#+macro:version Version 0.7.3
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 {{{version}}} compiled {{{date}}}
@@ -2422,6 +2422,8 @@ fallback default.
       (downcase (file-name-base))))
 #+end_src
 
+#+RESULTS: get-org-lc-filename
+
 ** Get File Version
 This program scans the current buffer for the version number and places it into
 the Makefile.
@@ -2553,7 +2555,7 @@ the most benefits from the AWS S3 ~sync~ command.
 	          printf "${GREEN}copying OLD to NEW${CLEAR}: "
 	          cp -vp $oldfile $newfile
 	      else
-	          printf "${MAGENTA}copying NEW to OLD${CLEAR}: "
+	          printf "${PURPLE}copying NEW to OLD${CLEAR}: "
 	          cp -vp $newfile $oldfile
 	      fi
       else
@@ -2565,7 +2567,7 @@ the most benefits from the AWS S3 ~sync~ command.
   for newfile in $DIR_NEW/*
   do
       oldfile=$DIR_OLD/$(basename $newfile)
-      [[ -e $oldfile ]] || { printf "${BLUE}copying NEW to OLD${CLEAR}: "
+      [[ -e $oldfile ]] || { printf "${BLUE}adding NEW to OLD${CLEAR}: "
 			     cp -vp $newfile $oldfile; }
   done
 #+end_src
