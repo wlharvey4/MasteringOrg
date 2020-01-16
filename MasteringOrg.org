@@ -3,8 +3,8 @@
 #+title:Mastering Org-Mode
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-15 08:15
-#+macro:version Version 0.7.4
+#+date:2020-01-16 08:48
+#+macro:version Version 0.7.5
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 
 {{{version}}} compiled {{{date}}}
@@ -2194,17 +2194,16 @@ find its method both non-intrusive and easy to edit by hand.
 :appendix: t
 :END:
 
-** Makefile
+** Makefile                                          :dependencies:env_vars:
 :PROPERTIES:
 :appendix: t
+:dependency1: "make"
+:dependency2: "AWS Account with ~/.aws/credentials and ~/.aws/config"
+:env_var1: ORG_TEMPLATE
+:env_var2: EMACSLOADPATH
+:env_var3: AWS_S3_BUCKET
+:env_var4: GITHUB_TOKEN
 :END:
-
-# curl -i 
-#      -H "authorization: token $token" 
-#      -H "content-type: application/json" 
-#      -X PATCH 
-#      -d '{"homepage":"https://pinecone-forest.com/aws-guide-v0.0.56"}'
-#      https://api.github.com/repos/wlharvey4/AWS-Guide
 
 #+name:Makefile
 #+header: :tangle Makefile
@@ -2213,7 +2212,7 @@ find its method both non-intrusive and easy to edit by hand.
   TEMPLATE = $(ORG_TEMPLATE)
 
   ### PROGRAM
-  REPO   = <<get-org-filename()>>
+  PROJ   = <<get-org-filename()>>
   DIR    = <<get-org-lc-filename()>>
   VERS   = <<get-file-version()>>
   S3VERS = <<get-s3-version()>>
@@ -2224,10 +2223,10 @@ find its method both non-intrusive and easy to edit by hand.
   CMPRPL = $(TOOLS)/cmprpl
 
   ### TEXINFO
-  ORG   = $(REPO).org
-  TEXI  = $(REPO).texi
+  ORG   = $(PROJ).org
+  TEXI  = $(PROJ).texi
   INFO  = $(DIR).info
-  PDF   = $(REPO).pdf
+  PDF   = $(PROJ).pdf
   HTML  = $(DIR)/index.html
 
   ### HTML DIR
@@ -2256,34 +2255,36 @@ find its method both non-intrusive and easy to edit by hand.
   PHONY: check default all \
 	  texi info html pdf \
 	  open-org open-texi open-html open-pdf \
-	  clean clean-dist help sync update values
+	  clean dist-clean wiped-clean \
+	  help sync update values
 
-  values:
+  values: check
 	  @echo EMACSLOADPATH:	$(EMACSLOADPATH)
-	  @echo AWS_S3_BUCKET:	$(AWS_S3_BUCKET)
-	  @echo GITHUB_TOKEN:	is set
 	  @echo USER:		$(USER)
-	  @echo REPO:		$(REPO)
+	  @echo PROJ:		$(PROJ)
 	  @echo VERS:		$(VERS)
 	  @echo S3VERS:		$(S3VERS)
 	  @echo DIR:		$(DIR)
-	  @echo DIR_OLD:		$(DIR_OLD)
+	  @echo DIR_OLD:	$(DIR_OLD)
 	  @echo SRC:		$(SRC)
 	  @echo DST_OLD:	$(DST_OLD)
 	  @echo DST_NEW:	$(DST_NEW)
 
   check:
-	  [[ -z $${AWS_S3_BUCKET} ]] && \
+	  @[[ -z $${AWS_S3_BUCKET} ]] && \
 	     { printf "$${RED}\$$AWS_S3_BUCKET $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	     printf "$${GREEN}\$${AWS_S3_BUCKET}: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
-	  [[ -z $${GITHUB_TOKEN} ]] && \
-	     { printf "$${RED}\$$GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	     printf "$${GREEN}\$${GITHUB_TOKEN}: set\n";
+	     printf "$${GREEN}AWS_S3_BUCKET: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
+	  @[[ -z $${GITHUB_TOKEN} ]] && \
+	     { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
+	     printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
+	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
+	     printf "$${GREEN}~/.aws credentials and config: set.$${CLEAR}\n" || \
+	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
 
   open-org: $(ORG)
 	  emacsclient $(ORG) &
   $(ORG):
-	  @echo 'DISASTER HAS BEFALLEN YOU AS THERE IS NO $(ORG) FILE!!!'
+	  @echo 'THERE IS NO $(ORG) FILE!!!'
 	  exit 1
 
   texi: $(TEXI)
@@ -2328,7 +2329,7 @@ find its method both non-intrusive and easy to edit by hand.
 	       -H "Content-Type: application/json" \
 	       -X PATCH \
 	       -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)"}' \
-	       https://api.github.com/repos/$(USER)/$(REPO)
+	       https://api.github.com/repos/$(USER)/$(PROJ)
 
   update: $(ORG)
 	  emacs -Q --batch --eval \
@@ -2356,8 +2357,11 @@ find its method both non-intrusive and easy to edit by hand.
   clean:
 	  -rm *~
 
-  clean-dist: clean
+  dist-clean: clean
 	  -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
+
+  wiped-clean: dist-clean
+	  -rm -rf Makefile $(DIR_OLD)
 
   help:
 	  @echo '"make default" makes the .texi file, the .info file, \
