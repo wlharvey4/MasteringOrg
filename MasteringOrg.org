@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 06:37
-#+macro:version Version 0.7.9
+#+date:2020-02-03 14:19
+#+macro:version Version 0.7.10
 
 {{{version}}} {{{date}}}
 
@@ -2257,7 +2257,7 @@ properties are attached to it.  The data obtained from this function can be modi
   pattern (TYPE PROPERTIES CONTENTS), where :
   #+attr_texinfo: :indic b
   - TYPE :: is a symbol describing the element or object.  One can retrieve it with
-    ~org-element-type~ function.
+    [[*org-element-type][~org-element-type~]] function.
 
   - PROPERTIES :: is the list of attributes attached to the element or object, as a plist.  all
     types share ‘:begin’, ‘:end’, ‘:post-blank’ and ‘:parent’ properties.
@@ -2364,6 +2364,36 @@ properties are attached to it.  The data obtained from this function can be modi
 - timestamp
 - underline
 - verbatim
+
+*** org-element-property---a function
+
+#+attr_texinfo: :options org-element-property property element
+#+begin_defun
+Extract the value from the PROPERTY of an ELEMENT.
+
+- PROPERTY :: the /property/ to extract
+
+- ELEMENT :: the /element/ from which to extract the property.
+#+end_defun/
+
+*** org-element-type---a function
+
+#+attr_texinfo: :options org-element-type element
+#+begin_defun
+Returns the /type/ of ELEMENT.
+
+- ELEMENT :: an element (or object).
+
+- RETURN VALUE :: 
+
+  - type :: type of ELEMENT; or
+
+  - plain-text :: string; or
+
+  - org-data :: a complete document; or
+
+  - nil :: all other cases
+#+end_defun
 
 ** Tools
 
