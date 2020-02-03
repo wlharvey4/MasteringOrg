@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-02 23:20
-#+macro:version Version 0.7.6
+#+date:2020-02-03 06:05
+#+macro:version Version 0.7.7
 
 {{{version}}} {{{date}}}
 
@@ -2151,6 +2151,163 @@ find its method both non-intrusive and easy to edit by hand.
 
      May be a list of tags to be inherited, or a regexp to match tags.
 
+* Org Element
+- [[https://orgmode.org/worg/dev/org-element-api.html][Org Element review]]
+
+- [[https://orgmode.org/worg/dev/org-syntax.html][Syntax Specification]]
+
+
+#+cindex:parser
+#+cindex:abstract syntax tree
+#+cindex:AST
+~org-element.el~ implements a /parser/ according to Org's syntax specification.  The library
+contains tools to generate an /abstract syntax tree/ (*AST*) from an Org buffer, and to analyze the
+syntactical object at point.  Upon parsing, each token in an Org document gets a /type/ and some
+/properties/ attached to it.
+
+** Parsing Functions
+
+*** Local Parsing
+Local parsing gives information about the structure at point.
+
+**** ~org-element-at-point~
+<<org-element-at-point>>
+#+attr_texinfo: :options org-element-at-point
+#+begin_defun
+Determines the /type/ and /attribues/ of the closest /element/ to point.
+
+#+attr_texinfo: :indic b
+- RETURN VALUE :: is a list of ~(type, props)~, where
+  #+attr_texinfo: :indic b
+  - TYPE :: the type of the element
+
+  - PROPS :: a plist of properties associated with the element.  The exact properties dependes on the
+    type, but will always include the following:
+
+    - =:begin= :: is the beginning buffer position of the token
+
+    - =:end= :: is the ending buffer position of the token; the =:end= property of this object
+      matches the =:begin= property of the next token.
+
+    - =:parent= :: is the element or object containing the token
+
+    - =:post-blank= :: is the numnber of blank lines or white spaces at its end
+
+#+end_defun
+
+**** ~org-element-context~
+#+attr_texinfo: :options org-element-context &optional element
+#+begin_defun
+Returns the smallest /element/ or /object/ around point.
+
+#+attr_texinfo: :indic b
+- ELEMENT :: Optional argument ELEMENT, when non-nil, is the closest element
+  containing point, as returned by [[org-element-at-point][~org-element-at-point~]].
+
+  When it is provided, it allows for quicker computation.
+
+- RETURN VALUE :: a list like (TYPE PROPS) where :
+  #+attr_texinfo: :indic b
+  - TYPE :: is the type of the element or object and
+
+  - PROPS :: is a plist of properties associated with it.
+#+end_defun
+
+*** Global Parsing
+
+** Accessors
+
+** Types and Attributes
+
+*** org-element-all-elements---a variable
+
+- babel-call
+
+- center-block
+
+- clock
+
+- comment
+
+- comment-block
+
+- diary-sexp
+
+- drawer
+
+- dynamic-block
+
+- example-block
+
+- export-block
+
+- fixed-width
+
+- footnote-definition
+
+- headline
+
+- horizontal-rule
+
+- inlinetask
+
+- item
+
+- keyword
+
+- latex-environment
+
+- node-property
+
+- paragraph
+
+- plain-list
+
+- planning
+
+- property-drawer
+
+- quote-block
+
+- section
+
+- special-block
+
+- src-block
+
+- table
+
+- table-row
+
+- verse-block
+
+*** org-element-all-objects---a variables
+
+- bold
+- code
+- entity
+- export-snippet
+- footnote-reference
+- inline-babel-call
+- inline-src-block
+- italic
+- line-break
+- latex-fragment
+- link
+- macro
+- radio-target
+- statistics-cookie
+- strike-through
+- subscript
+- superscript
+- table-cell
+- target
+- timestamp
+- underline
+- verbatim
+
+** Tools
+
 * Commands
 
 - ~(org-cycle &optional ARG)~ ::
@@ -2594,7 +2751,7 @@ sync.
       newfile=$DIR_NEW/$(basename $oldfile)
       if [[ ! -e $newfile ]]
       then
-	  printf "${RED}removing $oldfile${CLEAR}"
+	  printf "${RED}removing OLD${CLEAR}: "
 	  rm -v $oldfile
       fi
   done
