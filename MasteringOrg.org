@@ -1,13 +1,13 @@
 # -*- mode:org; fill-column:99; -*-
 
 #+title:Mastering Org-Mode
+#+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-01-16 08:48
-#+macro:version Version 0.7.5
-#+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
+#+date:2020-02-02 23:20
+#+macro:version Version 0.7.6
 
-{{{version}}} compiled {{{date}}}
+{{{version}}} {{{date}}}
 
 * Glossary
 ** Agenda
@@ -2194,11 +2194,13 @@ find its method both non-intrusive and easy to edit by hand.
 :appendix: t
 :END:
 
-** Makefile                                          :dependencies:env_vars:
+** Makefile                                     :dependencies:env_vars:perl:
 :PROPERTIES:
 :appendix: t
 :dependency1: "make"
 :dependency2: "AWS Account with ~/.aws/credentials and ~/.aws/config"
+:dependency3: "S3 bucket set up for serving a static web pages"
+:dependency4: "GitHub Account with personal token"
 :env_var1: ORG_TEMPLATE
 :env_var2: EMACSLOADPATH
 :env_var3: AWS_S3_BUCKET
@@ -2208,47 +2210,131 @@ find its method both non-intrusive and easy to edit by hand.
 #+name:Makefile
 #+header: :tangle Makefile
 #+header: :noweb tangle
+#+header: :shebang "#!/usr/bin/env bash"
 #+begin_src makefile
-  TEMPLATE = $(ORG_TEMPLATE)
 
-  ### PROGRAM
-  PROJ   = <<get-org-filename()>>
-  DIR    = <<get-org-lc-filename()>>
-  VERS   = <<get-file-version()>>
-  S3VERS = <<get-s3-version()>>
-  USER   = <<get-github-user-info('login')>>
+  ###############################################################################
+  ### USER-DEPENDENT VARIABLES
+  ### USE ENVIRONMENT VARIABLES FOR SENSITIVE DATA
+  ### ALL OTHERS CAN BE HARD-CODED
+  ### YOU ALSO NEED ~/.aws/credentials
 
-  ### TOOLS
-  TOOLS  = tools
-  CMPRPL = $(TOOLS)/cmprpl
+  EMACS   := /Applications/MacPorts/EmacsMac.app/Contents/MacOS/bin/emacs-26.3
+  EMACS_D := $(HOME)/.emacs.d
+  INIT_EL := init.el
 
-  ### TEXINFO
-  ORG   = $(PROJ).org
-  TEXI  = $(PROJ).texi
-  INFO  = $(DIR).info
-  PDF   = $(PROJ).pdf
-  HTML  = $(DIR)/index.html
+  # The fully-qualified path to the Template file
 
-  ### HTML DIR
-  DIR_OLD= $(DIR)-old
-  INDEX = index.html
+  TEMPLATE := $(ORG_TEMPLATE)
 
-  ### GITHUB
-  TOKEN = $(GITHUB_TOKEN)
+  # User’s personal GitHub token for authentication
+  # DO NOT HARD-CODE THIS VALUE
+
+  TOKEN := $(GITHUB_TOKEN)
+
+  # The AWS S3 bucket to use to store the html source files
+
+  BUCKET := s3://$(AWS_S3_BUCKET)
+
+  # The aws command to use (version 1 or version 2)
+
+  AWS := aws2
+
+  # The AWS region of choice; this can also be in .aws/config
+
+  REGION := --region us-west-2
+
+  ### END OF USER-DEPENDENT VARIABLES
+  ###############################################################################
+
+  ### ORG
+  ### NOTE: there can be only one Org file in the directory;
+  ### so far this has not been a problem, but it might be.
+
+  PROJ := $(basename $(shell ls *.org))
+  ORG   := $(PROJ).org
+
+  # DIR is not necessarily the same as PROJ; it is the exported .info
+  # name found at #+texinfo_filename:<DIR>.info without its extension,
+  # used as the directory name for the html exports; use the lowercased
+  # PROJ name if there is no texinfo_filename in the Org file 
+
+  DIR := $(shell sed -nEe '/^[[:space:]]*\#\+(texinfo_filename|TEXINFO_FILENAME):(.*)\.info/ { s//\2/p; q; }' $(ORG))
+  DIR ?= $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
+
+  # VERS
+  # The version number of this Org document.
+  # If sync is run after the version number has been updated, then VERS
+  # picks up the newly-changed value.  VERS used to be staticly imbedded
+  # when the Makefile was tangled, but it needs to be dynamic for
+  # development.
+
+  VERS := $(shell sed -Ene '/^\#\+(macro|MACRO):version Version (([[:digit:]]+[[:punct:]]?){3})/ { s//v\2\//p; q; }' $(ORG))
 
   ### AWS
-  BUCKET = s3://$(AWS_S3_BUCKET)
-  AWS    = aws2
-  S3     = $(AWS) s3
-  SRC    = $(DIR)/
+  # PROJ_LIST contains the list of projects currently uploaded to
+  # the S3 bucket; each item contains the name of the project and its
+  # current version.
 
-  DST_OLD = $(BUCKET)/$(DIR)-$(S3VERS)
-  DST_NEW = $(BUCKET)/$(DIR)-$(VERS)
-  EXCL_INCL = --exclude "*" --include "*.html"
-  GRANTS  = --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-  REGION  = --region us-west-2
-  S3SYNC  = $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
-  S3MOVE  = $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
+  PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(BUCKET))))
+
+  # S3PROJ is the name of the current project as obtained from S3
+  # S3VERS is the version of this project currently installed in the S3 bucket
+
+  S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
+  S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
+
+  ### GITHUB
+  # USER is the current user's GitHub login name.
+
+  # The user name used to be statically embedded into the Makefile
+  # during tangle, but in an effort to make the Makefile dynamically
+  # indepedent, dynamic code has replaced the static code.  The code
+  # that placed the static name in the Makefile was a 'node' script that
+  # ran in a separate Org process during tangle.  An unfortunate fact of
+  # 'make' is that 'make' strips the quote marks from the string
+  # obtained from the 'curl' command when the 'make shell' command
+  # returns the string.  This makes the string malformed JSON and
+  # unparsable by most JSON parsers, including 'node’.  However,
+  # 'perl'’s core module JSON::PP (but not JSON::XS) has facilities to
+  # parse very malformed JSON strings.  Therefore, this dynamic code
+  # uses 'perl' and the core module JSON::PP to parse the 'curl' string
+  # into a 'perl' JSON object which can return the login name.  This
+  # code should work with any version of 'perl' without having to
+  # install any modules.
+
+  USER := $(shell \
+		curl -sH "Authorization: token $(TOKEN)" https://api.github.com/user \
+		| \
+		perl -MJSON::PP -e \
+		    '$$/ = ""; \
+		     my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
+		     print $$json->{login};' \
+		)
+
+  ### TOOLS & RESOURCES
+  TOOLS  := tools
+  CMPRPL := $(TOOLS)/cmprpl
+  SAVE   := resources
+
+  ### TEXINFO
+  TEXI  := $(PROJ).texi
+  INFO  := $(DIR).info
+  PDF   := $(PROJ).pdf
+  INDEX := index.html
+  HTML  := $(DIR)/$(INDEX)
+  DIR_OLD := $(DIR)-old
+
+  ### AWS
+  S3     := $(AWS) s3
+  SRC    := $(DIR)/
+
+  DST_OLD := $(BUCKET)/$(S3PROJ)
+  DST_NEW := $(BUCKET)/$(DIR)-$(VERS)
+  EXCL_INCL := --exclude "*" --include "*.html"
+  GRANTS  := --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+  S3SYNC  := $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
+  S3MOVE  := $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
 
   default: check texi info html pdf
 
@@ -2259,16 +2345,17 @@ find its method both non-intrusive and easy to edit by hand.
 	  help sync update values
 
   values: check
-	  @echo EMACSLOADPATH:	$(EMACSLOADPATH)
-	  @echo USER:		$(USER)
-	  @echo PROJ:		$(PROJ)
-	  @echo VERS:		$(VERS)
-	  @echo S3VERS:		$(S3VERS)
-	  @echo DIR:		$(DIR)
+	  @echo USER:   	$(USER)
+	  @echo PROJ:   	$(PROJ)
+	  @echo VERS:   	$(VERS)
+	  @echo S3PROJ: 	$(S3PROJ)
+	  @echo S3VERS: 	$(S3VERS)
+	  @echo DIR:    	$(DIR)
 	  @echo DIR_OLD:	$(DIR_OLD)
-	  @echo SRC:		$(SRC)
+	  @echo SRC:    	$(SRC)
 	  @echo DST_OLD:	$(DST_OLD)
 	  @echo DST_NEW:	$(DST_NEW)
+	  @echo PROJ_LIST:$(PROJ_LIST)
 
   check:
 	  @[[ -z $${AWS_S3_BUCKET} ]] && \
@@ -2278,8 +2365,20 @@ find its method both non-intrusive and easy to edit by hand.
 	     { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
 	     printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
 	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
-	     printf "$${GREEN}~/.aws credentials and config: set.$${CLEAR}\n" || \
+	     printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
 	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
+	  @$(EMACS) --batch --load="$(EMACS_D)/$(INIT_EL)" --eval '\
+		  (progn \
+			  (if \
+				  (member (quote texinfo) org-export-backends) \
+				  (princ "texinfo backend: INSTALLED in org-export-backends") \
+				  (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
+			  (terpri) \
+			  (if \
+				  org-confirm-babel-evaluate \
+				  (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
+				  (princ "org-confirm-babel-evaluate: SET to nil")) \
+			  (terpri))'
 
   open-org: $(ORG)
 	  emacsclient $(ORG) &
@@ -2289,15 +2388,13 @@ find its method both non-intrusive and easy to edit by hand.
 
   texi: $(TEXI)
   $(TEXI): $(ORG)
-	  emacs --batch --eval '\
+	  $(EMACS) --batch --eval '\
 	  (progn \
 	    (require (quote org)) \
-	    (require (quote ob)) \
-	    (require (quote ox-texinfo)) \
 	    (require (quote ob-shell)) \
 	    (setq org-confirm-babel-evaluate nil) \
 	    (find-file "$(ORG)") \
-	    (org-export-to-file (quote texinfo) "$(TEXI)"))'
+	    (org-texinfo-export-to-texinfo))'
 
   open-texi: texi
 	  emacsclient $(TEXI) &
@@ -2305,6 +2402,8 @@ find its method both non-intrusive and easy to edit by hand.
   info: $(INFO)
   $(INFO): $(TEXI)
 	  makeinfo $(TEXI)
+  open-info: info
+	  emacsclient $(INFO)
 
   html: $(HTML)
   $(HTML): $(TEXI)
@@ -2332,7 +2431,7 @@ find its method both non-intrusive and easy to edit by hand.
 	       https://api.github.com/repos/$(USER)/$(PROJ)
 
   update: $(ORG)
-	  emacs -Q --batch --eval \
+	  $(EMACS) -Q --batch --eval \
 	  '(progn \
 	     (require (quote org)) \
 	     (require (quote ob)) \
@@ -2359,13 +2458,22 @@ find its method both non-intrusive and easy to edit by hand.
 
   dist-clean: clean
 	  -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
+	  -for dir in *; \
+	   do \
+		  [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
+		  rm -vr $$dir; \
+	   done
 
-  wiped-clean: dist-clean
-	  -rm -rf Makefile $(DIR_OLD)
+  wipe-clean: dist-clean
+	  -rm -rf Makefile Readme.md $(DIR_OLD)
 
   help:
 	  @echo '"make default" makes the .texi file, the .info file, \
 	  the html files, and the .pdf file.'
+	  @echo
+
+	  @echo '"make check" checks for prerequistes'
+	  @echo '"make values" runs check and prints variable values'
 	  @echo
 
 	  @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
@@ -2401,103 +2509,6 @@ find its method both non-intrusive and easy to edit by hand.
 3. Store on GitHub a version of each other format upon a sync operation (i.e.,
    the INFO and PDF versions)
 
-** Get Org Filename
-This program simply uses the name of the buffer to obtain the name of the
-filename to add to the Makefile.
-
-#+caption:Get Org Filename program
-#+name:get-org-filename
-#+begin_src emacs-lisp :eval yes
-(file-name-base)
-#+end_src
-
-** Get Org Lowercase Filename
-This code looks for the =#+TEXINFO_FILENAME:= in the =#+TEXINFO EXPORTS=
-subtree.  If it doesn’t exist, then it will use the lower-cased filename as a
-fallback default.
-
-#+caption:Get Org Lowercase Filename program
-#+name:get-org-lc-filename
-#+header: :results value
-#+begin_src emacs-lisp :eval yes
-  (save-excursion
-    (if
-        (re-search-forward "^[[:space:]]+#\\+texinfo_filename:\\(.*\\)" nil t)
-        (file-name-sans-extension (match-string 1))
-      (downcase (file-name-base))))
-#+end_src
-
-#+RESULTS: get-org-lc-filename
-
-** Get File Version
-This program scans the current buffer for the version number and places it into
-the Makefile.
-
-#+caption:Get File Version program
-#+name:get-file-version
-#+begin_src emacs-lisp :eval yes
-  (save-excursion
-    (goto-char (point-min))
-    (re-search-forward "^#\\+macro:version Version \\(\\(?:[[:digit:]]+\\.?\\)\\{3\\}\\)")
-    (concat "v" (match-string-no-properties 1) "/"))
-#+end_src
-
-** Get S3 Version
-:PROPERTIES:
-:dependency: ">= bash v4"
-:END:
-This program obtains the version number of the code currently uploaded to the
-S3 bucket by obtaining a directory listing of top-level directories, which are
-in the form ~PRE <dir>-v#.#.#/~, and performs a regular expression search with
-a parenthesized match on the version numbers.  The program will exit with 'nil'
-if there is no match, but will return the version number as a string if there
-is a match.
-
-Note that the regular expression matching requires at least Bash version 4 or
-above.
-
-#+caption:Get S3 Version
-#+name:get-s3-version
-#+header: :var dir=get-org-lc-filename()
-#+header: :var file_version=get-file-version()
-#+header: :results output
-#+header: :eval yes
-#+header: :shebang "#! /usr/bin/env bash"
-#+begin_src sh
-  if [[ ${file_version} = "v0.0.0/" ]]
-  then
-      echo -n "nil"
-
-  else
-      re=${dir}'-(v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)'
-
-      # obtain a list of directories in the aws s2 bucket
-      verpre=$(aws2 s3 ls s3://${AWS_S3_BUCKET}/)
-
-      # check for a match; if one, return the version number; else return 'nil'
-      if [[ $verpre =~ $re ]]
-      then
-		echo -n ${BASH_REMATCH[1]}/
-      else
-		echo -n "nil"
-      fi
-  fi
-#+end_src
-
-** Get GitHub User Info
-This code calls the GitHub API from ~curl~ using the token stored in the env
-var =GITHUB_TOKEN= to obtain the GitHub user’s information.  The user’s
-information is returned as a JSON string.  Ths code returns one of the values
-based on a given key.  The default key used is =html_url=, but you can ask for
-any valid key by supplying an argument in the invocation, such as:
-: get-github-user-info(login)
-
-#+name:get-github-user-info
-#+header: :var key="html_url"
-#+begin_src sh :eval yes :results value
-  node -pe 'JSON.parse(process.argv[1]).'$key "$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/user)"
-#+end_src
-
 ** Compare Replace
 
 #+begin_comment
@@ -2513,30 +2524,39 @@ Makefile on an initial export.  The following code is not exported.
 (org-babel-tangle-file (buffer-file-name))
 #+end_src
 
+The AWS ~sync~ command relies upon time stamps to determine whether two
+programs are identical or not, as well as content.  If two otherwise identical
+files have different time stamps, ~sync~ will assume they are different and
+will process the newer.  However, the ~texinfo~ ~makeinfo --html~ command
+produces all new files even if some files (or most files) remain unchanged.
+This means that all files will be uploaded to the AWS S3 bucket on every
+iteration, even though the majority of the files are actually unchanged.
+
 The ~cmprpl~ source code attempts to resolve the issue of identical exported
 code having different time stamps, thus defeating the benefit provided by the
 ~aws2 s3 sync~ command uploading only changed files.
 
-This program makes sure that a generated HTML directory exists: $DIR_NEW.  If it
-doesn’t, then it is in an improper state and the program stops with an error
+This program makes sure that a generated HTML directory exists: =$DIR_NEW=.  If
+it doesn’t, then it is in an improper state and the program stops with an error
 message.
 
-The program then checks if an old directory exists, $DIR_OLD.  If one doesn’t,
-then one is created by copying the current new directory.  This provides a
-baseline for comparisons going forward.  The program exits at that point.
+The program then checks if an old directory exists, =$DIR_OLD=.  If one
+doesn’t, then one is created by copying the current new directory.  This
+provides a baseline for comparisons going forward.  The program exits at that
+point.  It is very important that the =$DIR_OLD= directory not be deleted going
+forward.
 
-Given that $DIR_OLD exists, the program then loops through all files in $DIR_OLD
-and compares them to the files in $DIR_NEW.  If the files are identical, the
-$DIR_OLD file replaces the $DIR_NEW file while retaining the old time stamp.  If
-a file is different, then the $DIR_NEW file replaces the $DIR_OLD file, thus
-giving it updated content and an updated time stamp.
+Given that =$DIR_OLD= exists, the program then loops through all files in
+=$DIR_NEW= and compares them to the files in =$DIR_OLD=.  If the files are
+identical, the =$DIR_OLD= file replaces the =$DIR_NEW= file while retaining the
+old time stamp (using the ~-p~ option of ~cp~.  If a file is different, then
+the =$DIR_NEW= file replaces the =$DIR_OLD= file, thus giving it updated
+content and an updated time stamp.  If the file does not exist in the
+=$DIR_OLD= directory, then it is added.
 
-The program then loops through all of the files in the new directory and copies
-any that do not exist in the old directory.  Now both directories should be in
+The program then loops through all of the files in the old directory and deletes
+any that do not exist in the new directory.  Now both directories should be in
 sync.
-
-It is important to retain the $DIR_OLD directory for as long as possible to reap
-the most benefits from the AWS S3 ~sync~ command.
 
 #+caption:Compare Replace program
 #+name:cmprpl
@@ -2550,30 +2570,33 @@ the most benefits from the AWS S3 ~sync~ command.
   [[ -d $DIR_NEW ]] || { echo "ERROR: $DIR_NEW does not exist"; exit 1; }
   [[ -d $DIR_OLD ]] || { echo "CREATING: $DIR_OLD does not exist"; cp -a $DIR_NEW $DIR_OLD; exit 0; }
 
-  for oldfile in $DIR_OLD/*
-  do
-      newfile=$DIR_NEW/$(basename $oldfile)
-      if [[ -e $newfile ]]
-      then
-	      if cmp -s $newfile $oldfile
-	      then
-	          printf "${GREEN}copying OLD to NEW${CLEAR}: "
-	          cp -vp $oldfile $newfile
-	      else
-	          printf "${PURPLE}copying NEW to OLD${CLEAR}: "
-	          cp -vp $newfile $oldfile
-	      fi
-      else
-	      printf "${RED}removing OLD:${CLEAR} "
-	      rm -v $oldfile
-      fi
-  done
-
   for newfile in $DIR_NEW/*
   do
       oldfile=$DIR_OLD/$(basename $newfile)
-      [[ -e $oldfile ]] || { printf "${BLUE}adding NEW to OLD${CLEAR}: "
-			     cp -vp $newfile $oldfile; }
+      if [[ -e $oldfile ]]
+      then
+	 if cmp -s $newfile $oldfile
+	 then
+	     printf "${GREEN}copying OLD to NEW${CLEAR}: "
+	     cp -vp $oldfile $newfile
+	 else
+	     printf "${PURPLE}copying NEW to OLD${CLEAR}: "
+	     cp -vp $newfile $oldfile
+	 fi
+      else
+	  printf "${BLUE}creating NEW in OLD${CLEAR}: "
+	  cp -vp $newfile $oldfile
+      fi
+  done
+
+  for oldfile in $DIR_OLD/*
+  do
+      newfile=$DIR_NEW/$(basename $oldfile)
+      if [[ ! -e $newfile ]]
+      then
+	  printf "${RED}removing $oldfile${CLEAR}"
+	  rm -v $oldfile
+      fi
   done
 #+end_src
 
