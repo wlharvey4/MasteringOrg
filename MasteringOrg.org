@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 06:05
-#+macro:version Version 0.7.7
+#+date:2020-02-03 06:19
+#+macro:version Version 0.7.8
 
 {{{version}}} {{{date}}}
 
@@ -2214,6 +2214,50 @@ Returns the smallest /element/ or /object/ around point.
 #+end_defun
 
 *** Global Parsing
+
+#+attr_texinfo: :options org-element-parse-buffer &optional granularity visible-only
+#+begin_defun
+Recursively /parse/ the buffer and return its structure.  If narrowing is in effect, only parse the
+visible part of the buffer.
+
+The Org buffer has =org-data= as /type/ and =nil= as /properties/.
+
+#+attr_texinfo: :indic b
+- GRANULARITY :: determines the depth of the recursion.
+
+  It can be set to the following symbols:
+
+  - =headline= : parse headlines only
+
+  - =greater-element= : do not recurse into greater elements except headlines and sections.  That
+    is, the elements that are parsed are the top-level ones.
+
+  - =element= : parse everything except objects and plain text
+
+  - =object= : parse the complete buffer; this is the default.
+
+- VISIBLE-ONLY :: when non-nil, do not parse the contents of hidden elements.
+
+- RETURN VALUE :: elements and objects; an element or object is represented as a list with the
+  pattern (TYPE PROPERTIES CONTENTS), where :
+
+  - TYPE :: is a symbol describing the element or object.  One can retrieve it with
+    ~org-element-type~ function.
+
+  - PROPERTIES :: is the list of attributes attached to the element or object, as a plist.  all
+    types share ‘:begin’, ‘:end’, ‘:post-blank’ and ‘:parent’ properties.
+
+    Properties values can be obtained by using ~org-element-property~ function.
+
+  - CONTENTS :: is a list of elements, objects or raw strings contained in the current element or
+    object, when applicable.
+
+    One can access them with ~org-element-contents~ function.
+
+
+~org-element-map~ function can be used to find specific elements or objects within the parse tree.
+
+#+end_defun
 
 ** Accessors
 
