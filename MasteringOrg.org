@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 06:19
-#+macro:version Version 0.7.8
+#+date:2020-02-03 06:37
+#+macro:version Version 0.7.9
 
 {{{version}}} {{{date}}}
 
@@ -2172,17 +2172,30 @@ Local parsing gives information about the structure at point.
 
 **** ~org-element-at-point~
 <<org-element-at-point>>
+
+This function returns the local /structure/ of the document around point.  It returns only
+/elements/, not /objects/.
+
 #+attr_texinfo: :options org-element-at-point
 #+begin_defun
-Determines the /type/ and /attribues/ of the closest /element/ to point.
+Determines the /type/ and /attribues/ of the closest /element/ to point.  This function does not
+analyze the contents of objects, such as a paragraphs.  The companion local parsing function
+~org-element-context~ goes deeper into the /object/ level.
+
+Refer to the following links to see the difference between /elements/ and /objects/:
+
+- [[*org-element-all-elements---a variable][list of elements]]
+
+- [[*org-element-all-objects---a variables][list of objects]]
+
 
 #+attr_texinfo: :indic b
 - RETURN VALUE :: is a list of ~(type, props)~, where
   #+attr_texinfo: :indic b
-  - TYPE :: the type of the element
+  - TYPE :: is the type of the element
 
-  - PROPS :: a plist of properties associated with the element.  The exact properties dependes on the
-    type, but will always include the following:
+  - PROPS :: is a plist of properties associated with the element.  The exact properties dependes
+    on the type, but will always include the following:
 
     - =:begin= :: is the beginning buffer position of the token
 
@@ -2220,7 +2233,9 @@ Returns the smallest /element/ or /object/ around point.
 Recursively /parse/ the buffer and return its structure.  If narrowing is in effect, only parse the
 visible part of the buffer.
 
-The Org buffer has =org-data= as /type/ and =nil= as /properties/.
+The Org buffer has a virtual node of type =org-data= and =nil= as /properties/, that is, no
+properties are attached to it.  The data obtained from this function can be modified freely using
+/setters/.
 
 #+attr_texinfo: :indic b
 - GRANULARITY :: determines the depth of the recursion.
@@ -2240,7 +2255,7 @@ The Org buffer has =org-data= as /type/ and =nil= as /properties/.
 
 - RETURN VALUE :: elements and objects; an element or object is represented as a list with the
   pattern (TYPE PROPERTIES CONTENTS), where :
-
+  #+attr_texinfo: :indic b
   - TYPE :: is a symbol describing the element or object.  One can retrieve it with
     ~org-element-type~ function.
 
