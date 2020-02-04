@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 16:03
-#+macro:version Version 0.7.11
+#+date:2020-02-03 17:01
+#+macro:version Version 0.7.12
 
 {{{version}}} {{{date}}}
 
@@ -22,7 +22,6 @@
                       directory is part of this list, all files with the extension ~.org~
                       in this directory will be part of the list.  Add and remove files
                       from this list using ~C-c [~ and ~C-c ]~.
-
 
 
       #+NAME:reveal-org-agenda-files
@@ -2386,6 +2385,275 @@ Returns PARENT element.
 #+end_defun
 
 ** Types and Attributes
+
+#+texinfo:@heading Environments
+
+A core concept in Org's syntax is that only
+- headlines,
+- sections,
+- planning lines and
+- property drawers
+
+
+#+cindex:environment
+are context-free.  Every other syntactical part exist within specific /environments/.  Three
+categories are used to classify these environments:
+
+1. *Greater elements*: Greater elements can contain directly any other element or greater element
+   except:
+
+   - elements of their own type,
+
+   - node properties, which can only be found in property drawers,
+
+   - items, which can only be found in plain lists.
+
+2. *Elements*: An element defines syntactical parts that are at the same level as a paragraph, that
+   is, things which cannot contain or be included in a paragraph.
+
+3. *Objects*: An object is a part that could be included in an element.
+
+
+#+texinfo:@heading Properties
+
+#+cindex:property
+Each *greater element*, *element* and *object* has a variable set of /properties/ attached to it.
+
+#+texinfo:@subheading Properties attached to all
+
+Four are shared by all types: 
+
+- =:begin=
+
+- =:end=
+
+- =:post-blank=
+
+- =:parent=
+
+
+#+texinfo:@subheading Contents properties
+
+Greater elements containing objects on the one hand, and elements or objects containing objects on
+the other hand also have:
+
+- =:contents-begin=
+
+- =:contents-end=
+
+
+#+texinfo:@subheading Affiliated keywords
+
+In addition to these properties, each element can optionally get some more from affiliated
+keywords, namely:
+
+- =:caption=
+
+- =:header=
+
+- =:name=
+
+- =:plot=
+
+- =:results=
+
+- =:attr_NAME=
+
+- =:post-affiliated= : It refers to the buffer position after any affiliated keyword, when
+  applicable, or to the beginning of the element otherwise.
+
+*** Greater Elements
+
+- Greater Blocks
+
+- Drawers and Property Drawers
+
+- Dynamic Blocks
+
+- Footnote Definitions
+
+- Inline Tasks
+
+- Plain Lists and Items
+
+- Property Drawers
+
+- Tables
+
+*** Elements
+
+Elements cannot contain any other element.
+
+Only /keywords/ whose name belongs to ~org-element-document-properties~, /verse blocks/ ,
+/paragraphs/ and /table rows/ can contain objects.
+
+- Babel Call
+
+- Blocks
+
+- Clock, Diary Sexp and Planning
+
+- Comments
+
+- Fixed Width Area
+
+- Horizontal Rule
+
+- Keywords
+
+- LaTeX Environments
+
+- Node Properties
+
+- Paragraphs
+
+- Table Rows
+
+*** Objects
+
+Objects can only be found in the following locations:
+
+- affiliated keywords defined in org-element-parsed-keywords,
+- document properties,
+- headline titles,
+- inlinetask titles,
+- item tags,
+- paragraphs,
+- table cells,
+- table rows, which can only contain table cell objects,
+- verse blocks.
+
+
+Most objects cannot contain objects. Those which can will be specified.
+
+- Entities and LaTeX Fragments
+
+- Export Snippets
+
+- Footnote References
+
+- Inline Babel Calls and Source Blocks
+
+- Line Breaks
+
+- Links
+
+- Macros
+
+- Targets and Radio Targets
+
+- Statistics Cookies
+
+- Subscript and Superscript
+
+- Table Cells
+
+- Timestamps
+
+- Text Markup
+
+*** Properties
+
+- Babel call
+
+- Bold
+
+- Clock
+
+- Code
+
+- Comment
+
+- Comment Block
+
+- Diary Sexp
+
+- Drawer
+
+- Dynamic Block
+
+- Entity
+
+- Example Block
+
+- Export Block
+
+- Export Snippet
+
+- Fixed Width
+
+- Footnote Definition
+
+- Footnote Reference
+
+- Headline
+
+- Horizontal Rule
+
+- Inline Babel Call
+
+- Inline Source Block
+
+- Inlinetask
+
+- Italic
+
+- Item
+
+- Keyword
+
+- LaTeX Environment
+
+- LaTeX Fragment
+
+- Line Break
+
+- Link
+
+- Macro
+
+- Node Property
+
+- Paragraph
+
+- Plain List
+
+- Planning
+
+- Property Drawer
+
+- Quote Block
+
+- Radio Target
+
+- Section
+
+- Special Block
+
+- Src Block
+
+- Statistics Cookie
+
+- Strike Through
+
+- Subscript
+
+- Superscript
+
+- Table
+
+- Table Cell
+
+- Table Row
+
+- Target
+
+- Timestamp
+
+- Underline
+
+- Verse Block
+
 *** org-element-all-elements---a variable
 
 - babel-call
@@ -2448,7 +2716,7 @@ Returns PARENT element.
 
 - verse-block
 
-*** org-element-all-objects---a variables
+*** org-element-all-objects---a variable
 
 - bold
 - code
@@ -2545,7 +2813,36 @@ Return a copy of DATUM.  =:parent= property is cleared and contents are removed 
 
 - DATUM :: DATUM is an element, object, string or nil.
 #+end_defun
+*** org-element-interpret-data---a function
 
+This function is the reciprocal operation of [[*org-element-parse-buffer---a function][~org-element-parse-buffer~]]:
+
+When provided an element, object, or even a full parse tree, it generates an equivalent string in
+Org syntax.  Output is a normalized document: it preserves structure and blank spaces but it
+removes indentation and capitalize keywords.
+
+#+attr_texinfo: :options org-element-interpret-data data
+#+begin_defun
+Interpret DATA as Org syntax.
+
+- DATA :: is a parse tree, an element, an object or a secondary string to interpret.
+
+- RETURN VALUE :: Org syntax as a string.
+#+end_defun
+*** org-element-lineage
+
+#+attr_texinfo: :options org-element-lineage datum &optional types with-self
+#+begin_defun
+List all ancestors of a given element or object.
+
+- DATUM :: is an object or element.
+
+- TYPES :: when a list of symbols, return the first element or object in the lineage whose type
+  belongs to that list instead.
+
+- WITH-SELF :: when non-nil, lineage includes DATUM itself as the first element, and TYPES, if
+  provided, also apply to it.
+#+end_defun
 * Commands
 
 - ~(org-cycle &optional ARG)~ ::
