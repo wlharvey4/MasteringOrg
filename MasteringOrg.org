@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 14:19
-#+macro:version Version 0.7.10
+#+date:2020-02-03 16:03
+#+macro:version Version 0.7.11
 
 {{{version}}} {{{date}}}
 
@@ -2166,11 +2166,10 @@ syntactical object at point.  Upon parsing, each token in an Org document gets a
 /properties/ attached to it.
 
 ** Parsing Functions
-
 *** Local Parsing
 Local parsing gives information about the structure at point.
 
-**** ~org-element-at-point~
+**** org-element-at-point---a function
 <<org-element-at-point>>
 
 This function returns the local /structure/ of the document around point.  It returns only
@@ -2208,7 +2207,7 @@ Refer to the following links to see the difference between /elements/ and /objec
 
 #+end_defun
 
-**** ~org-element-context~
+**** org-element-context---a function
 #+attr_texinfo: :options org-element-context &optional element
 #+begin_defun
 Returns the smallest /element/ or /object/ around point.
@@ -2227,7 +2226,7 @@ Returns the smallest /element/ or /object/ around point.
 #+end_defun
 
 *** Global Parsing
-
+**** org-element-parse-buffer---a function
 #+attr_texinfo: :options org-element-parse-buffer &optional granularity visible-only
 #+begin_defun
 Recursively /parse/ the buffer and return its structure.  If narrowing is in effect, only parse the
@@ -2262,22 +2261,131 @@ properties are attached to it.  The data obtained from this function can be modi
   - PROPERTIES :: is the list of attributes attached to the element or object, as a plist.  all
     types share ‘:begin’, ‘:end’, ‘:post-blank’ and ‘:parent’ properties.
 
-    Properties values can be obtained by using ~org-element-property~ function.
+    Properties values can be obtained by using [[*org-element-type---a function][~org-element-property~]] function.
 
   - CONTENTS :: is a list of elements, objects or raw strings contained in the current element or
     object, when applicable.
 
-    One can access them with ~org-element-contents~ function.
+    One can access them with [[*org-element-contents][~org-element-contents~]] function.
 
 
 ~org-element-map~ function can be used to find specific elements or objects within the parse tree.
-
 #+end_defun
 
 ** Accessors
+The type and properties of a given /element/ or /object/ are obtained with, respectively:
+*** org-element-type---a function
+
+#+attr_texinfo: :options org-element-type element
+#+begin_defun
+Returns the /type/ of ELEMENT.
+
+- ELEMENT :: an element (or object).
+
+- RETURN VALUE :: 
+
+  - type :: type of ELEMENT; or
+
+  - plain-text :: string; or
+
+  - org-data :: a complete document; or
+
+  - nil :: all other cases
+#+end_defun
+*** org-element-property---a function
+
+#+attr_texinfo: :options org-element-property property element
+#+begin_defun
+Extract the value from the PROPERTY of an ELEMENT.
+
+- PROPERTY :: the /property/ to extract
+
+- ELEMENT :: the /element/ from which to extract the property.
+#+end_defun/
+*** org-element-contents---a function
+This function returns an ordered (by buffer position) list of all elements or objects within a
+given element or object.  Since local parsing ignores contents, it only makes sense to use this
+function on a part of an AST.
+
+#+attr_texinfo: :options org-element-contents element
+#+begin_defun
+Extract contents from an ELEMENT.
+#+end_defun
+** Setters
+
+#+texinfo:@heading Modifying the AST
+
+The elements and objects of an AST may be modified freely.
+
+#+texinfo:@heading Do not modify structures obtained from local parsers
+
+Even though structures obtained with local parsers are mutable, it is good practice to consider
+them immutable.  Destructively changing properties relative to buffer positions is likely to break
+the caching mechanism running in the background.  If you need to slightly alter an element obtained
+using these functions, first copy it, using [[*org-element-copy][~org-element-copy~]], before modifying it by side effect.
+
+*** org-element-put-property---a function
+This function modifies any property of a given element or object.
+
+#+attr_texinfo: :options org-element-put-property element property value
+In ELEMENT set PROPERTY to VALUE.
+
+Return modified element.
+#+begin_defun
+
+#+end_defun
+
+*** org-element-extract-element---a function
+This functin removes an element or object from an AST.
+
+#+attr_texinfo: :options org-element-extract-element element
+#+begin_defun
+Extract ELEMENT from parse tree.
+
+Remove ELEMENT from the parse tree by side-effect, and return it with its =:parent= property
+stripped out.
+#+end_defun
+
+*** org-element-set-element---a function
+This function replaces one element with another.
+
+#+attr_texinfo: :options org-element-set-element old new
+#+begin_defun
+Replace element or object OLD with element or object NEW.
+
+The function takes care of setting =:parent= property for NEW.
+#+end_defun
+
+*** org-element-insert-before---a function
+This function and the next insert elements within the tree.  This one inserts an element before a
+precise location.
+
+#+attr_texinfo: :options org-element-insert-before element location
+#+begin_defun
+Insert ELEMENT before LOCATION in parse tree.
+
+LOCATION is an element, object or string within the parse tree.
+
+Parse tree is modified by side effect.
+#+end_defun
+
+*** org-element-adopt-element---a function
+This function inserts an element after all children.
+
+#+attr_texinfo: :options org-element-adopt-elements parent &rest children
+#+begin_defun
+Append elements to the contents of another element.
+
+PARENT is an element or object.
+
+CHILDREN can be elements, objects, or a strings.
+
+The function takes care of setting =:parent= property for CHILD.  
+
+Returns PARENT element.
+#+end_defun
 
 ** Types and Attributes
-
 *** org-element-all-elements---a variable
 
 - babel-call
@@ -2365,37 +2473,78 @@ properties are attached to it.  The data obtained from this function can be modi
 - underline
 - verbatim
 
-*** org-element-property---a function
+** Tools
+*** org-element-map
+This function can be used to collect data from an AST.
 
-#+attr_texinfo: :options org-element-property property element
+The following snippet returns all paragraphs beginning a section in the current document:
+
+#+begin_src emacs-lisp :eval no
+(org-element-map (org-element-parse-buffer) 'paragraph
+  (lambda (paragraph)
+    (let ((parent (org-element-property :parent paragraph)))
+      (and (eq (org-element-type parent) 'section)
+           (let ((first-child (car (org-element-contents parent))))
+             (eq first-child paragraph))
+           ;; Return value.
+           paragraph))))
+#+end_src
+
+It can also be used as a predicate.  The following snippet returns a non-nil value when the
+document contains a checked item.
+
+#+begin_src emacs-lisp :eval no
+(org-element-map (org-element-parse-buffer) 'item
+  (lambda (item) (eq (org-element-property :checkbox item) 'on))
+  nil t)
+#+end_src
+
+#+attr_texinfo: :options org-element-map data types fun &optional info first-match no-recursion with-affiliated
 #+begin_defun
-Extract the value from the PROPERTY of an ELEMENT.
+Map a function on selected elements or objects.
 
-- PROPERTY :: the /property/ to extract
+- DATA :: is one of:
+  - parse tree
+  - element
+  - object
+  - string
+  - list of constructs
 
-- ELEMENT :: the /element/ from which to extract the property.
-#+end_defun/
+- TYPES :: is one of:
+  - symbol
+  - list of symbols of elements or objects types
 
-*** org-element-type---a function
+- FUN :: is the function called on the matching element or object; it must accept one argument: the
+  element or object itself.  nil values returned from FUN do not appear in results.
 
-#+attr_texinfo: :options org-element-type element
-#+begin_defun
-Returns the /type/ of ELEMENT.
+- INFO :: when non-nil, is a plist holding export options, in which case those parts of the parse
+  tree not exportable according to that property list will be skipped.
 
-- ELEMENT :: an element (or object).
+- FIRST-MATCH :: when non-nil, stop at the first match for which FUN doesn't return nil; return
+  that value;
 
-- RETURN VALUE :: 
+- NO-RECURSION :: is a symbol or a list of symbols representing element or objects types.  The FUN
+  will not enter any recursive element or object whose type belongs to that list.  FUN can still be
+  applied on them.
 
-  - type :: type of ELEMENT; or
-
-  - plain-text :: string; or
-
-  - org-data :: a complete document; or
-
-  - nil :: all other cases
+- WITH-AFFILIATED :: when non-nil, FUN will also apply to matching objects within parsed affiliated
+  keywords.  See [[*org-element-parsed-keywords][~org-element-parsed-keywords~]].
 #+end_defun
 
-** Tools
+*** org-element-parsed-keywords
+
+#+attr_texinfo: :options org-element-parsed-keywords
+#+begin_defvar
+List of affiliated keywords whose value can be parsed.
+#+end_defvar
+*** org-element-copy
+
+#+attr_texinfo: :options org-element-copy DATUM
+#+begin_defun
+Return a copy of DATUM.  =:parent= property is cleared and contents are removed in the process.
+
+- DATUM :: DATUM is an element, object, string or nil.
+#+end_defun
 
 * Commands
 
