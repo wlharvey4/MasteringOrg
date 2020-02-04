@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 17:01
-#+macro:version Version 0.7.12
+#+date:2020-02-03 17:22
+#+macro:version Version 0.7.13
 
 {{{version}}} {{{date}}}
 
@@ -2150,7 +2150,7 @@ find its method both non-intrusive and easy to edit by hand.
 
      May be a list of tags to be inherited, or a regexp to match tags.
 
-* Org Element
+* Org Element and Org Syntax
 - [[https://orgmode.org/worg/dev/org-element-api.html][Org Element review]]
 
 - [[https://orgmode.org/worg/dev/org-syntax.html][Syntax Specification]]
@@ -2163,6 +2163,55 @@ find its method both non-intrusive and easy to edit by hand.
 contains tools to generate an /abstract syntax tree/ (*AST*) from an Org buffer, and to analyze the
 syntactical object at point.  Upon parsing, each token in an Org document gets a /type/ and some
 /properties/ attached to it.
+
+#+cindex:syntax
+#+cindex:context-free
+A core concept in this syntax is that only *headlines*, *sections*, *planning lines* and *property
+drawers* are context-free1.  Every other syntactical part only exists within specific environments
+
+** Context-Free Elements---Headlines and Sections
+
+*** Headlines
+
+A headline is defined as:
+
+: STARS KEYWORD PRIORITY TITLE TAGS
+
+- STARS :: is a string starting at column 0, containing at least one asterisk and ended by a space
+  character.  The number of asterisks is used to define the level of the headline.  It’s the sole
+  compulsory part of a headline.
+
+- KEYWORD :: is a TODO keyword, which has to belong to the list defined in ~org-todo-keywords-1~,
+  which contains all =TOOD= and =DONE= keywords in a buffer.  Case is significant.
+
+- PRIORITY :: is a priority cookie, i.e. a single letter preceded by a hash sign # and enclosed
+  within square brackets.
+
+- TITLE :: can be made of any character but a new line.  Though, it will match after every other
+  part have been matched.
+
+- TAGS :: is made of words containing any alpha-numeric character, underscore, at sign, hash sign
+  or percent sign, and separated with colons.
+
+- COMMENT :: If the first word appearing in the title is “COMMENT”, the headline will be considered
+  as “commented”. Case is significant.
+
+- FOOTNOTES :: If the headline's title is the value contained in ~org-footnote-section~
+  (e.g. “Footnoes”), it will be considered as a “footnote section”.  Case is significant.
+
+- ARCHIVE :: If “ARCHIVE” is one of its tags, it will be considered as “archived”.  Case is
+  significant.
+
+- SECTION :: A headline contains directly one section (optionally), followed by any number of
+  deeper level headlines.
+
+*** Sections
+
+A section contains directly any *greater element* or *element*.
+
+Only a headline can contain a section.
+
+As an exception, text before the first headline in the document also belongs to a section.
 
 ** Parsing Functions
 *** Local Parsing
