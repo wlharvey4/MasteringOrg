@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-03 17:22
-#+macro:version Version 0.7.13
+#+date:2020-02-04 18:43
+#+macro:version Version 0.7.14
 
 {{{version}}} {{{date}}}
 
@@ -2213,6 +2213,144 @@ Only a headline can contain a section.
 
 As an exception, text before the first headline in the document also belongs to a section.
 
+** Affiliated Keywords
+Many element types can be assigned /attributes/.  This is done by adding specific keywords, named
+/affiliated keywords/, just above the element considered, with no blank lines allowed.
+
+Affiliated keywords are built upon one of the following patterns:
+
+: #+KEY: VALUE
+: #+KEY[OPTIONAL]: VALUE
+: #+ATTR_BACKEND: VALUE
+
+- KEY ::
+
+  - “CAPTION”,
+
+  - “HEADER”,
+
+  - “NAME”,
+
+  - “PLOT” or
+
+  - “RESULTS”
+
+- BACKEND
+
+  is a string constituted of alpha-numeric characters, hyphens or underscores.
+
+- OPTIONAL :: can contain any character but a new line.  Only “CAPTION” and “RESULTS” keywords can
+  have an optional value.
+
+- VALUE :: can contain any character but a new line.
+
+
+An affiliated keyword can appear more than once if KEY is either “CAPTION” or “HEADER” or if its
+pattern is “#+ATTR_BACKEND: VALUE”.
+
+“CAPTION”, “AUTHOR”, “DATE” and “TITLE” keywords can contain objects in their value and their
+optional value, if applicable.
+
+** Elements---Greater and Otherwise
+
+*** Greater Elements
+Unless specified otherwise, greater elements can contain directly any other element or greater
+element except:
+
+- elements of their own type,
+
+- node properties, which can only be found in property drawers,
+
+- items, which can only be found in plain lists.
+
+
+**** Greater Blocks
+
+**** Drawers and Property Drawers
+
+**** Dynamic Blocks
+
+**** Footnote Definitions
+
+**** Inlinetasks
+
+**** Plain Lists and Items
+
+**** Property Drawers
+
+**** Tables
+
+*** Elements
+
+Elements cannot contain any other element.
+
+Only keywords whose name belongs to org-element-document-properties, verse blocks , paragraphs and
+table rows can contain objects.
+
+**** Babel Call
+
+**** Babel Call
+
+**** Clock, Diary Sexp and Planning
+
+**** Comments
+
+**** Fixed Width Areas
+
+**** Horizontal Rules
+
+**** Horizontal Rules
+
+**** LaTeX Environments
+
+**** Node Properties
+
+**** Paragraphs
+
+**** Table Rows
+
+*** Objects
+
+Most objects cannot contain objects.  Those which can will be specified.  Objects can only be found
+in the following locations:
+
+- affiliated keywords defined in org-element-parsed-keywords,
+- document properties,
+- headline titles,
+- inlinetask titles,
+- item tags,
+- paragraphs,
+- table cells,
+- table rows, which can only contain table cell objects,
+- verse blocks.
+
+
+**** Entities and LaTeX Fragments
+
+**** Export Snippets
+
+**** Footnote References
+
+**** Inline Babel Calls and Source Blocks
+
+**** Line Breaks
+
+**** Links
+
+**** Macros
+
+**** Targets and Radio Targets
+
+**** Statistics Cookies
+
+**** Subscript and Superscript
+
+**** Table Cells
+
+**** Timestamps
+
+**** Text Markup
+
 ** Parsing Functions
 *** Local Parsing
 Local parsing gives information about the structure at point.
@@ -2233,7 +2371,7 @@ Refer to the following links to see the difference between /elements/ and /objec
 
 - [[*org-element-all-elements---a variable][list of elements]]
 
-- [[*org-element-all-objects---a variables][list of objects]]
+- [[*org-element-all-objects---a variable][list of objects]]
 
 
 #+attr_texinfo: :indic b
