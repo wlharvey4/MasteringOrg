@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-04 18:43
-#+macro:version Version 0.7.14
+#+date:2020-02-16 15:01
+#+macro:version Version 0.7.15
 
 {{{version}}} {{{date}}}
 
@@ -2235,7 +2235,7 @@ Affiliated keywords are built upon one of the following patterns:
 
   - “RESULTS”
 
-- BACKEND
+- BACKEND ::
 
   is a string constituted of alpha-numeric characters, hyphens or underscores.
 
@@ -2413,6 +2413,7 @@ Returns the smallest /element/ or /object/ around point.
 
 *** Global Parsing
 **** org-element-parse-buffer---a function
+
 #+attr_texinfo: :options org-element-parse-buffer &optional granularity visible-only
 #+begin_defun
 Recursively /parse/ the buffer and return its structure.  If narrowing is in effect, only parse the
@@ -2442,7 +2443,7 @@ properties are attached to it.  The data obtained from this function can be modi
   pattern (TYPE PROPERTIES CONTENTS), where :
   #+attr_texinfo: :indic b
   - TYPE :: is a symbol describing the element or object.  One can retrieve it with
-    [[*org-element-type][~org-element-type~]] function.
+    [[*org-element-type---a function][~org-element-type~]] function.
 
   - PROPERTIES :: is the list of attributes attached to the element or object, as a plist.  all
     types share ‘:begin’, ‘:end’, ‘:post-blank’ and ‘:parent’ properties.
@@ -2452,7 +2453,7 @@ properties are attached to it.  The data obtained from this function can be modi
   - CONTENTS :: is a list of elements, objects or raw strings contained in the current element or
     object, when applicable.
 
-    One can access them with [[*org-element-contents][~org-element-contents~]] function.
+    One can access them with [[*org-element-contents---a function][~org-element-contents~]] function.
 
 
 ~org-element-map~ function can be used to find specific elements or objects within the parse tree.
@@ -2514,15 +2515,14 @@ using these functions, first copy it, using [[*org-element-copy][~org-element-co
 This function modifies any property of a given element or object.
 
 #+attr_texinfo: :options org-element-put-property element property value
+#+begin_defun
 In ELEMENT set PROPERTY to VALUE.
 
 Return modified element.
-#+begin_defun
-
 #+end_defun
 
 *** org-element-extract-element---a function
-This functin removes an element or object from an AST.
+This function removes an element or object from an AST.
 
 #+attr_texinfo: :options org-element-extract-element element
 #+begin_defun
@@ -3072,7 +3072,6 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :END:
-
 ** Makefile                                     :dependencies:env_vars:perl:
 :PROPERTIES:
 :appendix: t
@@ -3080,7 +3079,7 @@ List all ancestors of a given element or object.
 :dependency2: "AWS Account with ~/.aws/credentials and ~/.aws/config"
 :dependency3: "S3 bucket set up for serving a static web pages"
 :dependency4: "GitHub Account with personal token"
-:env_var1: ORG_TEMPLATE
+:env_var1: SYNC_ORG_TEMPLATE
 :env_var2: EMACSLOADPATH
 :env_var3: AWS_S3_BUCKET
 :env_var4: GITHUB_TOKEN
@@ -3098,18 +3097,20 @@ List all ancestors of a given element or object.
   ### ALL OTHERS CAN BE HARD-CODED
   ### YOU ALSO NEED ~/.aws/credentials
 
-  EMACS   := /Applications/MacPorts/EmacsMac.app/Contents/MacOS/bin/emacs-26.3
-  EMACS_D := $(HOME)/.emacs.d
-  INIT_EL := init.el
+  # Emacs binary and init file
 
-  # The fully-qualified path to the Template file
+  EMACS        := $(EMACS)
+  EMACS_PREFIX := $(HOME)/.emacs.d
+  EMACS_INIT   := $(EMACS_PREFIX)/init.el
 
-  TEMPLATE := $(ORG_TEMPLATE)
+  # The absolute path to this Template file
+
+  TEMPLATE := $(SYNC_ORG_TEMPLATE)
 
   # User’s personal GitHub token for authentication
   # DO NOT HARD-CODE THIS VALUE
 
-  TOKEN := $(GITHUB_TOKEN)
+  GH_TOKEN := $(GITHUB_TOKEN)
 
   # The AWS S3 bucket to use to store the html source files
 
@@ -3126,29 +3127,66 @@ List all ancestors of a given element or object.
   ### END OF USER-DEPENDENT VARIABLES
   ###############################################################################
 
-  ### ORG
-  ### NOTE: there can be only one Org file in the directory;
-  ### so far this has not been a problem, but it might be.
+  ### PROJ AND ORG
+  # ORG is the name of this Org file with extension
+  # PROJ is the name of this Org file without extension.
 
-  PROJ := $(basename $(shell ls *.org))
-  ORG   := $(PROJ).org
+  ### NOTE: there can be only one Org file in the project directory;
+  # so far this has not been a problem, but it might be.
 
-  # DIR is not necessarily the same as PROJ; it is the exported .info
+  ### NOTE: S is needed only for the Template file because of the way it is nested
+  # one level deep in the Templates GitHub repo, which uses the plural form
+  # of Templates, whereas this file uses the singular form, Template.  So when
+  # the homepage link is updated, the curl command must be told to use the plural
+  # form.  This is obviously a hack only for my own use and can be removed once
+  # I clean up this anomaly.
+
+  ORG  := $(shell ls *.org)
+  PROJ := $(basename $(ORG))
+
+  ifeq ($(PROJ),$(basename $(notdir $(TEMPLATE))))
+  S := s
+  endif
+
+  ### DIR:
+  # This is not necessarily the same as PROJ; it is the exported .info
   # name found at #+texinfo_filename:<DIR>.info without its extension,
-  # used as the directory name for the html exports; use the lowercased
-  # PROJ name if there is no texinfo_filename in the Org file 
+  # used as the directory name for the html export directory; use the
+  # lowercased PROJ name if there is no texinfo_filename in the Org file
 
-  DIR := $(shell sed -nEe '/^[[:space:]]*\#\+(texinfo_filename|TEXINFO_FILENAME):(.*)\.info/ { s//\2/p; q; }' $(ORG))
-  DIR ?= $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
+  # NOTE: 're-search-forward' will either return an error or 'nil',
+  # depending on the value of the third argument, if the search fails.
+  # If it returns an error, then that error shows up in the shell
+  # output.  It might be advantageous to let it so you are aware that
+  # there is no 'texinfo_filename', but for now it is set to return
+  # 'nil' on failure, and then assign the backup value.
 
-  # VERS
+  DIR := $(shell $(EMACS) -Q --batch --eval '\
+    (with-temp-buffer (insert-file-contents "$(ORG)") \
+      (re-search-forward "^ *.\\+\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
+      (princ (match-string 1)))')
+  ifeq ($(DIR),nil)
+  DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
+  endif
+
+  ### VERS: v1.2.34/
   # The version number of this Org document.
   # If sync is run after the version number has been updated, then VERS
   # picks up the newly-changed value.  VERS used to be staticly imbedded
   # when the Makefile was tangled, but it needs to be dynamic for
   # development.
 
-  VERS := $(shell sed -Ene '/^\#\+(macro|MACRO):version Version (([[:digit:]]+[[:punct:]]?){3})/ { s//v\2\//p; q; }' $(ORG))
+  # QUERY: should this number be formatted like this, or should it be just the numbers?
+  # The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
+  # it includes them.  But it only includes them because I have made it so.  Not a good
+  # reason just by itself.  The ending slash is not actually a part of the version, but
+  # comes from the way the 'aws2 ls' command returns its values.  So VERS should probably
+  # not include the trailing slash, although it doesn’t hurt anything.
+
+  VERS := v$(shell $(EMACS) -Q --batch --eval '\
+    (with-temp-buffer (insert-file-contents "$(ORG)") \
+      (re-search-forward "^ *.\\+\\(?:macro\\|MACRO\\):version Version \\(\\([[:digit:]]+[[:punct:]]?\\)\\{3\\}\\)") \
+      (princ (match-string 1)))')/
 
   ### AWS
   # PROJ_LIST contains the list of projects currently uploaded to
@@ -3157,11 +3195,24 @@ List all ancestors of a given element or object.
 
   PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(BUCKET))))
 
-  # S3PROJ is the name of the current project as obtained from S3
-  # S3VERS is the version of this project currently installed in the S3 bucket
+  ### S3PROJ
+  # The name of the current project as obtained from S3: 'proj-v1.2.34/'
+  # If there is no current project in the S3 bucket, then assign a value equal to
+  # the Org project and version instead.
+  ### S3VERS
+  # The version of this project currently installed in the S3 bucket: 'v1.2.34/'
+  # If there is no current version in the S3 bucket, then assign the version from
+  # this Org file instead.
 
   S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
+  ifeq ($(S3PROJ),$(empty))
+  S3PROJ := $(DIR)-$(VERS)
+  endif
+
   S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
+  ifeq ($(S3VERS), $(empty))
+  S3VERS := $(VERS)
+  endif
 
   ### GITHUB
   # USER is the current user's GitHub login name.
@@ -3183,7 +3234,7 @@ List all ancestors of a given element or object.
   # install any modules.
 
   USER := $(shell \
-		curl -sH "Authorization: token $(TOKEN)" https://api.github.com/user \
+		curl -sH "Authorization: token $(GH_TOKEN)" https://api.github.com/user \
 		| \
 		perl -MJSON::PP -e \
 		    '$$/ = ""; \
@@ -3225,7 +3276,8 @@ List all ancestors of a given element or object.
 
   values: check
 	  @echo USER:   	$(USER)
-	  @echo PROJ:   	$(PROJ)
+	  @echo ORG:    	$(ORG)
+	  @echo PROJ:   	$(PROJ) $S
 	  @echo VERS:   	$(VERS)
 	  @echo S3PROJ: 	$(S3PROJ)
 	  @echo S3VERS: 	$(S3VERS)
@@ -3246,7 +3298,7 @@ List all ancestors of a given element or object.
 	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
 	     printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
 	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
-	  @$(EMACS) --batch --load="$(EMACS_D)/$(INIT_EL)" --eval '\
+	  @$(EMACS) --batch --load="$(EMACS_INIT)" --eval '\
 		  (progn \
 			  (if \
 				  (member (quote texinfo) org-export-backends) \
@@ -3301,13 +3353,16 @@ List all ancestors of a given element or object.
 	  $(S3SYNC)
 	  [[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
 
+  ### NOTE the use of the S variable at the end of PROJ; this is to handle
+  # the singular case of the GitHub repo using the plural form, Templates
+  # whereas the the Template.org file uses the singular form.
   homepage: $(ORG)
 	  curl -i \
-	       -H "Authorization: token $(TOKEN)" \
+	       -H "Authorization: token $(GH_TOKEN)" \
 	       -H "Content-Type: application/json" \
 	       -X PATCH \
 	       -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)"}' \
-	       https://api.github.com/repos/$(USER)/$(PROJ)
+	       https://api.github.com/repos/$(USER)/$(PROJ)$S
 
   update: $(ORG)
 	  $(EMACS) -Q --batch --eval \
@@ -3374,7 +3429,7 @@ List all ancestors of a given element or object.
 	  @echo
 
 	  @echo '"make clean" removes the .texi, .info, and backup files ("*~")'
-	  @echo '"make clean-dist" cleans, removes the html distribution, \
+	  @echo '"make dist-clean" cleans, removes the html distribution, \
 	  and removes the build directory'
 
 #+end_src
@@ -3503,6 +3558,7 @@ sync.
    #+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
    #+OPTIONS: html-preamble:t html-scripts:t html-style:t
    #+OPTIONS: html5-fancy:t tex:t
+   #+OPTIONS: H:4
    #+INFOJS_OPT:
 
 ** GENERAL
