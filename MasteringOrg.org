@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-20 22:47
-#+macro:version Version 0.8.1
+#+date:2020-02-20 22:57
+#+macro:version Version 0.8.2
 
 {{{version}}} {{{date}}}
 
@@ -2155,6 +2155,22 @@ find its method both non-intrusive and easy to edit by hand.
 
 - [[https://orgmode.org/worg/dev/org-syntax.html][Syntax Specification]]
 
+
+#+findex:org-element.el
+#+cindex:parser
+#+cindex:syntax specification
+~org-element.el~ implements a /parser/ according to Org's syntax specification.
+
+#+cindex:abstract syntax tree
+#+cindex:token
+#+cindex:type
+The library contains /tools/ to generate an abstract syntax tree (AST) from an Org buffer, and
+analyze the syntactical object at point.  There are parsing functions, with accessors and setters.
+Each token in an Org document gets a type and some properties attached to it.  This information can
+be extracted and modified with provided accessors and setters.
+
+An exhaustive list of all types and attributes is given in section [[*Types and Attributes][Types and Attributes]].
+
 ** Org Syntax
 
 #+cindex:syntax
@@ -2218,200 +2234,6 @@ As an exception, text before the first headline in the document also belongs to 
 **** Planning Lines
 
 **** Property Drawers
-
-*** Elements---Greater and Otherwise
-**** Greater Elements
-
-#+attr_texinfo: :options org-element-greater-elements
-#+begin_defvar
-~org-element-greater-elements~ is a variable defined in ‘org-element.el’.
-
-Its value is:
-
-#+begin_example
-center-block drawer dynamic-block footnote-definition headline inlinetask
-item plain-list property-drawer quote-block section special-block table
-#+end_example
-
-This variable contains a list of recursive element types aka Greater Elements.
-#+end_defvar
-
-Unless specified otherwise, greater elements can contain directly any other element or greater
-element except:
-
-- elements of their own type,
-
-- node properties, which can only be found in property drawers,
-
-- items, which can only be found in plain lists.
-
-
-***** Greater Blocks
-
-***** Drawers and Property Drawers
-
-***** Dynamic Blocks
-
-***** Footnote Definitions
-
-***** Inlinetasks
-
-***** Plain Lists and Items
-
-***** Property Drawers
-
-***** Tables
-
-**** Elements
-
-#+attr_texinfo: :options org-element-all-elements
-#+begin_defvar
-A variable defined in ‘org-element.el’.  It contains a complete list of element types.
-
-Its value is:
-
-#+begin_example
-babel-call center-block clock comment comment-block diary-sexp drawer dynamic-block
-example-block export-block fixed-width footnote-definition headline horizontal-rule
-inlinetask item keyword latex-environment node-property paragraph plain-list
-planning property-drawer quote-block section special-block src-block table table-row
-verse-block
-#+end_example
-#+end_defvar
-
-Elements cannot contain any other element.
-
-Only keywords whose name belongs to org-element-document-properties, verse blocks , paragraphs and
-table rows can contain objects.
-
-***** Babel Call
-
-***** Babel Call
-
-***** Clock, Diary Sexp and Planning
-
-***** Comments
-
-***** Fixed Width Areas
-
-***** Horizontal Rules
-
-***** Horizontal Rules
-
-***** LaTeX Environments
-
-***** Node Properties
-
-***** Paragraphs
-
-***** Table Rows
-
-**** Objects
-
-#+attr_texinfo: :options org-element-all-objects
-#+begin_defvar
-~org-element-all-objects~ is a variable defined in ‘org-element.el’.  It contains a complete list
-of object types.
-
-Its value is:
-
-#+begin_example
-bold code entity export-snippet footnote-reference inline-babel-call inline-src-block
-italic line-break latex-fragment link macro radio-target statistics-cookie
-strike-through subscript superscript table-cell target timestamp underline verbatim
-#+end_example
-#+end_defvar
-
-Most objects cannot contain objects.  Those which can will be specified.  Objects can only be found
-in the following locations:
-
-- affiliated keywords defined in org-element-parsed-keywords,
-- document properties,
-- headline titles,
-- inlinetask titles,
-- item tags,
-- paragraphs,
-- table cells,
-- table rows, which can only contain table cell objects,
-- verse blocks.
-
-
-***** Entities and LaTeX Fragments
-
-***** Export Snippets
-
-***** Footnote References
-
-***** Inline Babel Calls and Source Blocks
-
-***** Line Breaks
-
-***** Links
-
-***** Macros
-
-***** Targets and Radio Targets
-
-***** Statistics Cookies
-
-***** Subscript and Superscript
-
-***** Table Cells
-
-***** Timestamps
-
-***** Text Markup
-*** Affiliated Keywords
-
-#+attr_texinfo: :options org-element-affiliated-keywords
-#+begin_defvar
-List of affiliated keywords as strings.  By default, all keywords setting attributes (e.g.,
-"ATTR_LATEX") are affiliated keywords and need not to be in this list.
-
-Its value is:
-
-#+begin_example
-"CAPTION" "DATA" "HEADER" "HEADERS" "LABEL" "NAME" "PLOT" "RESNAME" "RESULT"
-"RESULTS" "SOURCE" "SRCNAME" "TBLNAME"
-#+end_example
-#+end_defvar
-
-Many element types can be assigned /attributes/.  This is done by adding specific keywords, named
-/affiliated keywords/, just above the element considered, with no blank lines allowed.
-
-Affiliated keywords are built upon one of the following patterns:
-
-: #+KEY: VALUE
-: #+KEY[OPTIONAL]: VALUE
-: #+ATTR_BACKEND: VALUE
-
-- KEY ::
-
-  - “CAPTION”,
-
-  - “HEADER”,
-
-  - “NAME”,
-
-  - “PLOT” or
-
-  - “RESULTS”
-
-- BACKEND ::
-
-  is a string constituted of alpha-numeric characters, hyphens or underscores.
-
-- OPTIONAL :: can contain any character but a new line.  Only “CAPTION” and “RESULTS” keywords can
-  have an optional value.
-
-- VALUE :: can contain any character but a new line.
-
-
-An affiliated keyword can appear more than once if KEY is either “CAPTION” or “HEADER” or if its
-pattern is “#+ATTR_BACKEND: VALUE”.
-
-“CAPTION”, “AUTHOR”, “DATE” and “TITLE” keywords can contain objects in their value and their
-optional value, if applicable.
 
 *** Types and Attributes
 
@@ -2478,6 +2300,92 @@ keywords, namely:
 - =:post-affiliated= : It refers to the buffer position after any affiliated keyword, when
   applicable, or to the beginning of the element otherwise.
 
+**** org-element-all-elements---a variable
+
+- babel-call
+
+- center-block
+
+- clock
+
+- comment
+
+- comment-block
+
+- diary-sexp
+
+- drawer
+
+- dynamic-block
+
+- example-block
+
+- export-block
+
+- fixed-width
+
+- footnote-definition
+
+- headline
+
+- horizontal-rule
+
+- inlinetask
+
+- item
+
+- keyword
+
+- latex-environment
+
+- node-property
+
+- paragraph
+
+- plain-list
+
+- planning
+
+- property-drawer
+
+- quote-block
+
+- section
+
+- special-block
+
+- src-block
+
+- table
+
+- table-row
+
+- verse-block
+
+**** org-element-all-objects---a variable
+
+- bold
+- code
+- entity
+- export-snippet
+- footnote-reference
+- inline-babel-call
+- inline-src-block
+- italic
+- line-break
+- latex-fragment
+- link
+- macro
+- radio-target
+- statistics-cookie
+- strike-through
+- subscript
+- superscript
+- table-cell
+- target
+- timestamp
+- underline
+- verbatim
 **** Greater Elements
 
 - Greater Blocks
@@ -2670,92 +2578,198 @@ Most objects cannot contain objects. Those which can will be specified.
 
 - Verse Block
 
-**** org-element-all-elements---a variable
+*** Elements---Greater and Otherwise
+**** Greater Elements
 
-- babel-call
+#+attr_texinfo: :options org-element-greater-elements
+#+begin_defvar
+~org-element-greater-elements~ is a variable defined in ‘org-element.el’.
 
-- center-block
+Its value is:
 
-- clock
+#+begin_example
+center-block drawer dynamic-block footnote-definition headline inlinetask
+item plain-list property-drawer quote-block section special-block table
+#+end_example
 
-- comment
+This variable contains a list of recursive element types aka Greater Elements.
+#+end_defvar
 
-- comment-block
+Unless specified otherwise, greater elements can contain directly any other element or greater
+element except:
 
-- diary-sexp
+- elements of their own type,
 
-- drawer
+- node properties, which can only be found in property drawers,
 
-- dynamic-block
+- items, which can only be found in plain lists.
 
-- example-block
+***** Greater Blocks
 
-- export-block
+***** Drawers and Property Drawers
 
-- fixed-width
+***** Dynamic Blocks
 
-- footnote-definition
+***** Footnote Definitions
 
-- headline
+***** Inlinetasks
 
-- horizontal-rule
+***** Plain Lists and Items
 
-- inlinetask
+***** Property Drawers
 
-- item
+***** Tables
 
-- keyword
+**** Elements
 
-- latex-environment
+#+attr_texinfo: :options org-element-all-elements
+#+begin_defvar
+A variable defined in ‘org-element.el’.  It contains a complete list of element types.
 
-- node-property
+Its value is:
 
-- paragraph
+#+begin_example
+babel-call center-block clock comment comment-block diary-sexp drawer dynamic-block
+example-block export-block fixed-width footnote-definition headline horizontal-rule
+inlinetask item keyword latex-environment node-property paragraph plain-list
+planning property-drawer quote-block section special-block src-block table table-row
+verse-block
+#+end_example
+#+end_defvar
 
-- plain-list
+Elements cannot contain any other element.
 
-- planning
+Only keywords whose name belongs to org-element-document-properties, verse blocks , paragraphs and
+table rows can contain objects.
 
-- property-drawer
+***** Babel Call
 
-- quote-block
+***** Babel Call
 
-- section
+***** Clock, Diary Sexp and Planning
 
-- special-block
+***** Comments
 
-- src-block
+***** Fixed Width Areas
 
-- table
+***** Horizontal Rules
 
-- table-row
+***** Horizontal Rules
 
-- verse-block
+***** LaTeX Environments
 
-**** org-element-all-objects---a variable
+***** Node Properties
 
-- bold
-- code
-- entity
-- export-snippet
-- footnote-reference
-- inline-babel-call
-- inline-src-block
-- italic
-- line-break
-- latex-fragment
-- link
-- macro
-- radio-target
-- statistics-cookie
-- strike-through
-- subscript
-- superscript
-- table-cell
-- target
-- timestamp
-- underline
-- verbatim
+***** Paragraphs
+
+***** Table Rows
+
+**** Objects
+
+#+attr_texinfo: :options org-element-all-objects
+#+begin_defvar
+~org-element-all-objects~ is a variable defined in ‘org-element.el’.  It contains a complete list
+of object types.
+
+Its value is:
+
+#+begin_example
+bold code entity export-snippet footnote-reference inline-babel-call inline-src-block
+italic line-break latex-fragment link macro radio-target statistics-cookie
+strike-through subscript superscript table-cell target timestamp underline verbatim
+#+end_example
+#+end_defvar
+
+Most objects cannot contain objects.  Those which can will be specified.  Objects can only be found
+in the following locations:
+
+- affiliated keywords defined in org-element-parsed-keywords,
+- document properties,
+- headline titles,
+- inlinetask titles,
+- item tags,
+- paragraphs,
+- table cells,
+- table rows, which can only contain table cell objects,
+- verse blocks.
+
+***** Entities and LaTeX Fragments
+
+***** Export Snippets
+
+***** Footnote References
+
+***** Inline Babel Calls and Source Blocks
+
+***** Line Breaks
+
+***** Links
+
+***** Macros
+
+***** Targets and Radio Targets
+
+***** Statistics Cookies
+
+***** Subscript and Superscript
+
+***** Table Cells
+
+***** Timestamps
+
+***** Text Markup
+*** Affiliated Keywords
+
+#+attr_texinfo: :options org-element-affiliated-keywords
+#+begin_defvar
+List of affiliated keywords as strings.  By default, all keywords setting attributes (e.g.,
+"ATTR_LATEX") are affiliated keywords and need not to be in this list.
+
+Its value is:
+
+#+begin_example
+"CAPTION" "DATA" "HEADER" "HEADERS" "LABEL" "NAME" "PLOT" "RESNAME" "RESULT"
+"RESULTS" "SOURCE" "SRCNAME" "TBLNAME"
+#+end_example
+#+end_defvar
+
+Many element types can be assigned /attributes/.  This is done by adding specific keywords, named
+/affiliated keywords/, just above the element considered, with no blank lines allowed.
+
+Affiliated keywords are built upon one of the following patterns:
+
+: #+KEY: VALUE
+: #+KEY[OPTIONAL]: VALUE
+: #+ATTR_BACKEND: VALUE
+
+- KEY ::
+
+  - “CAPTION”,
+
+  - “HEADER”,
+
+  - “NAME”,
+
+  - “PLOT” or
+
+  - “RESULTS”
+
+- BACKEND ::
+
+  is a string constituted of alpha-numeric characters, hyphens or underscores.
+
+- OPTIONAL :: can contain any character but a new line.  Only “CAPTION” and “RESULTS” keywords can
+  have an optional value.
+
+- VALUE :: can contain any character but a new line.
+
+
+An affiliated keyword can appear more than once if KEY is either “CAPTION” or “HEADER” or if its
+pattern is “#+ATTR_BACKEND: VALUE”.
+
+“CAPTION”, “AUTHOR”, “DATE” and “TITLE” keywords can contain objects in their value and their
+optional value, if applicable.
+
 ** Org Parser
 #+cindex:Org Parser
 #+cindex:parser
