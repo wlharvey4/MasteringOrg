@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-20 22:57
-#+macro:version Version 0.8.2
+#+date:2020-02-20 23:07
+#+macro:version Version 0.8.3
 
 {{{version}}} {{{date}}}
 
@@ -2155,16 +2155,17 @@ find its method both non-intrusive and easy to edit by hand.
 
 - [[https://orgmode.org/worg/dev/org-syntax.html][Syntax Specification]]
 
-
+#+cindex:Org Parser
 #+findex:org-element.el
 #+cindex:parser
 #+cindex:syntax specification
-~org-element.el~ implements a /parser/ according to Org's syntax specification.
-
 #+cindex:abstract syntax tree
+#+cindex:AST
 #+cindex:token
 #+cindex:type
-The library contains /tools/ to generate an abstract syntax tree (AST) from an Org buffer, and
+~org-element.el~ implements a /parser/ according to Org's syntax specification.
+
+The library contains /tools/ to generate an /abstract syntax tree/ (AST) from an Org buffer, and
 analyze the syntactical object at point.  There are parsing functions, with accessors and setters.
 Each token in an Org document gets a type and some properties attached to it.  This information can
 be extracted and modified with provided accessors and setters.
@@ -2771,39 +2772,21 @@ pattern is “#+ATTR_BACKEND: VALUE”.
 optional value, if applicable.
 
 ** Org Parser
-#+cindex:Org Parser
-#+cindex:parser
-#+cindex:abstract syntax tree
-#+cindex:AST
-~org-element.el~ implements a /parser/ according to Org's syntax specification.  The library
-contains tools to generate an /abstract syntax tree/ (*AST*) from an Org buffer, and to analyze the
-syntactical object at point.  Upon parsing, each token in an Org document gets a /type/ and some
-/properties/ attached to it.
 
-#+texinfo:@heading From @code{org-element.el}
+#+texinfo:@heading The Org Parser
 
-#+begin_quote
-The Org Parser
+There are two major parsing functions.
 
-The two major functions here are ~org-element-parse-buffer~, which parses Org syntax inside the
-current buffer, taking into account region, narrowing, or even visibility if specified, and
-~org-element-parse-secondary-string~, which parses objects within a given string.
-#+end_quote
+The two major functions here are 
 
-*** Parsing Functions
-There are two major parsing functions:
+- [[*org-element-parse-buffer][~org-element-parse-buffer~]] ::
+  which parses Org syntax inside the current buffer, taking into account region, narrowing, or even visibility if specified, and
 
-- ~org-element-parse-buffer~ ::
+- [[*org-element-parse-secondary-string][~org-element-parse-secondary-string~]] ::
+  which parses objects within a given string.
 
-  parses Org syntax inside the current buffer, taking into account region, narrowing, or even
-  visibility if specified
-
-- ~org-element-parse-secondary-string~ ::
-
-  parses objects within a given string.
-
-**** Global Parsing
-***** org-element-parse-buffer---a function
+*** Global Parsing Functions
+**** org-element-parse-buffer
 
 #+attr_texinfo: :options org-element-parse-buffer &optional granularity visible-only
 #+begin_defun
@@ -2849,8 +2832,9 @@ properties are attached to it.  The data obtained from this function can be modi
 
 ~org-element-map~ function can be used to find specific elements or objects within the parse tree.
 #+end_defun
+**** org-element-parse-secondary-string
 
-**** Local Parsing
+*** Local Parsing
 Local parsing gives information about the structure at point.
 
 The first move is to implement a way to obtain the smallest element containing point.
@@ -2875,7 +2859,7 @@ manipulation tools.
 
 - org-element-swap-A-B :: 
 
-***** org-element-at-point---a function
+**** org-element-at-point---a function
 <<org-element-at-point>>
 
 This function returns the local /structure/ of the document around point.  It returns only
@@ -2913,7 +2897,7 @@ Refer to the following links to see the difference between /elements/ and /objec
 
 #+end_defun
 
-***** org-element-context---a function
+**** org-element-context---a function
 #+attr_texinfo: :options org-element-context &optional element
 #+begin_defun
 Returns the smallest /element/ or /object/ around point.
@@ -2931,7 +2915,7 @@ Returns the smallest /element/ or /object/ around point.
   - PROPS :: is a plist of properties associated with it.
 #+end_defun
 
-***** org-element-lineage
+**** org-element-lineage
 
 #+attr_texinfo: :options org-element-lineage datum &optional types with-self
 #+begin_defun
@@ -2950,14 +2934,14 @@ its section can be found.  There is no such limitation when DATUM belongs to a f
   provided, also apply to it.
 #+end_defun
 
-***** org-element-nested-p
+**** org-element-nested-p
 
 #+attr_texinfo: :options elem-A elem-B
 #+begin_defun
 Non-nil when elements ELEM-A and ELEM-B are nested.
 #+end_defun
 
-*****  org-element-swap-A-B
+****  org-element-swap-A-B
 
 #+attr_texinfo: :options  org-element-swap-A-B elem-A elem-B
 #+begin_defun
@@ -2965,13 +2949,13 @@ Swap elements ELEM-A and ELEM-B.  Assume ELEM-B is after ELEM-A in the buffer.  
 end of ELEM-A.
 #+end_defun
 
-*** Accessors and Setters and Tools
-**** Accessors
+** Accessors and Setters and Tools
+*** Accessors
 Four accessor functions are provided.
 
 The type and properties of a given /element/ or /object/ are obtained with, respectively:
 
-***** org-element-type---a function
+**** org-element-type---a function
 
 #+attr_texinfo: :options org-element-type element
 #+begin_defun
@@ -2990,7 +2974,7 @@ Returns the /type/ of ELEMENT.
   - nil :: all other cases
 #+end_defun
 
-***** org-element-property---a function
+**** org-element-property---a function
 
 #+attr_texinfo: :options org-element-property property element
 #+begin_defun
@@ -3001,7 +2985,7 @@ Extract the value from the PROPERTY of an ELEMENT.
 - ELEMENT :: the /element/ from which to extract the property.
 #+end_defun/
 
-***** org-element-contents---a function
+**** org-element-contents---a function
 This function returns an ordered (by buffer position) list of all elements or objects within a
 given element or object.  Since local parsing ignores contents, it only makes sense to use this
 function on a part of an AST.
@@ -3011,7 +2995,7 @@ function on a part of an AST.
 Extract contents from an ELEMENT.
 #+end_defun
 
-***** org-element-restriction
+**** org-element-restriction
 
 #+attr_texinfo: :options org-element-restriction element
 #+begin_defun
@@ -3021,7 +3005,7 @@ Return restriction associated to ELEMENT.
   type.
 #+end_defun
 
-**** Setters
+*** Setters
 Setter functions allow modification of elements by side effect.
 
 The elements and objects of an AST may be modified freely.
@@ -3057,7 +3041,7 @@ using these functions, first copy it, using [[*org-element-copy][~org-element-co
 
 - ~org-element-copy~
 
-***** org-element-put-property---a function
+**** org-element-put-property---a function
 This function modifies any property of a given element or object.
 
 #+attr_texinfo: :options org-element-put-property element property value
@@ -3067,7 +3051,7 @@ In ELEMENT set PROPERTY to VALUE.
 Return modified element.
 #+end_defun
 
-***** org-element-set-contents
+**** org-element-set-contents
 
 #+attr_texinfo: :options org-element-set-contents element &rest contents
 #+begin_defun
@@ -3076,7 +3060,7 @@ Set ELEMENT's contents to CONTENTS.
 Return ELEMENT.
 #+end_defun
 
-***** org-element-adopt-element---a function
+**** org-element-adopt-element---a function
 This function inserts an element after all children.
 
 #+attr_texinfo: :options org-element-adopt-elements parent &rest children
@@ -3091,7 +3075,7 @@ property for CHILD.
 - RETURN VALUE :: Returns PARENT element.
 #+end_defun
 
-***** org-element-set-element---a function
+**** org-element-set-element---a function
 This function replaces one element with another.
 
 #+attr_texinfo: :options org-element-set-element old new
@@ -3101,7 +3085,7 @@ Replace element or object OLD with element or object NEW.
 The function takes care of setting =:parent= property for NEW.
 #+end_defun
 
-***** org-element-extract-element---a function
+**** org-element-extract-element---a function
 This function removes an element or object from an AST.
 
 #+attr_texinfo: :options org-element-extract-element element
@@ -3112,7 +3096,7 @@ Remove ELEMENT from the parse tree by side-effect, and return it with its =:pare
 stripped out.
 #+end_defun
 
-***** org-element-insert-before---a function
+**** org-element-insert-before---a function
 This function and the next insert elements within the tree.  This one inserts an element before a
 precise location.
 
@@ -3125,7 +3109,7 @@ Insert ELEMENT before LOCATION in parse tree.  Parse tree is modified by side ef
 - LOCATION :: is an element, object or string within the parse tree.
 #+end_defun
 
-***** org-element-secondary-p
+**** org-element-secondary-p
 
 #+attr_texinfo: :options org-element-secondary-p object
 #+begin_defun
@@ -3134,7 +3118,7 @@ Non-nil when OBJECT directly belongs to a secondary string.
 Return value is the property name, as a keyword, or nil.
 #+end_defun
 
-***** org-element-class
+**** org-element-class
 
 #+attr_texinfo: :options org-element-class datum &optional parent
 #+begin_defun
@@ -3146,10 +3130,10 @@ Return class for ELEMENT, as a symbol.  Class is either `element' or `object'.
   value of DATUM `:parent' property.
 #+end_defun
 
-***** org-element-copy
+**** org-element-copy
 
-**** Tools
-***** org-element-map
+*** Tools
+**** org-element-map
 
 #+attr_texinfo: :options org-element-map data types fun &optional info first-match no-recursion with-affiliated
 #+begin_defun
@@ -3184,7 +3168,7 @@ Map a function on selected elements or objects.
   keywords.  See [[*org-element-parsed-keywords][~org-element-parsed-keywords~]].
 #+end_defun
 
-***** org-element-map---Examples
+**** org-element-map---Examples
 This function allows applying a function on elements or objects matching some type, and
 accumulating the resulting values, and can be used to find specific elements or objects within the
 parse tree.
@@ -3248,7 +3232,7 @@ The following snippet returns a non-nil value when the document contains a check
   nil t)
 #+end_src
 
-***** org-element-parsed-keywords
+**** org-element-parsed-keywords
 
 #+attr_texinfo: :options org-element-parsed-keywords
 #+begin_defvar
@@ -3259,7 +3243,7 @@ Its value is:
 : 'CAPTION'
 #+end_defvar
 
-***** org-element-create
+**** org-element-create
 
 #+attr_texinfo: :options org-element-create type &optional props &rest children
 #+begin_defun
@@ -3272,7 +3256,7 @@ Create a new element of type TYPE.
 - CHILDREN :: can be elements, objects or strings.
 #+end_defun
 
-***** org-element-copy
+**** org-element-copy
 
 #+attr_texinfo: :options org-element-copy DATUM
 #+begin_defun
@@ -3280,7 +3264,7 @@ Return a copy of DATUM.  =:parent= property is cleared and contents are removed 
 
 - DATUM :: is an element, object, string or nil.
 #+end_defun
-***** org-element-interpret-data---a function
+**** org-element-interpret-data---a function
 
 This function is the reciprocal operation of [[*org-element-parse-buffer---a function][~org-element-parse-buffer~]]:
 
@@ -3296,7 +3280,7 @@ Interpret DATA as Org syntax.
 
 - RETURN VALUE :: Org syntax as a string.
 #+end_defun
-***** org-element-lineage
+**** org-element-lineage
 
 #+attr_texinfo: :options org-element-lineage datum &optional types with-self
 #+begin_defun
