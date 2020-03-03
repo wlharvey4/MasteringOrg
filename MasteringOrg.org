@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-02-21 07:25
-#+macro:version Version 0.8.5
+#+date:2020-03-03 08:31
+#+macro:version Version 0.8.6
 
 {{{version}}} {{{date}}}
 
@@ -2176,24 +2176,26 @@ An exhaustive list of all types and attributes is given in section Types and Att
 
 #+cindex:syntax
 #+cindex:context-free
-#+texinfo:@heading Context-free Elements
+#+texinfo:@heading Context-free Syntactical Parts
 
-A core concept in Org's syntax is that only
-- [[*Headlines][headlines]],
-- [[*Sections][sections]],
-- [[*Planning Lines][planning lines]] and
+The following four syntactical parts are /context-free/:
+
+- [[*Headlines][headlines]]
+- [[*Sections][sections]]
+- [[*Planning Lines][planning lines]]
 - [[*Property Drawers][property drawers]]
 
 
-are /context-free/.
-
-#+texinfo:@heading Environments
-
 #+cindex:paragraph
+#+texinfo:@heading Paragraph---Unit of Measurement
 The /paragraph/ is the unit of measurement.
 
-#+cindex:environment
-Every other syntactical part exists within specific /environments/.  Three categories are used to classify these environments:
+#+cindex:types
+#+cindex:environments
+#+texinfo:@heading Types or Environments
+
+Every other syntactical part exists within specific /environments/.  Three categories are used to
+classify these environments:
 
 - Greater elements ::
 
@@ -2220,6 +2222,18 @@ Every other syntactical part exists within specific /environments/.  Three categ
 
 #+cindex:property
 Each *greater element*, *element* and *object* has a variable set of /properties/ attached to it.
+
+#+texinfo:@subheading Properties common to all types
+
+Four attributes are shared by all types: 
+
+- =:begin=
+
+- =:end=
+
+- =:post-blank=
+
+- =:parent=
 
 *** Context-Free Elements
 **** Headlines
@@ -2268,8 +2282,11 @@ As an exception, text before the first headline in the document also belongs to 
 
 **** Property Drawers
 
-*** Types
+*** Types---Environments
 **** Objects
+
+#+cindex:object
+An /object/ is a part that can be included within an element.
 
 #+attr_texinfo: :options org-element-all-objects
 #+begin_defvar
@@ -2288,7 +2305,7 @@ strike-through subscript superscript table-cell target timestamp underline verba
 Most objects cannot contain objects.  Those which can will be specified.  Objects can only be found
 in the following locations:
 
-- affiliated keywords defined in org-element-parsed-keywords,
+- affiliated keywords defined in [[*org-element-parsed-keywords][org-element-parsed-keywords]],
 - document properties,
 - headline titles,
 - inlinetask titles,
@@ -2325,9 +2342,12 @@ in the following locations:
 ***** Text Markup
 **** Elements
 
+An /element/ defines syntactical parts that are at the same level as a paragraph, i.e. which cannot
+contain or be included in a paragraph.
+
 #+attr_texinfo: :options org-element-all-elements
 #+begin_defvar
-A variable defined in ‘org-element.el’.  It contains a complete list of element types.
+A variable defined in ~org-element.el~.  It contains a complete list of element types.
 
 Its value is:
 
@@ -2347,7 +2367,7 @@ table rows can contain objects.
 
 ***** Babel Call
 
-***** Babel Call
+***** Center Block
 
 ***** Clock, Diary Sexp and Planning
 
@@ -2368,6 +2388,16 @@ table rows can contain objects.
 ***** Table Rows
 
 **** Greater Elements
+
+Unless specified otherwise, greater elements can contain directly any other element or greater
+element except:
+
+- elements of their own type,
+
+- node properties, which can only be found in property drawers,
+
+- items, which can only be found in plain lists.
+
 
 #+attr_texinfo: :options org-element-greater-elements
 #+begin_defvar
