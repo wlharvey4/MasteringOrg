@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-03-04 02:33
-#+macro:version Version 0.8.7
+#+date:2020-03-27 18:13
+#+macro:version Version 0.8.8
 
 {{{version}}} {{{date}}}
 
@@ -2150,7 +2150,6 @@ find its method both non-intrusive and easy to edit by hand.
 
      May be a list of tags to be inherited, or a regexp to match tags.
 
-
 * Org Element
 
 ** Org Syntax
@@ -3574,17 +3573,21 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :END:
-** Makefile                                     :dependencies:env_vars:perl:
+** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
 :appendix: t
 :dependency1: "make"
-:dependency2: "AWS Account with ~/.aws/credentials and ~/.aws/config"
-:dependency3: "S3 bucket set up for serving a static web pages"
+:dependency2: "aws" cli v2 in PATH https://docs.aws.amazon.com/cli/index.html
+:dependency2.1: "~/.aws/credentials" "~/.aws/config"
+:dependency2.2: Install AWS CLI v2 https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
+:dependency3: "S3 bucket set up for serving a static web page"
 :dependency4: "GitHub Account with personal token"
-:env_var1: SYNC_ORG_TEMPLATE
-:env_var2: EMACSLOADPATH
-:env_var3: AWS_S3_BUCKET
-:env_var4: GITHUB_TOKEN
+:dependency5: "texinfo @6.7.0"
+:env_var1: SYNC_ORG_TEMPLATE: the path to this Template.org file
+:env_var2: AWS_S3_BUCKET: the name of an S3 bucket to use, e.g. "pinecone-forest.com"
+:env_var3: GITHUB_TOKEN: a personal access token stored on GitHub
+:env_var4: EMACS: the 'emacs' command to call for batch operations
+:env_var5: EMACS_INIT: the path to Emac’s 'init' file
 :END:
 
 #+name:Makefile
@@ -3593,346 +3596,380 @@ List all ancestors of a given element or object.
 #+header: :shebang "#!/usr/bin/env bash"
 #+begin_src makefile
 
-  ###############################################################################
-  ### USER-DEPENDENT VARIABLES
-  ### USE ENVIRONMENT VARIABLES FOR SENSITIVE DATA
-  ### ALL OTHERS CAN BE HARD-CODED
-  ### YOU ALSO NEED ~/.aws/credentials
+###############################################################################
+### USER-DEPENDENT VARIABLES
+### USE ENVIRONMENT VARIABLES WHENEVER POSSIBLE
+### DO NOT HARD-CODE GITHUB_TOKEN
+### YOU ALSO NEED ~/.aws/credentials installed
 
-  # Emacs binary and init file
+# The absolute path to this Template file
+TEMPLATE := $(SYNC_ORG_TEMPLATE)
 
-  EMACS        := $(EMACS)
-  EMACS_PREFIX := $(HOME)/.emacs.d
-  EMACS_INIT   := $(EMACS_PREFIX)/init.el
+# Emacs binary and init file
+EMACS	:= $(EMACS)
+EMACS_INIT	:= $(EMACS_INIT)
 
-  # The absolute path to this Template file
+# User’s personal GitHub token for authentication
+# DO NOT HARD-CODE THIS VALUE
+GITHUB_TOKEN := $(GITHUB_TOKEN)
 
-  TEMPLATE := $(SYNC_ORG_TEMPLATE)
+# The AWS S3 bucket to use to store the html source files
+S3_BUCKET := s3://$(AWS_S3_BUCKET)
 
-  # User’s personal GitHub token for authentication
-  # DO NOT HARD-CODE THIS VALUE
+# The AWS Command Line Interface (AWS CLI) is an open source tool
+# that enables you to interact with AWS services using commands in
+# your command-line shell.
+AWS := aws
 
-  GH_TOKEN := $(GITHUB_TOKEN)
+# The AWS region of choice; this can also be in .aws/config
+REGION := --region us-west-2
 
-  # The AWS S3 bucket to use to store the html source files
+### END OF USER-DEPENDENT VARIABLES
+###############################################################################
 
-  BUCKET := s3://$(AWS_S3_BUCKET)
+### PROJ AND ORG
+# ORG is the name of this Org file with extension
+# PROJ is the name of this Org file without extension.
 
-  # The aws command to use (version 1 or version 2)
+### NOTE: there can be only one Org file in the project directory;
+# so far this has not been a problem, but it might be.
 
-  AWS := aws2
+### NOTE: S is needed only for the Template file because of the way it is nested
+# one level deep in the Templates GitHub repo, which uses the plural form
+# of Templates, whereas this file uses the singular form, Template.  So when
+# the homepage link is updated, the curl command must be told to use the plural
+# form.	 This is obviously a hack only for my own use and can be removed once
+# I clean up this anomaly.
 
-  # The AWS region of choice; this can also be in .aws/config
+ORG  := $(shell ls *.org)
+PROJ := $(basename $(ORG))
 
-  REGION := --region us-west-2
+ifeq ($(PROJ),$(basename $(notdir $(TEMPLATE))))
+S := s
+endif
 
-  ### END OF USER-DEPENDENT VARIABLES
-  ###############################################################################
+### DIR:
+# This is the .info name found at '#+texinfo_filename:<DIR>.info' (at
+# the bottom of this file in the export configuration settings)
+# without its extension, used as the INFO filename and the name of the
+# HTML export directory; this code uses the lowercased PROJ name if
+# there is no '#+texinfo_filename'.
 
-  ### PROJ AND ORG
-  # ORG is the name of this Org file with extension
-  # PROJ is the name of this Org file without extension.
+# NOTE: 're-search-forward' will either return an error or 'nil',
+# depending on the value of the third argument, if the search fails.
+# If it returns an error, then that error shows up in the shell
+# output.  It might be advantageous to let it so you are aware that
+# there is no 'texinfo_filename', but for now it is set to return
+# 'nil' on failure, and then assign the backup value.
 
-  ### NOTE: there can be only one Org file in the project directory;
-  # so far this has not been a problem, but it might be.
+DIR := $(shell $(EMACS) -Q --batch --eval '\
+	(with-temp-buffer (insert-file-contents "$(ORG)") \
+		(re-search-forward "^ *.\\+\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
+		(princ (match-string 1)))')
+ifeq ($(DIR),nil)
+DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
+endif
 
-  ### NOTE: S is needed only for the Template file because of the way it is nested
-  # one level deep in the Templates GitHub repo, which uses the plural form
-  # of Templates, whereas this file uses the singular form, Template.  So when
-  # the homepage link is updated, the curl command must be told to use the plural
-  # form.  This is obviously a hack only for my own use and can be removed once
-  # I clean up this anomaly.
+### VERS: v1.2.34/
+# The version number of this Org document.
+# If sync is run after the version number has been updated, then VERS
+# picks up the newly-changed value.  VERS used to be staticly imbedded
+# when the Makefile was tangled, but it needs to be dynamic for
+# development.
 
-  ORG  := $(shell ls *.org)
-  PROJ := $(basename $(ORG))
+# QUERY: should this number be formatted like this, or should it be just the numbers?
+# The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
+# it includes them.  But it only includes them because I have made it so.  Not a good
+# reason just by itself.  The ending slash is not actually a part of the version, but
+# comes from the way the 'aws2 ls' command returns its values.	So VERS should probably
+# not include the trailing slash, although it doesn’t hurt anything.
 
-  ifeq ($(PROJ),$(basename $(notdir $(TEMPLATE))))
-  S := s
-  endif
+VERS := v$(shell $(EMACS) -Q --batch --eval '\
+(with-temp-buffer (insert-file-contents "$(ORG)") \
+(re-search-forward "^ *.\\+\\(?:macro\\|MACRO\\):version Version \\(\\([[:digit:]]+[[:punct:]]?\\)\\{3\\}\\)") \
+(princ (match-string 1)))')/
 
-  ### DIR:
-  # This is not necessarily the same as PROJ; it is the exported .info
-  # name found at #+texinfo_filename:<DIR>.info without its extension,
-  # used as the directory name for the html export directory; use the
-  # lowercased PROJ name if there is no texinfo_filename in the Org file
+### AWS
+# PROJ_LIST contains the list of projects currently uploaded to
+# the S3 bucket; each item contains the name of the project and its
+# current version.
 
-  # NOTE: 're-search-forward' will either return an error or 'nil',
-  # depending on the value of the third argument, if the search fails.
-  # If it returns an error, then that error shows up in the shell
-  # output.  It might be advantageous to let it so you are aware that
-  # there is no 'texinfo_filename', but for now it is set to return
-  # 'nil' on failure, and then assign the backup value.
+PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(S3_BUCKET))))
 
-  DIR := $(shell $(EMACS) -Q --batch --eval '\
-    (with-temp-buffer (insert-file-contents "$(ORG)") \
-      (re-search-forward "^ *.\\+\\(?:texinfo_filename\\|TEXINFO_FILENAME\\):\\(.*\\).info$$" nil t) \
-      (princ (match-string 1)))')
-  ifeq ($(DIR),nil)
-  DIR := $(shell echo $(PROJ) | tr "[:upper:]" "[:lower:]")
-  endif
+### S3PROJ
+# The name of the current project as obtained from S3: 'proj-v1.2.34/'
+# If there is no current project in the S3 bucket, then assign a value equal to
+# the Org project and version instead.
+### S3VERS
+# The version of this project currently installed in the S3 bucket: 'v1.2.34/'
+# If there is no current version in the S3 bucket, then assign the version from
+# this Org file instead.
 
-  ### VERS: v1.2.34/
-  # The version number of this Org document.
-  # If sync is run after the version number has been updated, then VERS
-  # picks up the newly-changed value.  VERS used to be staticly imbedded
-  # when the Makefile was tangled, but it needs to be dynamic for
-  # development.
+S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
+ifeq ($(S3PROJ),$(empty))
+S3PROJ := $(DIR)-$(VERS)
+endif
 
-  # QUERY: should this number be formatted like this, or should it be just the numbers?
-  # The reason it includes them is the S3PROJ obtains the name from the S3 bucket, and
-  # it includes them.  But it only includes them because I have made it so.  Not a good
-  # reason just by itself.  The ending slash is not actually a part of the version, but
-  # comes from the way the 'aws2 ls' command returns its values.  So VERS should probably
-  # not include the trailing slash, although it doesn’t hurt anything.
+S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
+ifeq ($(S3VERS), $(empty))
+S3VERS := $(VERS)
+endif
 
-  VERS := v$(shell $(EMACS) -Q --batch --eval '\
-    (with-temp-buffer (insert-file-contents "$(ORG)") \
-      (re-search-forward "^ *.\\+\\(?:macro\\|MACRO\\):version Version \\(\\([[:digit:]]+[[:punct:]]?\\)\\{3\\}\\)") \
-      (princ (match-string 1)))')/
+### GITHUB
+# USER is the current user's GitHub login name.
 
-  ### AWS
-  # PROJ_LIST contains the list of projects currently uploaded to
-  # the S3 bucket; each item contains the name of the project and its
-  # current version.
+# The user name used to be statically embedded into the Makefile
+# during tangle, but in an effort to make the Makefile dynamically
+# indepedent, dynamic code has replaced the static code.  The code
+# that placed the static name in the Makefile was a 'node' script that
+# ran in a separate Org process during tangle.	An unfortunate fact of
+# 'make' is that 'make' strips the quote marks from the string
+# obtained from the 'curl' command when the 'make shell' command
+# returns the string.	 This makes the string malformed JSON and
+# unparsable by most JSON parsers, including 'node’.	However,
+# 'perl'’s core module JSON::PP (but not JSON::XS) has facilities to
+# parse very malformed JSON strings.	Therefore, this dynamic code
+# uses 'perl' and the core module JSON::PP to parse the 'curl' string
+# into a 'perl' JSON object which can return the login name.	This
+# code should work with any version of 'perl' without having to
+# install any modules.
 
-  PROJ_LIST := $(strip $(filter-out PRE, $(shell $(AWS) s3 ls $(BUCKET))))
+USER := $(shell \
+	curl -sH "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/user \
+	| \
+	perl -MJSON::PP -e \
+	    '$$/ = ""; \
+	     my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
+	     print $$json->{login};' \
+	)
 
-  ### S3PROJ
-  # The name of the current project as obtained from S3: 'proj-v1.2.34/'
-  # If there is no current project in the S3 bucket, then assign a value equal to
-  # the Org project and version instead.
-  ### S3VERS
-  # The version of this project currently installed in the S3 bucket: 'v1.2.34/'
-  # If there is no current version in the S3 bucket, then assign the version from
-  # this Org file instead.
+### TOOLS & RESOURCES
+TOOLS	:= tools
+CMPRPL	:= $(TOOLS)/cmprpl
+SAVE	:= resources
 
-  S3PROJ := $(filter $(DIR)%,$(PROJ_LIST))
-  ifeq ($(S3PROJ),$(empty))
-  S3PROJ := $(DIR)-$(VERS)
-  endif
+### TEXINFO
+TEXI	:= $(PROJ).texi
+INFO	:= $(DIR).info
+PDF	:= $(PROJ).pdf
+INDEX	:= index.html
+HTML	:= $(DIR)/$(INDEX)
+DIR_OLD	:= $(DIR)-old
 
-  S3VERS := $(subst $(DIR)-,,$(filter $(DIR)%, $(PROJ_LIST)))
-  ifeq ($(S3VERS), $(empty))
-  S3VERS := $(VERS)
-  endif
+### AWS
+S3		:= $(AWS) s3
+SRC		:= $(DIR)/
 
-  ### GITHUB
-  # USER is the current user's GitHub login name.
+DST_OLD	:= $(S3_BUCKET)/$(S3PROJ)
+DST_NEW	:= $(S3_BUCKET)/$(DIR)-$(VERS)
+EXCL_INCL	:= --exclude "*" --include "*.html"
+GRANTS	:= --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+S3SYNC	:= $(S3) sync --delete $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
+S3MOVE	:= $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
 
-  # The user name used to be statically embedded into the Makefile
-  # during tangle, but in an effort to make the Makefile dynamically
-  # indepedent, dynamic code has replaced the static code.  The code
-  # that placed the static name in the Makefile was a 'node' script that
-  # ran in a separate Org process during tangle.  An unfortunate fact of
-  # 'make' is that 'make' strips the quote marks from the string
-  # obtained from the 'curl' command when the 'make shell' command
-  # returns the string.  This makes the string malformed JSON and
-  # unparsable by most JSON parsers, including 'node’.  However,
-  # 'perl'’s core module JSON::PP (but not JSON::XS) has facilities to
-  # parse very malformed JSON strings.  Therefore, this dynamic code
-  # uses 'perl' and the core module JSON::PP to parse the 'curl' string
-  # into a 'perl' JSON object which can return the login name.  This
-  # code should work with any version of 'perl' without having to
-  # install any modules.
+default: check texi info html pdf
 
-  USER := $(shell \
-		curl -sH "Authorization: token $(GH_TOKEN)" https://api.github.com/user \
-		| \
-		perl -MJSON::PP -e \
-		    '$$/ = ""; \
-		     my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
-		     print $$json->{login};' \
-		)
+PHONY: check default boot all \
+	texi info html pdf \
+	open-org open-texi open-html open-pdf \
+	clean dist-clean wiped-clean \
+	help sync update values
+	install-aws-cli
 
-  ### TOOLS & RESOURCES
-  TOOLS  := tools
-  CMPRPL := $(TOOLS)/cmprpl
-  SAVE   := resources
+values: check
+	@echo USER:		$(USER)
+	@echo ORG:		$(ORG)
+	@echo PROJ:		$(PROJ) $S
+	@echo VERS:		$(VERS)
+	@echo S3PROJ:		$(S3PROJ)
+	@echo S3VERS:		$(S3VERS)
+	@echo DIR:		$(DIR)
+	@echo DIR_OLD:		$(DIR_OLD)
+	@echo SRC:		$(SRC)
+	@echo DST_OLD:		$(DST_OLD)
+	@echo DST_NEW:		$(DST_NEW)
+	@echo PROJ_LIST:	$(PROJ_LIST)
 
-  ### TEXINFO
-  TEXI  := $(PROJ).texi
-  INFO  := $(DIR).info
-  PDF   := $(PROJ).pdf
-  INDEX := index.html
-  HTML  := $(DIR)/$(INDEX)
-  DIR_OLD := $(DIR)-old
+check:
+	@[[ -z $${AWS_S3_BUCKET} ]] && \
+	   { printf "$${RED}\$$AWS_S3_BUCKET $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
+	   printf "$${GREEN}AWS_S3_BUCKET: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
+	@[[ -z $${GITHUB_TOKEN} ]] && \
+	   { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
+	   printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
+	@[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
+	   printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
+	   { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
+	@$(EMACS) -Q --batch --load="$(EMACS_INIT)" --eval '\
+		(progn \
+			(require (quote org)) \
+			(if \
+				(member (quote texinfo) org-export-backends) \
+				(princ "texinfo backend: INSTALLED in org-export-backends") \
+				(princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
+			(terpri) \
+			(if \
+				org-confirm-babel-evaluate \
+				(princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
+				(princ "org-confirm-babel-evaluate: SET to nil")) \
+                        (terpri))'
 
-  ### AWS
-  S3     := $(AWS) s3
-  SRC    := $(DIR)/
+open-org: $(ORG)
+	emacsclient $(ORG) &
+$(ORG):
+	@echo 'THERE IS NO $(ORG) FILE!!!'
+	exit 1
 
-  DST_OLD := $(BUCKET)/$(S3PROJ)
-  DST_NEW := $(BUCKET)/$(DIR)-$(VERS)
-  EXCL_INCL := --exclude "*" --include "*.html"
-  GRANTS  := --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-  S3SYNC  := $(S3) sync $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
-  S3MOVE  := $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
+texi: $(TEXI)
+$(TEXI): $(ORG)
+	$(EMACS) --batch --eval '\
+	(progn \
+	  (require (quote org)) \
+	  (require (quote ob-shell)) \
+	  (setq org-confirm-babel-evaluate nil) \
+	  (find-file "$(ORG)") \
+          (org-texinfo-export-to-texinfo))'
 
-  default: check texi info html pdf
+open-texi: texi
+	emacsclient $(TEXI) &
 
-  PHONY: check default all \
-	  texi info html pdf \
-	  open-org open-texi open-html open-pdf \
-	  clean dist-clean wiped-clean \
-	  help sync update values
+info: $(INFO)
+$(INFO): $(TEXI)
+	makeinfo $(TEXI)
+open-info: info
+	emacsclient $(INFO)
 
-  values: check
-	  @echo USER:   	$(USER)
-	  @echo ORG:    	$(ORG)
-	  @echo PROJ:   	$(PROJ) $S
-	  @echo VERS:   	$(VERS)
-	  @echo S3PROJ: 	$(S3PROJ)
-	  @echo S3VERS: 	$(S3VERS)
-	  @echo DIR:    	$(DIR)
-	  @echo DIR_OLD:	$(DIR_OLD)
-	  @echo SRC:    	$(SRC)
-	  @echo DST_OLD:	$(DST_OLD)
-	  @echo DST_NEW:	$(DST_NEW)
-	  @echo PROJ_LIST:$(PROJ_LIST)
+html: $(HTML)
+$(HTML): $(TEXI)
+	makeinfo --html -o $(DIR) $(TEXI)
+	$(CMPRPL) $(DIR) $(DIR_OLD)
+open-html: html
+	open $(HTML)
 
-  check:
-	  @[[ -z $${AWS_S3_BUCKET} ]] && \
-	     { printf "$${RED}\$$AWS_S3_BUCKET $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	     printf "$${GREEN}AWS_S3_BUCKET: $${CYAN}$${AWS_S3_BUCKET}$${CLEAR}\n";
-	  @[[ -z $${GITHUB_TOKEN} ]] && \
-	     { printf "$${RED}GITHUB_TOKEN $${CYAN}must be set.$${CLEAR}\n"; exit 1; } || \
-	     printf "$${GREEN}GITHUB_TOKEN: set$${CLEAR}\n";
-	  @[ -d ~/.aws -a -f ~/.aws/credentials -a -f ~/.aws/config ] && \
-	     printf "$${GREEN}~/.aws credentials and config: set$${CLEAR}\n" || \
-	     { printf "$${RED}~/.aws 'credentials' and 'config' must be set.$${CLEAR}\n"; exit 1; }
-	  @$(EMACS) --batch --load="$(EMACS_INIT)" --eval '\
-		  (progn \
-			  (if \
-				  (member (quote texinfo) org-export-backends) \
-				  (princ "texinfo backend: INSTALLED in org-export-backends") \
-				  (princ "texinfo backend: NOT INSTALLED in org-export-backends")) \
-			  (terpri) \
-			  (if \
-				  org-confirm-babel-evaluate \
-				  (princ "org-confirm-babel-evaluate: SET to t; consider setting to nil") \
-				  (princ "org-confirm-babel-evaluate: SET to nil")) \
-			  (terpri))'
+# If pdftexi2dvi produces an error, it may still produce a viable PDF;
+# therefore, use --tidy.  If it produces an error, try to link the PDF;
+# if it does not produce an error, the PDF will be added to the top dir
+# and there will be no attempt to link.
+pdf: $(PDF)
+$(PDF): $(TEXI)
+	-pdftexi2dvi --quiet --build=tidy $(TEXI) || ln -s $(PROJ).t2d/pdf/build/$(PDF) $(PDF)
+open-pdf: pdf
+	open $(PDF)
 
-  open-org: $(ORG)
-	  emacsclient $(ORG) &
-  $(ORG):
-	  @echo 'THERE IS NO $(ORG) FILE!!!'
-	  exit 1
+sync: $(HTML)
+	$(S3SYNC)
+	[[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
 
-  texi: $(TEXI)
-  $(TEXI): $(ORG)
-	  $(EMACS) --batch --eval '\
-	  (progn \
-	    (require (quote org)) \
-	    (require (quote ob-shell)) \
-	    (setq org-confirm-babel-evaluate nil) \
-	    (find-file "$(ORG)") \
-	    (org-texinfo-export-to-texinfo))'
+# This is a target-specific variable for updating the “description”
+# key on the GitHub repo page with the current version number.	It
+# first makes a curl call to the GitHub project repo, finds the
+# “description” line, pulls out the description only (leaving the old
+# version) and then prints the value with the current version number.
+# This value is used by the “homepage:” target in the PATCH call.
+# This method is arguably harder to code but faster to run than using
+# Perl with the JSON::PP module.
+homepage: description = $(shell curl -s \
+	     -H "Authorization: token $(GITHUB_TOKEN)" \
+	     https://api.github.com/repos/$(USER)/$(PROJ)$S | \
+	     perl -ne 'if (/(?:^\s*\"description\":)\s*\"(.*)(?::\s*v(?:(?:\d+\.?)+\/)?\",)$$/) { \
+		  print "$$1: $(VERS)"; \
+	      }')
 
-  open-texi: texi
-	  emacsclient $(TEXI) &
+### NOTE the use of the S variable at the end of PROJ; this is to handle
+# the singular case of the GitHub repo using the plural form, Templates
+# whereas the the Template.org file uses the singular form.
+homepage: $(ORG)
+	curl -i \
+	   -H "Authorization: token $(GITHUB_TOKEN)" \
+	   -H "Content-Type: application/json" \
+	   -X PATCH \
+	   -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)", \
+		"description":"$(description)"}' \
+	   https://api.github.com/repos/$(USER)/$(PROJ)$S
 
-  info: $(INFO)
-  $(INFO): $(TEXI)
-	  makeinfo $(TEXI)
-  open-info: info
-	  emacsclient $(INFO)
+update: $(ORG)
+	$(EMACS) -Q --batch --eval \
+	'(progn \
+	   (require (quote org)) \
+	   (require (quote ob)) \
+	   (require (quote ob-shell)) \
+	   (find-file "$(TEMPLATE)") \
+	   (goto-char (point-min)) \
+	   (search-forward "* Build Tools") \
+	   (org-beginning-of-line) \
+	   (org-copy-subtree) \
+	   (kill-buffer) \
+	   (find-file "$(ORG)") \
+	   (goto-char (point-min)) \
+	   (search-forward "* Build Tools") \
+	   (org-beginning-of-line) \
+	   (org-yank) \
+	   (org-cut-subtree) \
+	   (save-buffer) \
+	   (kill-buffer) \
+	   (setq org-confirm-babel-evaluate nil) \
+           (org-babel-tangle-file "$(ORG)"))'
 
-  html: $(HTML)
-  $(HTML): $(TEXI)
-	  makeinfo --html $(TEXI)
-	  $(CMPRPL) $(DIR) $(DIR_OLD)
-  open-html: html
-	  open $(HTML)
+install-aws-cli:
+	curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && \
+	sudo installer -pkg AWSCLIV2.pkg -target / && \
+	which aws && aws --version
+	rm -rf AWSCLIV2.pkg
 
-  pdf: $(PDF)
-  $(PDF): $(TEXI)
-	  pdftexi2dvi --quiet --build=clean $(TEXI)
-  open-pdf: pdf
-	  open $(PDF)
+clean:
+	-rm *~
+	-for file in *.??*; \
+	do \
+		ext=$${file#$(PROJ).}; \
+		[[ ! $${ext} =~ org|texi|info|pdf|html ]] && rm -rv $${file}; \
+	done
 
-  sync: $(HTML)
-	  $(S3SYNC)
-	  [[ $(VERS) != $(S3VERS) ]] && { $(S3MOVE); make homepage; } || :
+dist-clean: clean
+	-rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
+	-for dir in *; \
+	do \
+		[ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
+		rm -vr $$dir; \
+	done
 
-  ### NOTE the use of the S variable at the end of PROJ; this is to handle
-  # the singular case of the GitHub repo using the plural form, Templates
-  # whereas the the Template.org file uses the singular form.
-  homepage: $(ORG)
-	  curl -i \
-	       -H "Authorization: token $(GH_TOKEN)" \
-	       -H "Content-Type: application/json" \
-	       -X PATCH \
-	       -d '{"homepage":"https://$(AWS_S3_BUCKET)/$(DIR)-$(VERS)"}' \
-	       https://api.github.com/repos/$(USER)/$(PROJ)$S
+wipe-clean: dist-clean
+	-rm -rf Makefile Readme.md $(DIR_OLD)
 
-  update: $(ORG)
-	  $(EMACS) -Q --batch --eval \
-	  '(progn \
-	     (require (quote org)) \
-	     (require (quote ob)) \
-	     (require (quote ob-shell)) \
-	     (find-file "$(TEMPLATE)") \
-	     (goto-char (point-min)) \
-	     (search-forward "* Build Tools") \
-	     (org-beginning-of-line) \
-	     (org-copy-subtree) \
-	     (kill-buffer) \
-	     (find-file "$(ORG)") \
-	     (goto-char (point-min)) \
-	     (search-forward "* Build Tools") \
-	     (org-beginning-of-line) \
-	     (org-yank) \
-	     (org-cut-subtree) \
-	     (save-buffer) \
-	     (kill-buffer) \
-	     (setq org-confirm-babel-evaluate nil) \
-	     (org-babel-tangle-file "$(ORG)"))'
+help:
+	@echo '"make default" makes the .texi file, the .info file, \
+	the html files, and the .pdf file.'
+	@echo
 
-  clean:
-	  -rm *~
+	@echo '"make check" checks for prerequistes'
+	@echo '"make values" runs check and prints variable values'
+	@echo
 
-  dist-clean: clean
-	  -rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
-	  -for dir in *; \
-	   do \
-		  [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
-		  rm -vr $$dir; \
-	   done
+	@echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
+	you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
+	You must have your AWS credentials installed in ~/.aws/credentials'
+	@echo
 
-  wipe-clean: dist-clean
-	  -rm -rf Makefile Readme.md $(DIR_OLD)
+	@echo '"make texi" makes the .texi file'
+	@echo '"make info" makes the .info file'
+	@echo '"make html" makes the html distribution in a subdirectory'
+	@echo '"make pdf" makes the .pdf file'
+	@echo
 
-  help:
-	  @echo '"make default" makes the .texi file, the .info file, \
-	  the html files, and the .pdf file.'
-	  @echo
+	@echo '"make open-org" opens the ORG program using emacsclient for editing'
+	@echo '"make open-texi" opens the .texi file using emacsclient for review'
+	@echo '"make open-html" opens the distribution index.html file \
+	in the default web browser'
+	@echo '"make open-pdf" opens the .pdf file'
+	@echo
 
-	  @echo '"make check" checks for prerequistes'
-	  @echo '"make values" runs check and prints variable values'
-	  @echo
+	@echo '"make install-aws-cli" installs the "aws cli v2" command-line tools'
+	@echo 'You also need to run "aws configure" and supply your Access Key and Secret Access Key'
 
-	  @echo '"make sync" syncs the html files in the AWS S3 bucket BUCKET; \
-	  you must have your AWS S3 bucket name in the env var AWS_S3_BUCKET; \
-	  You must have your AWS credentials installed in ~/.aws/credentials'
-	  @echo
-
-	  @echo '"make texi" makes the .texi file'
-	  @echo '"make info" makes the .info file'
-	  @echo '"make html" makes the html distribution in a subdirectory'
-	  @echo '"make pdf" makes the .pdf file'
-	  @echo
-
-	  @echo '"make open-org" opens the ORG program using emacsclient for editing'
-	  @echo '"make open-texi" opens the .texi file using emacsclient for review'
-	  @echo '"make open-html" opens the distribution index.html file \
-	  in the default web browser'
-	  @echo '"make open-pdf" opens the .pdf file'
-	  @echo
-
-	  @echo '"make clean" removes the .texi, .info, and backup files ("*~")'
-	  @echo '"make dist-clean" cleans, removes the html distribution, \
-	  and removes the build directory'
+	@echo '"make clean" removes the .texi, .info, and backup files ("*~")'
+	@echo '"make dist-clean" cleans, removes the html distribution, \
+	and removes the build directory'
+	@echo '"make wipe-clean" wipes clean the directory, including old directories'
+	@echo '"make boot" tangles all of the files in Template'
 
 #+end_src
 
@@ -3948,10 +3985,10 @@ List all ancestors of a given element or object.
 ** Compare Replace
 
 #+begin_comment
-The following source code tangles all files during an export operation.  This
+The following source code tangles all files during an export operation.	 This
 is to make sure the ~cmprpl~ source code exists in the ~tools/~ directory
 before running the Makefile target =html=.  It also makes sure there is a
-Makefile on an initial export.  The following code is not exported.
+Makefile on an initial export.	The following code is not exported.
 #+end_comment
 
 #+name:tangle-org-file
@@ -3963,7 +4000,7 @@ Makefile on an initial export.  The following code is not exported.
 The AWS ~sync~ command relies upon time stamps to determine whether two
 programs are identical or not, as well as content.  If two otherwise identical
 files have different time stamps, ~sync~ will assume they are different and
-will process the newer.  However, the ~texinfo~ ~makeinfo --html~ command
+will process the newer.	 However, the ~texinfo~ ~makeinfo --html~ command
 produces all new files even if some files (or most files) remain unchanged.
 This means that all files will be uploaded to the AWS S3 bucket on every
 iteration, even though the majority of the files are actually unchanged.
@@ -3976,16 +4013,16 @@ This program makes sure that a generated HTML directory exists: =$DIR_NEW=.  If
 it doesn’t, then it is in an improper state and the program stops with an error
 message.
 
-The program then checks if an old directory exists, =$DIR_OLD=.  If one
+The program then checks if an old directory exists, =$DIR_OLD=.	 If one
 doesn’t, then one is created by copying the current new directory.  This
 provides a baseline for comparisons going forward.  The program exits at that
-point.  It is very important that the =$DIR_OLD= directory not be deleted going
+point.	It is very important that the =$DIR_OLD= directory not be deleted going
 forward.
 
 Given that =$DIR_OLD= exists, the program then loops through all files in
 =$DIR_NEW= and compares them to the files in =$DIR_OLD=.  If the files are
 identical, the =$DIR_OLD= file replaces the =$DIR_NEW= file while retaining the
-old time stamp (using the ~-p~ option of ~cp~.  If a file is different, then
+old time stamp (using the ~-p~ option of ~cp~.	If a file is different, then
 the =$DIR_NEW= file replaces the =$DIR_OLD= file, thus giving it updated
 content and an updated time stamp.  If the file does not exist in the
 =$DIR_OLD= directory, then it is added.
@@ -4037,6 +4074,19 @@ sync.
 #+end_src
 
 
+** Bucket Index HTML
+The S3 bucket contains an ~index.html~ file containing links to each Org
+entry.  This code checks that:
+1. the ~index.html~ file exists;
+2. if it does not, then it creates it with this as its first entry;
+3. if it does, then it checks that this entry is included;
+4. if it is not, then it adds it.
+
+
+#+begin_src sh
+aws s3 ls 
+#+end_src
+
 * Concept Index
   :PROPERTIES:
   :index:    cp
