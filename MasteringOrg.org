@@ -4,10 +4,40 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-03-27 18:13
-#+macro:version Version 0.8.8
+#+date:2020-03-27 23:54
+#+macro:version Version 0.8.9
 
 {{{version}}} {{{date}}}
+
+* Resources
+  :PROPERTIES:
+  :unnumbered: t
+  :END:
+- [[https://orgmode.org][Org Home]]
+
+- [[https://orgmode.org/org.html][Org Manual]]
+
+- [[https://orgmode.org/worg/][Worg Home]]
+
+- [[https://code.orgmode.org/bzg/org-mode][Org Code]]
+
+- [[https://orgmode.org/worg/dev/org-syntax.html][Org Syntax]]
+
+- [[https://orgmode.org/worg/dev/org-element-api.html][Org Element API]]
+
+- [[https://orgmode.org/worg/exporters/org-element-docstrings.html][org-element.el]]
+
+- [[http://ergoemacs.org/emacs/elisp_parse_org_mode.html][Parse Org Mode]]
+
+- [[https://orgmode.org/worg/exporters/][Org Exporters]]
+
+- [[https://bzg.fr/en/some-emacs-org-mode-features-you-may-not-know.html/][Advanced Features]]
+
+- [[http://newartisans.com/2007/08/using-org-mode-as-a-day-planner/][Using org-mode as a Day Planner]] by John Wiegley
+
+- [[http://members.optusnet.com.au/~charles57/GTD/gtd_workflow.html][Implementing GTD]]
+
+- [[http://doc.norang.ca/org-mode.html][Organize Your LIfe]]
 
 * Glossary
 ** Agenda
@@ -2307,10 +2337,6 @@ contain by or be contained by a paragraph.
 
 **** Greater Elements
 Greater elements are all parts that can contain an element.
-
-** Org Parser
-
-*** 
 
 * Org Element and Org Syntax
 - [[https://orgmode.org/worg/dev/org-element-api.html][Org Element review]]
