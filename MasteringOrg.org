@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-03-27 23:54
-#+macro:version Version 0.8.9
+#+date:2020-03-28 20:06
+#+macro:version Version 0.8.10
 
 {{{version}}} {{{date}}}
 
@@ -2180,13 +2180,94 @@ find its method both non-intrusive and easy to edit by hand.
 
      May be a list of tags to be inherited, or a regexp to match tags.
 
-* Org Element
+* org-element.el
+~org-element.el~ implements a parser according to Org's syntax specification.
 
-** Org Syntax
+** Parsing Functions
 
-*** Context-Free Elements
+*** Global Parsing
 
-**** Headlines
+- ~org-element-parse-buffer~ ::
+
+- ~org-element-interpret-data~ ::
+
+*** Local Parsing
+
+- ~org-element-at-point~ ::
+
+- ~org-element-context~ :: 
+
+** Accessor Functions
+
+*** Getting Functions
+
+- ~org-element-type~ ::
+
+- ~org-element-property~ ::
+
+- ~org-element-contents~ ::
+
+*** Setter Functions
+
+- ~org-element-put-property~ ::
+
+- ~org-element-set-element~ ::
+
+- ~org-element-insert-before~ ::
+
+- ~org-element-adopt-element~ ::
+
+- ~org-element-extract-element~ :: 
+
+** Utility Functions
+
+- ~org-element-map~ ::
+
+- ~org-element-copy~ ::
+
+- ~org-element-lineage~ ::
+
+** Types and Attributes
+
+*** Common Properties
+
+- =:begin= ::
+
+- =:end= ::
+
+- =:post-blank= ::
+
+- =:post-affiliated= ::
+
+- =:parent= :: 
+
+*** Contained Properties
+
+- =:contents-begin= ::
+
+- =contents-end= ::
+
+*** Affiliated Keywords
+
+- =:caption= ::
+
+- =:header= ::
+
+- =:name= ::
+
+- =:plot= ::
+
+- =:results= ::
+
+- =:attr_NAME= :: 
+
+*** Specific Properties
+
+* Org Elements
+
+** Context-Free Elements
+
+*** Headlines
 
 : STARS KEYWORD PRIORITY TITLE TAGS
 : **** TODO [#A] COMMENT Title :tag:a2%:
@@ -2217,7 +2298,7 @@ find its method both non-intrusive and easy to edit by hand.
 - TAGS :: made of words containing any alpha-numeric character, underscore, at sign, hash sign or
   percent sign, and separated with colons.
 
-**** Sections
+*** Sections
 A headline and only a headline may contain, optionally, one *section*, plus optionally deeper
 levels of headlines.  However, all text before the first headline is in a section of its own.
 
@@ -2225,7 +2306,7 @@ A section contains directly any:
 - greater element, or
 - element.
 
-**** Plamnning Lines
+*** Plamnning Lines
 Planning lines follow directly after a headline elements.  No blank lines allowed.  They are filled
 with =INFO= parts, following the pattern:
 
@@ -2237,7 +2318,7 @@ with =INFO= parts, following the pattern:
   - CLOSED
 - TIMESTAP :: a timestamp object
 
-**** Property Drawers
+*** Property Drawers
 Property drawers are a special type of drawer containing properties attached to a headline.
 Property Drawers follow directly after a headline, or a headline and its planning information.
 
@@ -2255,14 +2336,14 @@ A property drawer follows the pattern:
 
 where =CONTENTS= consists of zero or more node properties.
 
-*** Paragraphs
+** Paragraphs
 Unit of measurement.  Default element.  Any unrecognized context is a paragraph.  Empty lines and
 elements end paragraphs.  Paragraphs can contain every type of object.
 
-*** Empty Lines
+** Empty Lines
 Empty lines belong to the largest element ending before them.
 
-*** Keywords or Attributes
+** Keywords or Attributes
 Most element types can be assigned attributes.  This is done by adding specific keywords, named
 “affiliated keywords”, just above the element considered, with no blank line allowed.  Affiliated
 keywords are built upon one of the following patterns:
@@ -2300,9 +2381,9 @@ keywords are built upon one of the following patterns:
   - sections
   - table rows
 
-*** Categories or Environments
+** Categories or Environments
 
-**** Objects
+*** Objects
 An /object/ is a part that could be included in an element.  Most objects cannot contain objects.
 Objects can only be found in the following locations:
 
@@ -2331,12 +2412,24 @@ strike-through subscript superscript table-cell target timestamp underline verba
 #+end_example
 #+end_defvar
 
-**** Elements
+*** Elements
 An element defines syntactical parts that are at the same level as a paragraph.  They cannot either
 contain by or be contained by a paragraph.
 
-**** Greater Elements
+*** Greater Elements
 Greater elements are all parts that can contain an element.
+
+
+#+cindex:syntax
+#+cindex:context-free
+#+texinfo:@heading Context-free Syntactical Parts
+
+The following four syntactical parts are /context-free/:
+
+- [[*Headlines][headlines]]
+- [[*Sections][sections]]
+- [[*Planning Lines][planning lines]]
+- [[*Property Drawers][property drawers]]
 
 * Org Element and Org Syntax
 - [[https://orgmode.org/worg/dev/org-element-api.html][Org Element review]]
@@ -2351,8 +2444,6 @@ Greater elements are all parts that can contain an element.
 #+cindex:AST
 #+cindex:token
 #+cindex:type
-~org-element.el~ implements a /parser/ according to Org's syntax specification.
-
 The library contains /tools/ to generate an /abstract syntax tree/ (AST) from an Org buffer, and
 analyze the syntactical object at point.  There are parsing functions, with accessors and setters.
 Each token in an Org document gets a type and some properties attached to it.  This information can
@@ -2361,17 +2452,6 @@ be extracted and modified with provided accessors and setters.
 An exhaustive list of all types and attributes is given in section Types and Attributes.
 
 ** Org Syntax
-
-#+cindex:syntax
-#+cindex:context-free
-#+texinfo:@heading Context-free Syntactical Parts
-
-The following four syntactical parts are /context-free/:
-
-- [[*Headlines][headlines]]
-- [[*Sections][sections]]
-- [[*Planning Lines][planning lines]]
-- [[*Property Drawers][property drawers]]
 
 
 #+cindex:paragraph
