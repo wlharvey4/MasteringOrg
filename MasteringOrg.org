@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-03-28 20:06
-#+macro:version Version 0.8.10
+#+date:2020-04-07 09:11
+#+macro:version Version 0.8.11
 
 {{{version}}} {{{date}}}
 
@@ -2453,17 +2453,20 @@ An exhaustive list of all types and attributes is given in section Types and Att
 
 ** Org Syntax
 
-
 #+cindex:paragraph
 #+texinfo:@heading Paragraph---Unit of Measurement
-The /paragraph/ is the unit of measurement.
+The /paragraph/ is the unit of measurement.  Every other syntactical part exists within specific
+/environments/, or /categories/.
 
+Within the syntax, there exist /elements/ and /objects/.  Elements are related to the *structure*
+of the document.  An element always starts and ends at the beginning of a line.  Objects are
+related to the *content* of the document, and some can be recursive.
+
+#+texinfo:@heading Syntactical Environments
 #+cindex:types
 #+cindex:environments
-#+texinfo:@heading Types or Environments
 
-Every other syntactical part exists within specific /environments/.  Three categories are used to
-classify these environments:
+Three categories are used to classify the syntactical environments:
 
 - Greater elements ::
 
@@ -2486,12 +2489,118 @@ classify these environments:
   An /object/ is a part that could be included in an element.
 
 
-#+texinfo:@heading Properties
+*** Elements---Greater Elements---Objects
+
+#+cindex:elements
+#+cindex:greater elements
+#+texinfo:@heading Greater Elements
+
+Elements containing other elements (and only elements) are called /greater elements/.  The
+following are /greater elements/:
+
+- center-block
+- drawer
+- dynamic-block
+- footnote-definition
+- headline
+- inlinetask
+- item
+- plain-list
+- property-drawer
+- quote-block
+- section
+- special-block
+
+
+#+cindex:elements
+#+cindex:regular elements
+#+texinfo:@heading Regular Elements
+
+Regular elements include the following:
+
+- babel-call
+- clock
+- comment
+- comment-block
+- diary-sexp
+- example-block
+- export-block
+- fixed-width
+- horizontal-rule
+- keyword
+- latex-environment
+- node-property
+- paragraph (can contain objects and plain text)
+- planning
+- quote-section
+- src-block
+- table
+- table-row
+- verse-block (can contain objects and plain text)
+
+
+#+texinfo:@heading Affiliated Keywords
+#+cindex:affiliated keywords
+#+vindex:org-element-affiliated-keywords
+Most elements accept a fixed set of keywords as attributes, called /affiliated keywords/.  They are
+not to be confused with regular keywords, which are elements.  Affiliated keywords are stored in
+the variable ~org-element-affiliated-keywords~, which contains:
+
+- "CAPTION"
+- "DATA"
+- "HEADER"
+- "HEADERS"
+- "LABEL"
+- "NAME"
+- "PLOT"
+- "RESNAME"
+- "RESULT"
+- "RESULTS"
+- "SOURCE"
+- "SRCNAME"
+- "TBLNAME"
+- "ATTR_..."
+
+
+The following elements do not accept affiliated keywords:
+
+: `clock', `headline', `inlinetask', `item', `planning', `node-property', `quote-section' `section' and `table-row' types
+
+
+#+texinfo:@heading Objects
+
+Objects include the following:
+
+- bold
+- code
+- entity
+- export-snippet
+- footnote-reference
+- inline-babel-call
+- inline-src-block
+- italic
+- latex-fragment
+- line-break
+- link
+- macro
+- radio-target
+- statistics-cookie
+- strike-through
+- subscript
+- superscript
+- table-cell
+- target
+- timestamp
+- underline
+- verbatim
+
+
+*** Properties
 
 #+cindex:property
 Each *greater element*, *element* and *object* has a variable set of /properties/ attached to it.
 
-#+texinfo:@subheading Properties common to all types
+#+texinfo:@heading Properties common to all types
 
 Four attributes are shared by all types: 
 
