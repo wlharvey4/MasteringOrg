@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-04-10 20:38
-#+macro:version Version 0.9.0
+#+date:2020-04-10 23:53
+#+macro:version Version 0.9.1
 
 {{{version}}} {{{date}}}
 
@@ -1384,6 +1384,16 @@ that is either:
          '(("TODO" . org-warning) ("STARTED" . "yellow")
            ("CANCELED" . (:foreground "blue" :weight bold))))
   #+end_example
+
+*** Todo Dependencies
+Parent TODOs should not be marked done until all TODO subtasks, or children tasks, are done.
+Further, sometimes there is a logical sequence to tasks and subtasks.
+
+- ~org-enforce-todo-dependencies~ :: variable such that Org blocks entries from changing state to
+  DONE while they have TODO children that are not DONE.
+
+- =DONE= :: if any entry has a property 'ORDERED', each of its TODO children is blocked until all
+  earlier sibligs are marked as done.
 
 ** Babel
 - https://orgmode.org/worg/org-contrib/babel/
