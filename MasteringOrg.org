@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-04-07 09:11
-#+macro:version Version 0.8.11
+#+date:2020-04-10 20:38
+#+macro:version Version 0.9.0
 
 {{{version}}} {{{date}}}
 
@@ -586,7 +586,6 @@ Texinfo, etc., using the corresponding functions.
    - =#+TAGS:= :: Name default tags to choose from for a file
 
    - =#+STARTUP: noptag= :: disable persistent tags alist
-
 
 *** Tag Variables
 
@@ -1231,7 +1230,6 @@ ships with support for the following back-ends:
 - texinfo (Texinfo format)
 - man (Man page format)
 
-
 *** Additional Back-Ends
     #+cindex:@file{contrib} directory
 Users can install libraries for additional formats from the Emacs packaging system.  More libraries
@@ -1306,6 +1304,86 @@ some application, do so only in the local variables section of the time-stamped 
 ** Headings
 
 ** Todos
+Any heading becomes a TODO item by placing that word at its beginning.  The entire context from
+which the TODO item emerged is always present.  Because TODO items become scattered throughout your
+notes files, Org mode gives you an overview of all the things you have to do.
+
+*** Todo States
+By default, TODO entries have one of two states:
+- TODO
+- DONE
+
+
+- ~org-todo-keywords~
+
+Org mode allows you to create more extensive states.  These states are stored in the variable
+~org-todo-keywords~.  This variables is a list of sequences.  Each sequences starts with a symbol
+that is either:
+
+- sequence :: sequence of action steps; keywords requiring action.  These states will select a
+  headline for inclusion into the global TODO list.  If one of the keywords is the vertical bar
+  "|", the remaining keywords signify that no further action is necessary.  But if "|" is not
+  found, then the last keyword is treated as the only DONE state.
+
+  : ((sequence "TODO" "DONE"))
+
+  : (setq org-todo-keywords
+  :   '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE "DELEGATED")))
+
+  Cycle an entry through these states with:
+  : C-c C-t
+  : S-<RIGHT> S-<LEFT>
+
+  Pick the third entry:
+  : C-3 C-c C-t
+
+  Use multiple sequences in parallel:
+  #+begin_example
+  (setq org-todo-keywords
+    '((sequence "TODO" "|" "DONE")
+      (sequence "REPORT" "BUG" "KNOWCAUSE" "|" "FIXED")
+      (sequence "|" "CANCELLED")))
+  #+end_example
+
+  To select a sequence:
+  : C-u C-u C-c C-t
+  : C-S-<RIGHT> C-S-<LEFT>
+
+  Set sequence states in a file:
+  : #+SEQ_TODO: KEYWORDS...
+  : #+TODO: KEYWORDS...
+
+- type :: different types of TODO items, e.g., "work" or "home", or "Tom"; but you should really
+  implement this functionality using Tags instead.
+
+  Set type keywords in a file:
+  : #+TYP_TODO
+
+- fast state selection :: Each keyword can specifiy a character for fast state selection in
+  conjunction with the variable ~org-use-fast-todo-selection~.  This is done by adding the
+  selection character after each keyword in parentheses.  When you press =C-c C-t=, followed by the
+  selection key, the entry is switched to this state immediately.  Further, use =<SPC>= to remove a
+  TODO keyword from an entry.
+
+  #+begin_example
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "|" "DONE(d)")
+          (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+          (sequence "|" "CANCELED(c)")))
+  #+end_example
+
+- Todo Faces ::
+  - ~org-todo~ for keywords indicating that an item still has to be acted upon;
+  - ~org-done~ for keywords indicating that an item is finished.
+
+  - ~org-todo-keyword-faces~ for additional faces; if you are using more than two different states,
+    you can use special faces for some of them.
+
+  #+begin_example
+  (setq org-todo-keyword-faces
+         '(("TODO" . org-warning) ("STARTED" . "yellow")
+           ("CANCELED" . (:foreground "blue" :weight bold))))
+  #+end_example
 
 ** Babel
 - https://orgmode.org/worg/org-contrib/babel/
@@ -1528,7 +1606,6 @@ straight away, and then by explaining my methodology via example uses of ~org-mo
 this configuration.
 
 *** Sample Configuration for J Wiegley's org-mode
-
 
 
 ** Setup Capture
@@ -2488,7 +2565,6 @@ Three categories are used to classify the syntactical environments:
 
   An /object/ is a part that could be included in an element.
 
-
 *** Elements---Greater Elements---Objects
 
 #+cindex:elements
@@ -2593,7 +2669,6 @@ Objects include the following:
 - timestamp
 - underline
 - verbatim
-
 
 *** Properties
 
