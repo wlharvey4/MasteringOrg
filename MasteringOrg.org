@@ -4,8 +4,9 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-09-29 08:25
-#+macro:version Version 0.10.0
+#+date:2020-09-29 10:44
+#+macro:version Version 0.10.1
+#+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
 {{{version}}} {{{date}}}
@@ -3874,7 +3875,7 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:org-template-version: 0.6.23
+:org-template-version: 0.6.24
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -3892,7 +3893,6 @@ List all ancestors of a given element or object.
 :env_var2: GITHUB_TOKEN: holds the GitHub personal access token
 :env_var3: EDITOR: must hold a reference to a working emacsclient server
 :env_var4: COLORS
-:org-template-version: 0.6.23
 :END:
 
 #+name:Makefile
