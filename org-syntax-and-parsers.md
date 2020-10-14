@@ -4,11 +4,11 @@
 "Context-free" means that  an element can be recognized  by looking at
 its line alone, or at one or two lines above it.
 
-- Headlines: can  contain a section,  except that the text  before the
+- Headlines: can  contain a section
+- Sections:  contains  directly any  greater  element  or element;  is
+  usually contained  by a  headline, except that  the text  before the
   first headline belongs  to a section, but is not  contained inside a
   headline.
-- Sections:  contains  directly any  greater  element  or element;  is
-  usually contained by a headline.
 - Planning lines
 - Property drawers
 
