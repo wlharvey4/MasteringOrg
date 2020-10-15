@@ -1,30 +1,78 @@
+# -*-org-*-
+
 * Org Syntax
+This section describes  the Org syntax as it is  currently read by its
+parser in ~org-element.el~ and the export framework.
 
-** Context Free Elements
+** Four Context Free Elements
 "Context-free" means that  an element can be recognized  by looking at
-its line alone, or at one or two lines above it.
+its  line   alone,  or  at   one  or   two  lines  above   it.   The
+following four elements are context-free:
 
-- Headlines: can  contain a section
-- Sections:  contains  directly any  greater  element  or element;  is
+- Headline: can  contain a section
+- Section: contains  directly any  greater element  or element  and is
   usually contained  by a  headline, except that  the text  before the
-  first headline belongs  to a section, but is not  contained inside a
+  first headline belongs  to a section that is not  contained inside a
   headline.
 - Planning lines
 - Property drawers
 
 Every other syntactical part exists within specific environments.
 
+*** Headline
+The form of a Headline is:
+: STARS KEYWORD PRIORITY TITLE TAGS
+
+A Headline contains directly one Section (optionally), followed by any
+number  of deeper  level headlines.
+
+- =STARS= ::  a string starting at  column 0, containing at  least one
+  asterisk, and ended  by a space character.  The  number of asterisks
+  is used to define the level of the headline.
+
+- =KEYWORD= ::  a TODO  keyword (must  belong to  the list  defined in
+  ~org-todo-keywords-1~).  Case is significant.
+
+- =PRIORITY= :: a  priority cookie, which is a  single letter preceded
+  by a hash sign # and enclosed within square brackets.
+
+- =TITLE= :: made of any character but a new line, excluding all other
+  elements.
+
+  - =COMMENTED=    ::   If the  first word appearing  in the  title is
+    "COMMENT" (case  significant), the headline will  be considered as
+    "commented".
+
+  - =Footnote   Section= ::   If its  title is  ~org-footnote-section~
+    (case significant), it will be considered as a “footnote section”
+
+- =TAGS= ::  colon-separate words, which can  contain any alphanumeric
+  characters, underscores, at-sign, hash sign, or percent sign.
+
+  - =ARCHIVED=   ::   If "ARCHIVE"  (case significant)  is one  of its
+    tags, it will be considered as “archived”.
+
+*** Section
+A Section contains directly any Greater Element or Element.  A Section
+is contained inside a Headline, or comes before the first Headline.
+
+*** Planning Line
+
+*** Property Drawer
+
+** Paragraph
+A /paragraph/ is the basic unit  of measurement. If something does not
+parse, then it is considered to  be a paragraph.  An /element/ defines
+syntactical  parts  that  are  at  the  same  level  as  a  paragraph,
+i.e. which cannot contain or be included in a paragraph.
+
 ** Environments
 Three categories are used to classify environments:
 
-1. *Greater Elements*: parts that can contain an element or object.
+1. *Object*:  a part that  can be included  in an element.
 2. *Elements*: defines syntactical parts that are at the same level as a
    paragraph; i.e., cannot contain or be included in a paragraph.
-3. *Objects*:  a part that  could be included  in an element.
-
-** Paragraphs
-Paragraphs are the unit of measurement. If something does not parse,
-then it is considered to be a paragraph.
+3. *Greater Elements*: parts that can contain an element or object.
 
 ** Affiliated Keywords
 Many element  types can  be assigned  *attributes* by  adding specific
@@ -46,7 +94,6 @@ where =KEY= can be one of:
 - =RESULTS=
 - =RESULTS[OPTIONAL]=
 
-
 ** Two Kinds of Elements
 
 *** Greater Elements
@@ -54,7 +101,7 @@ where =KEY= can be one of:
 *** Elements
 
 * Org Parsing
-
+~org-element.el~ implements a parser according to Org's syntax specification.
 
 ORG SYNTAX
 ==========
