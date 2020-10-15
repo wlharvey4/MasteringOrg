@@ -471,8 +471,71 @@ A /syntax object/ is represented as a list with the following pattern:
 - =CONTENTS= :: the whole document
 
 * Org Parsing
-[[file:~/.emacs.d/elpa/org-9.4/org-element.el::;;; org-element.el --- Parser for Org Syntax -*- lexical-binding: t; -*-][~org-element.el~]] implements a parser according to Org's syntax specification.
+[[file:~/.emacs.d/elpa/org-9.4/org-element.el::;;; org-element.el  --- Parser  for Org  Syntax -*-  lexical-binding: t;  -*-][~org-element.el~]] implements  a parser  according to  Org's syntax
+specification.
 
+** Org Parsers
+
+*** org-element-parse-buffer &optional granularity visible-only
+This  procedure  recursively  parses  Org syntax  inside  the  current
+buffer,  taking into  account region,  narrowing, and  visibility. The
+buffer's structure is returned.
+
+=GRANULARITY= determines  the depth of  the recursion. It  is optional
+and can be set to one of the following symbols:
+
+- =headline= :: parse headlines only
+- =greater-element= :: only recurse  into headlines and sections (only
+  parse top-level elements)
+- =element= :: parse everything but objects and plain text.
+- =object= :: parse the complete buffer (the default)
+
+
+=VISIBLE-ONLY= non-=nil=, do not parse contents of hidden elements.
+
+**** Syntactic Element
+An  element or  object is  represented as  a list  with the  following
+pattern:
+
+: (TYPE PROPERTIES CONTENTS)
+
+- =TYPE= is a symbol describing the  element or object; it will be one
+  element    of    the   variables    ~org-element-all-elements~    or
+  ~org-element-all-objects~.  It's value  can  be  retrieved with  the
+  procedure ~org-element-type~.
+
+- =PROPERTIES= is the list of  /attributes/ attached to the element or
+  object as a plist.  All types share the following attributes:
+  - =:begin=
+  - =:end=
+  - =:post-blank=
+  - =:parent=
+
+  The  procedure ~org-element-property~  can  return the  =PROPERTIES=
+  values.
+
+- =CONTENTS= is a list of elements, objects, and raw strings contained
+  in the  element or object. The  procedure ~org-element-contents~ can
+  return the =CONTENTS= value.
+
+*** org-element-parse-secondary-string string restriction &optional parent
+This procedure  recursively parses objects  within a given  string and
+returns its structure.
+
+*** org-element-at-point
+
+*** org-element-context &optional element
+
+	returns smallest element or object around point
+	return value is a list (TYPE PROPS)
+	possible types are defined in 'org-element-all-elements and
+				      'org-element-all-objects
+	properties depend on element or object type
+		always include:
+			:begin :end :parent :post-blank
+
+
+#+begin_comment
 ORG SYNTAX
 ==========
 
@@ -536,16 +599,6 @@ Objects
 
 ORG PARSER: Org Elements
 ========================
-org-element-parse-buffer: global
-org-element-at-point
-org-element-context &optional element
-	returns smallest element or object around point
-	return value is a list (TYPE PROPS)
-	possible types are defined in 'org-element-all-elements and
-				      'org-element-all-objects
-	properties depend on element or object type
-		always include:
-			:begin :end :parent :post-blank
 org-element-type
 org-element-property
 org-element-contents: AST
@@ -572,3 +625,266 @@ attributes
 affiliated keywords: :caption :header :name :plot :results :attr_NAME
 
 keyword: element: :key :value
+#+end_comment
+
+* List of Procedures in ~org-element.el~
+
+** RegExps
+*** org-element--set-regexps ()
+** Parser Internals
+*** org-element-update-syntax ()
+** Parse Brackets
+*** org-element--parse-paired-brackets (char)
+** Accessors and Setters
+*** org-element-type (element)
+*** org-element-property (property element)
+*** org-element-contents (element)
+*** org-element-restriction (element)
+*** org-element-put-property (element property value)
+*** org-element-set-contents (element &rest contents)
+*** org-element-secondary-p (object)
+*** org-element-class (datum &optional parent)
+*** org-element-adopt-elements (parent &rest children)
+*** org-element-extract-element (element)
+*** org-element-insert-before (element location)
+*** org-element-set-element (old new)
+*** org-element-create (type &optional props &rest children)
+*** org-element-copy (datum)
+** Greater Elements
+For each greater  element type, define a parser and  an interpreter.
+
+A parser  returns the element or  object as the list  described above.
+Parsing    functions    must    follow    the    naming    convention:
+org-element-TYPE-parser,  where TYPE  is  greater  element's type,  as
+defined in =org-element-greater-elements=.
+
+An interpreter accepts  two arguments: the list  representation of the
+element or object, and its contents.  The latter may be nil, depending
+on the  element or object  considered. It returns the  appropriate Org
+syntax, as a string. Similarly, interpreting functions must follow the
+naming convention: =org-element-TYPE-interpreter=.
+
+With the  exception of `headline'  and `item' types,  greater elements
+cannot contain other greater elements of their own type.
+
+*** Center Block
+**** org-element-center-block-parser (limit affiliated)
+**** org-element-center-block-interpreter (_ contents)
+*** Drawer
+**** org-element-drawer-parser (limit affiliated)
+**** org-element-drawer-interpreter (drawer contents)
+*** Dynamic Block
+**** org-element-dynamic-block-parser (limit affiliated)
+**** org-element-dynamic-block-interpreter (dynamic-block contents)
+*** Footnote Definition
+**** org-element-footnote-definition-parser (limit affiliated)
+**** org-element-footnote-definition-interpreter (footnote-definition contents)
+*** Headline
+**** org-element--get-node-properties ()
+**** org-element--get-time-properties ()
+**** org-element-headline-parser (limit &optional raw-secondary-p)
+**** org-element-headline-interpreter (headline contents)
+*** Inlinetask
+**** org-element-inlinetask-parser (limit &optional raw-secondary-p)
+**** org-element-inlinetask-interpreter (inlinetask contents)
+*** Item
+**** org-element-item-parser (_ struct &optional raw-secondary-p)
+**** org-element-item-interpreter (item contents)
+*** Plain List
+**** org-element--list-struct (limit)
+**** org-element-plain-list-parser (limit affiliated structure)
+**** org-element-plain-list-interpreter (_ contents)
+*** Property Drawer
+**** org-element-property-drawer-parser (limit)
+**** org-element-property-drawer-interpreter (_ contents)
+*** Quote Block
+**** org-element-quote-block-parser (limit affiliated)
+**** org-element-quote-block-interpreter (_ contents)
+*** Section
+**** org-element-section-parser (_)
+**** org-element-section-interpreter (_ contents)
+*** Special Block
+**** org-element-special-block-parser (limit affiliated)
+**** org-element-special-block-interpreter (special-block contents)
+** Elements
+For each element,  a parser and an interpreter are  also defined. Both
+follow the same naming convention used for greater elements.
+*** Babel Call
+**** org-element-babel-call-parser (limit affiliated)
+**** org-element-babel-call-interpreter (babel-call _)
+*** Clock
+**** org-element-clock-parser (limit)
+**** org-element-clock-interpreter (clock _)
+*** Comment
+**** org-element-comment-parser (limit)
+**** org-element-comment-interpreter (comment _)
+*** Comment Block
+**** org-element-comment-block-parser (limit affiliated)
+**** org-element-comment-block-interpreter (comment-block _)
+*** Diary Sexp
+**** org-element-diary-sexp-parser (limit affiliated)
+**** org-element-diary-sexp-interpreter (diary-sexp _)
+*** Example Block
+**** org-element-example-block-parser (limit affiliated)
+**** org-element-example-block-interpreter (example-block _)
+*** Export Block
+**** org-element-export-block-parser (limit affiliated)
+**** org-element-export-block-interpreter (export-block _)
+*** Fixed-width
+**** org-element-fixed-width-parser (limit affiliated)
+**** org-element-fixed-width-interpreter (fixed-width _)
+*** Horizontal Rule
+**** org-element-horizontal-rule-parser (limit affiliated)
+**** org-element-horizontal-rule-interpreter (&rest _)
+*** Keyword
+**** org-element-keyword-parser (limit affiliated)
+**** org-element-keyword-interpreter (keyword _)
+*** Latex Environment
+**** org-element-latex-environment-interpreter (latex-environment _)
+**** org-element-latex-environment-parser (limit affiliated)
+*** Node Property
+**** org-element-node-property-parser (limit)
+**** org-element-node-property-interpreter (node-property _)
+*** Paragraph
+**** org-element-paragraph-parser (limit affiliated)
+**** org-element-paragraph-interpreter (_ contents)
+*** Planning
+**** org-element-planning-parser (limit)
+**** org-element-planning-interpreter (planning _)
+*** Src Block
+**** org-element-src-block-parser (limit affiliated)
+**** org-element-src-block-interpreter (src-block _)
+*** Table
+**** org-element-table-parser (limit affiliated)
+**** org-element-table-interpreter (table contents)
+*** Table Row
+**** org-element-table-row-parser (_)
+**** org-element-table-row-interpreter (table-row contents)
+*** Verse Block
+**** org-element-verse-block-parser (limit affiliated)
+**** org-element-verse-block-interpreter (_ contents)
+** Objects
+Raw text  can be  found between objects.  ~org-element--object-lex~ is
+provided to find the next object in ;; buffer.
+*** Bold
+**** org-element-bold-parser ()
+**** org-element-bold-interpreter (_ contents)
+*** Code
+**** org-element-code-parser ()
+**** org-element-code-interpreter (code _)
+*** Entity
+**** org-element-entity-parser ()
+**** org-element-entity-interpreter (entity _)
+*** Export Snippet
+**** org-element-export-snippet-interpreter (export-snippet _)
+**** org-element-export-snippet-parser ()
+*** Footnote Reference
+**** org-element-footnote-reference-parser ()
+**** org-element-footnote-reference-interpreter (footnote-reference contents)
+*** Inline Babel Call
+**** org-element-inline-babel-call-parser ()
+**** org-element-inline-babel-call-interpreter (inline-babel-call _)
+*** Inline Src Block
+**** org-element-inline-src-block-parser ()
+**** org-element-inline-src-block-interpreter (inline-src-block _)
+*** Italic
+**** org-element-italic-parser ()
+**** org-element-italic-interpreter (_ contents)
+*** Latex Fragment
+**** org-element-latex-fragment-parser ()
+**** org-element-latex-fragment-interpreter (latex-fragment _)
+*** Line Break
+**** org-element-line-break-parser ()
+**** org-element-line-break-interpreter (&rest _)
+*** Link
+**** org-element-link-parser ()
+**** org-element-link-interpreter (link contents)
+*** Macro
+**** org-element-macro-parser ()
+**** org-element-macro-interpreter (macro _)
+*** Radio-target
+**** org-element-radio-target-parser ()
+**** org-element-radio-target-interpreter (_ contents)
+*** Statistics Cookie
+**** org-element-statistics-cookie-parser ()
+**** org-element-statistics-cookie-interpreter (statistics-cookie _)
+*** Strike-Through
+**** org-element-strike-through-parser ()
+**** org-element-strike-through-interpreter (_ contents)
+*** Subscript
+**** org-element-subscript-parser ()
+**** org-element-subscript-interpreter (subscript contents)
+*** Superscript
+**** org-element-superscript-parser ()
+**** org-element-superscript-interpreter (superscript contents)
+*** Table Cell
+**** org-element-table-cell-parser ()
+**** org-element-table-cell-interpreter (_ contents)
+*** Target
+**** org-element-target-parser ()
+**** org-element-target-interpreter (target _)
+*** Timestamp
+**** org-element-timestamp-parser ()
+**** org-element-timestamp-interpreter (timestamp _)
+*** Underline
+**** org-element-underline-parser ()
+**** org-element-underline-interpreter (_ contents)
+*** Verbatim
+**** org-element-verbatim-parser ()
+**** org-element-verbatim-interpreter (verbatim _)
+** Parsing Element at Point
+*** org-element--current-element (limit &optional granularity mode structure)
+Returns the Lisp representation of the element starting at point.
+*** org-element--collect-affiliated-keywords (limit parse)
+** The Org Parser
+*** org-element-parse-buffer (&optional granularity visible-only)
+*** org-element-parse-secondary-string (string restriction &optional parent)
+*** org-element-map
+** Internal Parsing Procedures
+*** org-element--next-mode (mode type parent?)
+*** org-element--parse-elements
+*** org-element--object-lex (restriction)
+*** org-element--parse-objects (beg end acc restriction &optional parent)
+** Interpret Data
+*** org-element-interpret-data (data)
+*** org-element--interpret-affiliated-keywords (element)
+** Handle White Space
+*** org-element-normalize-string (s)
+*** org-element-normalize-contents (element &optional ignore-first)
+** Cache
+*** org-element--cache-key (element)
+*** org-element--cache-generate-key (lower upper)
+*** org-element--cache-key-less-p (a b)
+*** org-element--cache-compare (a b)
+*** org-element--cache-root ()
+** Cache Tools
+*** org-element--cache-active-p ()
+*** org-element--cache-find (pos &optional side)
+*** org-element--cache-put (element)
+*** org-element--cache-remove (element)
+** Cache Synchronization
+*** org-element--cache-set-timer (buffer)
+*** org-element--cache-interrupt-p (time-limit)
+*** org-element--cache-shift-positions (element offset &optional props)
+*** org-element--cache-sync (buffer &optional threshold future-change)
+*** org-element--cache-process-request
+*** org-element--parse-to (pos &optional syncp time-limit)
+** Staging Buffer Changes
+*** org-element--cache-before-change (beg end)
+*** org-element--cache-after-change (beg end pre)
+*** org-element--cache-for-removal (beg end offset)
+*** org-element--cache-submit-request (beg end offset)
+** Public Functions
+*** org-element-cache-reset (&optional all)
+*** org-element-cache-refresh (pos)
+** Toolbox
+First, implement  a way to  obtain the smallest element  at containing
+point.
+
+Next, implement a function to list all elements and objects containing
+point.
+*** org-element-at-point ()
+*** org-element-context (&optional element)
+*** org-element-lineage (datum &optional types with-self)
+*** org-element-nested-p (elem-A elem-B)
+*** org-element-swap-A-B (elem-A elem-B)
