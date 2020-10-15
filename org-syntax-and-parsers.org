@@ -1,0 +1,574 @@
+# -*-org-*-
+#+title: Org Syntax and Org Parsing
+
+* Org Syntax
+This section describes  the [[https://orgmode.org/worg/dev/org-syntax.html][Org syntax]] as it is  currently read by its
+parser in [[file:~/.emacs.d/elpa/org-9.4/org-element.el::;;; org-element.el --- Parser for Org Syntax -*- lexical-binding: t; -*-][~org-element.el~]] and the export framework.
+
+** Four Context Free Elements
+"Context-free" means that  an element can be recognized  by looking at
+its  line   alone,  or  at   one  or   two  lines  above   it.   The
+following four elements are context-free:
+
+- Headline: can  contain a section
+- Section: contains  directly any  greater element  or element  and is
+  usually contained  by a  headline, except that  the text  before the
+  first headline belongs  to a section that is not  contained inside a
+  headline.
+- Planning lines
+- Property drawers
+
+Every other syntactical part exists within specific environments.
+
+*** Headline
+The form of a Headline is:
+: STARS KEYWORD PRIORITY TITLE TAGS
+
+A Headline contains directly one Section (optionally), followed by any
+number  of deeper  level headlines.
+
+- =STARS= ::  a string starting at  column 0, containing at  least one
+  asterisk, and ended  by a space character.  The  number of asterisks
+  is used to define the level of the headline.
+
+- =KEYWORD= ::  a TODO  keyword (must  belong to  the list  defined in
+  ~org-todo-keywords-1~).  Case is significant.
+
+- =PRIORITY= :: a  priority cookie, which is a  single letter preceded
+  by a hash sign # and enclosed within square brackets.
+
+- =TITLE= :: made of any character but a new line, excluding all other
+  elements.
+
+  - =COMMENTED=    ::   If the  first word appearing  in the  title is
+    "COMMENT" (case  significant), the headline will  be considered as
+    "commented".
+
+  - =Footnote   Section= ::   If its  title is  ~org-footnote-section~
+    (case significant), it will be considered as a “footnote section”
+
+- =TAGS= ::  colon-separate words, which can  contain any alphanumeric
+  characters, underscores, at-sign, hash sign, or percent sign.
+
+  - =ARCHIVED=   ::   If "ARCHIVE"  (case significant)  is one  of its
+    tags, it will be considered as “archived”.
+
+*** Section
+A Section contains directly any Greater Element or Element.  A Section
+is contained inside a Headline, or comes before the first Headline.
+
+*** Planning Line
+
+*** Property Drawer
+
+** Paragraph
+A /paragraph/ is the basic unit  of measurement. If something does not
+parse, then  it is  considered to  be a paragraph.  An /element/  is a
+syntactical part that is at the  same level as a paragraph, i.e. which
+cannot contain or be included in a paragraph.
+
+** Environments
+Environments fall into three categories:
+
+1. *Object*:  a part that  can be included  in an element.
+
+2.   *Element*:  a syntactical  part that  is at the  same level  as a
+   paragraph; i.e.,  a part that  cannot contain  or be included  in a
+   paragraph.
+
+3.  *Greater  Element*:  a  syntactical part  that  can  contain  both
+   elements and objects.
+
+** Affiliated Keywords
+Many element  types can  be assigned  *attributes* by  adding specific
+keywords ("/affiliated keywords/") just  above the element considered.
+The  next  section lists  those  elements  that /cannot/  be  assigned
+attributes. All  others therefor can be.  "Affiliated keywords" follow
+one of the following patterns:
+
+#+begin_example
+#+KEY: VALUE
+#+KEY[OPTIONAL]: VALUE
+#+ATTR_<BACKEND>: VALUE (multiple possible)
+#+end_example
+
+where =KEY= can be one of:
+
+- =CAPTION= (multiple possible) (can contain objects)
+- =CAPTION[OPTIONAL]=
+- =HEADER= (multiple possible)
+- =NAME=
+- =PLOT=
+- =RESULTS=
+- =RESULTS[OPTIONAL]=
+
+
+The parts =OPTIONAL= and =VALUE= can  contain any characters but a new
+line.
+
+*** Excluded Elements
+The following elements /cannot/ be assigned attributes; every other
+element, therefore, can.
+
+- comment,
+- clocks,
+- headlines,
+- inlinetasks,
+- items,
+- node properties,
+- planning,
+- property drawers,
+- sections, and
+- table rows,
+
+** Greater Elements
+Greater Elements  are "recursive element types."  Greater elements can
+contain directly any other element or greater element except:
+- elements of their own type,
+- node properties, which can only be found in property drawers,
+- items, which can only be found in plain lists.
+
+
+The variable ~org-element-all-elements~ contains  the complete list of
+all Greater Elements.
+
+- ~org-element-greater-elements~ ::
+  - ~center-block~
+  - ~drawer~
+  - ~dynamic-block~
+  - ~footnote-definition~
+  - ~headline~
+  - ~inlinetask~
+  - ~item~
+  - ~plain-list~
+  - ~property-drawer~
+  - ~quote-block~
+  - ~section~
+  - ~special-block~
+  - ~table~
+
+*** Greater Blocks
+Greater Blocks follow the following pattern:
+
+#+begin_example
+#+BEGIN_NAME PARAMETERS
+CONTENTS
+#+END_NAME
+#+end_example
+
+=NAME= can be:
+- =CENTER= : "center block"
+- =QUOTE= : "quote block"
+- =SPECIAL= : =NAME= is neither =CENTER=, =QUOTE=, nor a "block element"
+
+
+=CONTENTS= can contain  any element. Lines beginning  with an asterisk
+must be quoted by a comma.
+
+*** Drawers including Property Drawers
+Pattern for drawers is:
+
+#+begin_example
+:NAME:
+CONTENTS
+:END:
+#+end_example
+
+=CONTENTS= can contain any element but another drawer.
+
+*** Dynamic Blocks
+Pattern for dynamic blocks is:
+
+#+begin_example
+#+BEGIN: NAME PARAMETERS
+CONTENTS
+#+END:
+#+end_example
+
+=NAME= cannot contain white space.
+
+=PARAMETERS= are optional.
+
+*** Footnote Definitions
+Pattern for footnote definitions is:
+
+: [fn:LABEL] CONTENTS
+
+Must start at column 0.
+
+=LABEL= is either a number or a word.
+
+=CONTENTS= can contain any element except another footnote definition.
+
+*** Inlinetasks
+
+*** Plain Lists and Items
+
+**** Items
+Pattern for items:
+
+: BULLET COUNTER-SET CHECK-BOX TAG
+
+Only =BULLET= is mandatory.
+
+=BULLET= is one of (followed by whitespace):
+- asterisk =*=
+- hyphen =-=
+- plus sign =+=
+- =COUNTER= (number or letter) =1=, =A=
+- =COUNTER)= (number or letter) =1)=, =A)=
+
+
+=COUNTER-SET= follows the pattern:
+: [@COUNTER]
+
+=CHECK-BOX= is one of:
+- =[ ]=
+- =[X]=
+- =[-]=
+
+
+=TAG= follows “TAG-TEXT ::” pattern
+
+**** Plain List
+A "plain list" is a set  of consecutive items of the same indentation.
+It can only directly contain items.
+
+**** Ordered Plain List
+If first item in  a plain list has a counter in  its bullet, the plain
+list will be an “ordered plain-list”.
+
+**** Descriptive List
+If it contains a tag, it will be a “descriptive list”
+
+**** Unordered List
+Otherwise, it will be an “unordered list”.
+
+*** Property Drawers
+Property drawers  are a special  type of drawer  containing properties
+attached to  a headline. They are  located right after a  headline and
+its planning information.
+
+Property drawers follow the following patterns:
+
+#+begin_example
+HEADLINE
+PROPERTYDRAWER
+
+HEADLINE
+PLANNING
+PROPERTYDRAWER
+#+end_example
+
+=PROPERTYDRAWER= follows the following pattern:
+
+#+begin_example
+:PROPERTIES:
+CONTENTS
+:END:
+#+end_example
+
+=CONTENTS= consists of zero or  more /node properties/, which can only
+exist in property drawers.
+
+=NODE PROPERTIES= follow the following patterns:
+
+#+begin_example
+:NAME: VALUE
+
+:NAME+: VALUE
+
+:NAME:
+
+:NAME+:
+#+end_example
+
+=VALUE= can be anything but the newline character.
+
+*** Tables
+Tables start at lines beginning with either:
+- a vertical bar =|= (has "org" type); or
+- the =+-= string followed by plus or minus signs only (~table.el~ type)
+
+
+=Org tables= end at the first line not starting with a vertical bar.
+
+~Table.el~ tables  end at the  first line  not starting with  either a
+vertical line or a plus sign.
+
+An =org  table= can only contain  table rows. A ~table.el~  table does
+not contain anything.
+
+One or  more “#+TBLFM: FORMULAS”  lines, where “FORMULAS”  can contain
+any character, can follow an org table.
+
+** Elements
+
+The variable ~org-element-all-elements~ contains  the complete list of
+all elements.
+
+- ~org-element-all-elements~ ::
+  - ~babel-call~
+  - ~center-block~
+  - ~clock~
+  - ~comment~
+  - ~comment-block~
+  - ~diary-sexp~
+  - ~drawer~
+  - ~dynamic-block~
+  - ~example-block~
+  - ~export-block~
+  - ~fixed-width~
+  - ~footnote-definition~
+  - ~headline~
+  - ~horizontal-rule~
+  - ~inlinetask~
+  - ~item~
+  - ~keyword~
+  - ~latex-environment~
+  - ~node-property~
+  - ~paragraph~
+  - ~plain-list~
+  - ~planning~
+  - ~property-drawer~
+  - ~quote-block~
+  - ~section~
+  - ~special-block~
+  - ~src-block~
+  - ~table~
+  - ~table-row~
+  - ~verse-block~
+
+Elements  cannot contain  other elements.  The following  elements can
+contain objects:
+- keywords whose name belongs to ~org-element-document-properties~
+- verse blocks
+- paragraphs
+- table rows
+
+*** Babel Call
+
+*** Blocks
+
+*** Clock---Diary Sexp---Planning
+
+*** Comment
+
+*** Fixed Width Area
+
+*** Horizontal Rule
+
+*** Keywords
+
+*** LaTeX Environment
+
+*** Node Properties
+
+*** Paragraphs
+
+*** Table Rows
+
+** Objects
+The variable  ~org-element-all-objects~ contains the complete  list of
+all objects.
+
+- ~org-element-all-objects~ ::
+  - ~bold~
+  - ~code~
+  - ~entity~
+  - ~export-snippet~
+  - ~footnote-reference~
+  - ~inline-babel-call~
+  - ~inline-src-block~
+  - ~italic~
+  - ~line-break~
+  - ~latex-fragment~
+  - ~link~
+  - ~macro~
+  - ~radio-target~
+  - ~statistics-cookie~
+  - ~strike-through~
+  - ~subscript~
+  - ~superscript~
+  - ~table-cell~
+  - ~target~
+  - ~timestamp~
+  - ~underline~
+  - ~verbatim~
+
+
+Some    objects   are    "recursive",   listed    in   the    variable
+~org-element-recursive-objects~:
+
+- ~org-element-recursive-objects~ ::
+  - ~bold~
+  - ~footnote-reference~
+  - ~italic~
+  - ~link~
+  - ~subscript~
+  - ~radio-target~
+  - ~strike-through~
+  - ~superscript~
+  - ~table-cell~
+  - ~underline~
+
+
+Most  objects cannot  contain objects.  Objects  can be  found in  the
+following locations only:
+
+- affiliated keywords defined in ~org-element-parsed-keywords~,
+- document properties,
+- headline titles,
+- inlinetask titles,
+- item tags,
+- paragraphs,
+- table cells,
+- table rows, which can only contain table cell objects,
+- verse blocks.
+
+*** Entities and LaTeX Fragments
+
+*** Export Snippets
+
+*** Footnote References
+
+*** Inline Babel Calls and Source Blocks
+
+*** Line Breaks
+
+*** Links
+
+*** Macros
+
+*** Targets and Radio Targets
+
+*** Statistics Cookies
+
+*** Subscript and Superscript
+
+*** Table Cells
+
+*** Timestamps
+
+*** Text Markup
+
+** Syntax Object
+A /syntax object/ is represented as a list with the following pattern:
+: (TYPE PROPERTIES CONTENTS)
+
+- =TYPE= :: a symbol describing the object
+
+- =PROPERTIES= :: the property list attached to the object
+
+- =CONTENTS= :: a  list of syntax objects or raw  strings contained in
+  the current object
+
+*** Whole Document Object
+- =TYP= :: ~org-data~
+
+- =PROPERTIES= :: =nil=
+
+- =CONTENTS= :: the whole document
+
+* Org Parsing
+[[file:~/.emacs.d/elpa/org-9.4/org-element.el::;;; org-element.el --- Parser for Org Syntax -*- lexical-binding: t; -*-][~org-element.el~]] implements a parser according to Org's syntax specification.
+
+ORG SYNTAX
+==========
+
+Greater element: can contain directly any other element or greater element except:
+	elements of their own type,
+	node properties, which can only be found in property drawers,
+	items, which can only be found in plain lists.
+	Greater blocks
+	Drawers; Property drawers
+	Dynamic blocks
+	Footnote definitions
+	Inline tasks
+	Plain lists; items
+	Property drawers
+	Tables
+Elements
+	cannot contain any other element.
+	can contain objects:
+		keywords whose name belongs to org-element-document-properties
+		verse blocks
+		paragraphs
+		table rows
+	Babel call
+	Blocks
+	Clock, Diary Sexp and Planning
+	Comments
+	Fixed-width area
+	Horizontal rules
+	Keywords
+		#+KEY: VALUE
+			KEY cannot eq CALL or any Affiliated Keyword
+	LaTeX environments
+	Node properties
+		can only exist in property drawers
+		:NAME: VALUE
+		:NAME+: VALUE
+		:NAME:
+		:NAME+:
+	Paragraphs
+		the default element; any unrecognized context is a paragraph
+		Empty lines and other elements end paragraphs
+		Paragraphs can contain every type of object.
+	Table rows
+Objects
+	only found in certain places
+	most cannot contain objects (some can)
+	Entities and LaTeX fragments
+	Export snippets
+	Footnote references
+	Inline Babel Calls and Source Blocks
+	Line breaks
+	Links
+		4 major types of links:
+	Macros
+	Targets and Radio Targets
+	Statistics Cookies
+	Subscript and Superscript
+	Table Cells
+	Timestamps
+	Text Markup
+
+ORG PARSER: Org Elements
+========================
+org-element-parse-buffer: global
+org-element-at-point
+org-element-context &optional element
+	returns smallest element or object around point
+	return value is a list (TYPE PROPS)
+	possible types are defined in 'org-element-all-elements and
+				      'org-element-all-objects
+	properties depend on element or object type
+		always include:
+			:begin :end :parent :post-blank
+org-element-type
+org-element-property
+org-element-contents: AST
+org-element-map: AST, list of elements or objects
+org-element-put-property
+org-element-extract-element
+org-element-set-element
+org-element-insert-before
+org-element-adopt-element
+org-element-interpret-data
+org-element-lineage
+
+org-element-all-elements
+ (babel-call center-block clock comment comment-block diary-sexp drawer dynamic-block example-block export-block fixed-width footnote-definition headline horizontal-rule inlinetask item keyword latex-environment node-property paragraph plain-list planning property-drawer quote-block section special-block src-block table table-row verse-block)
+org-element-all-objects
+ (babel-call center-block clock comment comment-block diary-sexp drawer dynamic-block example-block export-block fixed-width footnote-definition headline horizontal-rule inlinetask item keyword latex-environment node-property paragraph plain-list planning property-drawer quote-block section special-block src-block table table-row verse-block)
+
+greater element: :contents-begin :contents-end
+element: :contents-begin :contents-end
+object
+properties: :begin :end :post-blank :parent :post-affiliated
+types
+attributes
+affiliated keywords: :caption :header :name :plot :results :attr_NAME
+
+keyword: element: :key :value
