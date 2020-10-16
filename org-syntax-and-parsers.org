@@ -358,13 +358,78 @@ CONTENTS
 
 *** Clock---Diary Sexp---Planning
 
+**** Clock
+#+begin_example
+CLOCK: INACTIVE-TIMESTAMP
+CLOCK: INACTIVE-TIMESTAMP-RANGE DURATION
+#+end_example
+
+- =DURATION= :: =HH:MM=
+
+**** Diary Sexp
+For  more complex  date specifications,  Org mode  supports using  the
+special  expression diary  entries implemented  in the  Emacs Calendar
+package
+
+A diary sexp is a line starting  at column 0 with =%%(= string. It can
+then contain any character besides a new line.
+
+: %%(
+
+**** Planning
+A planning is an element with the following pattern:
+
+#+begin_example
+HEADLINE
+PLANNING
+#+end_example
+No blank line is allowed between =PLANNING= and =HEADLINE=.
+
+and where =HEADLINE= is a /headline element/ and =fPLANNING= is a line
+filled with =INFO= parts, where each of them follows the pattern:
+: KEYWORD: TIMESTAMP
+
+=KEYWORD= is either
+  - “DEADLINE”,
+  - “SCHEDULED” or
+  - “CLOSED”
+
+
+=TIMESTAMP= is a /timestamp object/.
+
 *** Comment
+A  /comment line/  starts  with zero  or  more whitespace  characters,
+followed by a hash sign and a whitespace character or an end of line.
+
+: #
 
 *** Fixed Width Area
+A /fixed-width line/ start with a  colon character and a whitespace or
+an  end  of line.  /Fixed  width  areas/  can  contain any  number  of
+consecutive /fixed-width lines/.
+
+: :
 
 *** Horizontal Rule
+A /horizontal rule/ is a line made of at least 5 consecutive hyphens. It
+can be indented.
+
+: -----
 
 *** Keywords
+: #+KEY: VALUE
+
+=KEY= can contain any non-whitespace character, but it cannot be equal
+to =CALL= or any /[[*Affiliated Keywords][affiliated keyword]]/.
+
+=VALUE= can contain any character excepted a new line.
+
+#+begin_comment
+If  =KEY= belongs  to  ~org-element-document-properties~, =VALUE=  can
+contain objects.
+
+NOTE: ~org-element-document-properties~ variable does not exist.
+#+end_comment
 
 *** LaTeX Environment
 
