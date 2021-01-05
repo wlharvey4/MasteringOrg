@@ -5,7 +5,7 @@
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
 #+date:2020-10-16 07:17
-#+macro:version Version 0.10.3
+#+macro:version Version 0.10.4
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -3947,7 +3947,7 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:org-template-version: 0.6.24
+:org-template-version: 0.6.40
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -3965,7 +3965,7 @@ List all ancestors of a given element or object.
 :env_var2: GITHUB_TOKEN: holds the GitHub personal access token
 :env_var3: EDITOR: must hold a reference to a working emacsclient server
 :env_var4: COLORS
-:org-template-version: 0.6.24
+:org-template-version: 0.6.40
 :END:
 
 #+name:Makefile
@@ -3986,10 +3986,20 @@ List all ancestors of a given element or object.
   # The absolute path to this Template file
   TEMPLATE := $(SYNC_ORG_TEMPLATE)
 
+
+  ### TOOLS & RESOURCES
+  # tools is a directory holding tangled scripts, such as cmprpl
+  # resources is a directory holding static resources for the project
+  # images is a directory holding jpg and png image files
+  RESOURCES := resources
+  TOOLS	    := $(RESOURCES)/tools
+  IMAGES    := $(RESOURCES)/images
+  CMPRPL    := $(TOOLS)/cmprpl
+
   # Use emacsclient as $EDITOR; make sure it is set in a shell startup file and
   # the server has been started.
   EMACS	  := $(EMACS)
-  EDITOR	  := $(EDITOR)
+  EDITOR  := $(EDITOR)
 
   # User’s personal GitHub token for authentication to GitHub
   # DO NOT HARD-CODE THIS VALUE
@@ -4043,6 +4053,23 @@ List all ancestors of a given element or object.
 		      (re-search-forward "^\#[+]bucket:\\(.*\\)$$" nil t) \
 		      (match-string-no-properties 1)))')
   S3_BUCKET    := s3://$(BUCKET)
+
+  # Buckets set up to serve static web sites from S3 can use either http
+  # or https protocols; some  http protocols will automatically redirect
+  # to https;  however, some only use  http. I would like  to accomodate
+  # both, and  so this code  finds the url's  that are in  my Cloudfront
+  # account, which presumably will serve https.  If the url is not here,
+  # then this must be set up to serve http instead.
+  HTTP_S := $(shell $(CFD) | perl -MJSON::PP -e \
+	  '$$/=""; \
+	   my @urls = (); \
+	   my $$json=JSON::PP->new->decode(<STDIN>); \
+	   for my $$item ( @{$$json->{"DistributionList"}{"Items"}} ) { \
+		  push @urls, @{$$item->{"Aliases"}{"Items"}}; \
+	   } \
+	  my $$found = grep { /'$(BUCKET)'/ } @urls; \
+	  print "http", ($$found ? "s" : "");')
+
   HTTPS_BUCKET := https://$(BUCKET)
 
   ### DIR, SRC
@@ -4155,7 +4182,7 @@ List all ancestors of a given element or object.
   # code should work with any version of 'perl' without having to
   # install any modules.
 
-  USER := $(shell \
+  USER	:= $(shell \
 	    curl -sH "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/user \
 	    | \
 	    perl -MJSON::PP -e \
@@ -4163,31 +4190,28 @@ List all ancestors of a given element or object.
 		 my $$json = JSON::PP->new->loose->allow_barekey->decode(<STDIN>); \
 		 print $$json->{login};' \
 	    )
-
-  ### TOOLS & RESOURCES
-  # tools is a directory holding tangled scripts, such as cmprpl
-  TOOLS	:= tools
-  CMPRPL	:= $(TOOLS)/cmprpl
-  SAVE	:= resources
+  SAVE		:= resources
 
   ### TEXINFO
-  TEXI	:= $(PROJ).texi
-  INFO	:= $(DIR).info
+  TEXI		:= $(PROJ).texi
+  INFO		:= $(DIR).info
   INFOTN	:= $(shell $(EDITOR) --eval "(file-truename \"$(INFO)\")")
-  PDF	:= $(PROJ).pdf
-  INDEX	:= index.html
-  HTML	:= $(DIR)/$(INDEX)
+  PDF		:= $(PROJ).pdf
+  INDEX		:= index.html
+  HTML		:= $(DIR)/$(INDEX)
   DIR_OLD	:= $(DIR)-old
 
   ### AWS S3
   DST_OLD	:= $(S3_BUCKET)/$(S3PROJ)
   DST_NEW	:= $(S3_BUCKET)/$(DIR)-$(VERS)
   EXCL_INCL	:= --exclude "*" --include "*.html"
+  INCL_IMAGES	:= --exclude "*" --include "*.jpg" --include "*.png"
   GRANTS	:= --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
   S3SYNC	:= $(S3) sync --delete $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
   S3MOVE	:= $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
   S3COPY	:= $(S3) cp $(INDEX) $(S3_BUCKET) $(REGION) $(GRANTS)
   S3REMOVE	:= $(S3) rm $(S3_BUCKET)/$(S3PROJ) --recursive
+  S3IMAGESYNC	:= $(S3) sync $(INCL_IMAGES) $(IMAGES) $(S3_BUCKET)/$(IMAGES) $(REGIONS) $(GRANTS)
 
   ###############################################################################
 
@@ -4214,6 +4238,7 @@ List all ancestors of a given element or object.
 	    @echo BUCKET:	$(BUCKET)
 	    @echo PROJ:		$(PROJ) $S
 	    @echo S3_BUCKET:	$(S3_BUCKET)
+	    @echo HTTP_S:	$(HTTP_S)
 	    @echo HTTPS_BUCKET:	$(HTTPS_BUCKET)
 	    @echo VERS:		$(VERS)
 	    @echo S3PROJ:	$(S3PROJ)
@@ -4264,7 +4289,7 @@ List all ancestors of a given element or object.
 			  (org-texinfo-export-to-texinfo)))"
 	   @echo Done making TEXI.
   open-texi: texi
-	   @$(EDITOR) $(TEXI)
+	   @$(EDITOR) -n $(TEXI)
 
   info: $(INFO)
   $(INFO): $(TEXI)
@@ -4309,6 +4334,7 @@ List all ancestors of a given element or object.
   sync:   $(HTML)
 	  @echo Syncing version $(VERS) onto $(S3VERS)...
 	  $(S3SYNC)
+	  $(S3IMAGESYNC)
 	  @echo Done syncing.
 	  [[ $(VERS) != $(S3VERS) ]] && { echo Moving...; $(S3MOVE); echo Done moving.;  make homepage; } || :
 	  [[ $(PROJINS3) = "NO" ]] && make homepage || :
@@ -4394,10 +4420,10 @@ List all ancestors of a given element or object.
 	      "(kill-buffer \"$(ORG)\")"
 	    -@rm -rf *.{texi*,info*,html*,pdf*} $(DIR) $(TOOLS)
 	    -@for dir in *; \
-	    	do \
+		do \
 		    [ -d $$dir -a $$dir != "$(DIR_OLD)" -a $$dir != $(SAVE) ] && \
 		    rm -vr $$dir; \
-	    	done
+		done
 
   wipe-clean: dist-clean
 	  @echo Wipe Clean...
@@ -4463,10 +4489,10 @@ List all ancestors of a given element or object.
 ** Compare Replace
 
 #+begin_comment
-The following source  code tangles all files during an  export operation.  This
-is  to make  sure the  ~cmprpl~ source  code exists  in the  ~tools/~ directory
-before  running the  Makefile target  =html=.  It  also makes  sure there  is a
-Makefile on an initial export. The following code is not exported.
+The following source code tangles all files during an export operation. This is
+to  make  sure  the  ~cmprpl~  source code  exists  in  the  ~resources/tools/~
+directory before running  the Makefile target =html=. It also  makes sure there
+is a Makefile on an initial export. The following code is not exported.
 #+end_comment
 
 #+name:tangle-org-file
@@ -4513,7 +4539,7 @@ should be in sync.
 #+name:cmprpl
 #+header: :mkdirp t
 #+header: :shebang "#!/usr/bin/env bash"
-#+begin_src sh :tangle tools/cmprpl
+#+begin_src sh :tangle resources/tools/cmprpl
   [[ $# -eq 2 ]] || { echo "ERROR: Incorrect command line arguments"; exit 1; }
   DIR_NEW=$1
   DIR_OLD=$2
@@ -4756,15 +4782,20 @@ variable is set to use ~emacsclient~.
 #+name:boot-template
 #+header: :tangle Makefile
 #+begin_src makefile
-boot:
-	$(EDITOR) -u --eval \
-		"(with-current-buffer (car (find-file-noselect \"./*.org\" nil nil t)) \
-			(goto-char (point-min)) \
-			(re-search-forward \"^#[+]name:preprocess.el$$\") \
-			(org-babel-tangle (quote (4))) \
-                        (save-buffer) \
-			(kill-buffer))"
-	./tools/preprocess.el
+  boot:
+	  $(EDITOR) -u --eval \
+		  "(with-current-buffer (car (find-file-noselect \"./*.org\" nil nil t)) \
+			  (goto-char (point-min)) \
+			  (re-search-forward \"^#[+]name:preprocess.el$$\") \
+			  (org-babel-tangle (quote (4))) \
+			  (save-buffer) \
+			  (kill-buffer))" \
+	  --eval \
+		  "(let ((rsrcdir \"resources\") \
+			 (subdirs (list \"tools\" \"images\"))) \
+		     (mkdir rsrcdir t) \
+		     (dolist (subdir subdirs) (mkdir (concat rsrcdir \"/\" subdir) t)))"
+	  ./resources/tools/preprocess.el
 #+end_src
 
 ** Preprocess Env Vars
@@ -4775,11 +4806,11 @@ system,  it will  be at  ~$HOME/Dev~  while in  another  system it  will be  at
 the form ~${DEV}~,  but rather requires absolute  paths, like ~/usr/local/dev~.
 Therefore, this program works like a preprocessor for environment variables set
 up  as part  of  =:tangle= lines,  changing them  to  their system  environment
-variable values prior to tangling.  It lives in the ~tools~ directory.
+variable values prior to tangling.  It lives in the ~resources/tools~ directory.
 
 #+name:preprocess.el
 #+header: :mkdirp t
-#+header: :tangle tools/preprocess.el
+#+header: :tangle resources/tools/preprocess.el
 #+header: :shebang "#!/opt/local/bin/emacs -Q --script"
 #+begin_src emacs-lisp
   (with-current-buffer (car (find-file-noselect "./*.org" nil nil t))
