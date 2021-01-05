@@ -5,7 +5,7 @@
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
 #+date:2020-10-16 07:17
-#+macro:version Version 0.10.2
+#+macro:version Version 0.10.3
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -2524,7 +2524,7 @@ keywords are built upon one of the following patterns:
   more than one.
 
 - OPTIONAL :: can contain any character but a new line; the following keys are the only ones that
-  con contain an OPTIONAL element:
+  can contain an OPTIONAL element:
   - CAPTION
   - RESULTS
 
@@ -2761,7 +2761,7 @@ Each *greater element*, *element* and *object* has a variable set of /properties
 
 #+texinfo:@heading Properties common to all types
 
-Four attributes are shared by all types: 
+Four attributes are shared by all types:
 
 - =:begin=
 
@@ -2798,7 +2798,7 @@ A headline is defined as:
   as “commented”. Case is significant.
 
 - FOOTNOTES :: If the headline's title is the value contained in ~org-footnote-section~
-  (e.g. “Footnoes”), it will be considered as a “footnote section”.  Case is significant.
+  (e.g. “Footnotes”), it will be considered as a “footnote section”.  Case is significant.
 
 - ARCHIVE :: If “ARCHIVE” is one of its tags, it will be considered as “archived”.  Case is
   significant.
@@ -3405,9 +3405,9 @@ The first move is to implement a way to obtain the smallest element containing p
 
 - ~org-element-at-point~ ::
 
-  It basically jumps back to the beginning of section containing point and proceed, one element
-  after the other, with ~org-element--current-element~ until the container is found.  When using
-  `org-element-at-point', secondary values are neverparsed since the function focuses on elements,
+  It basically  jumps back to the  beginning of section  containing point and proceed,  one element
+  after the  other, with ~org-element--current-element~ until  the container is found.   When using
+  `org-element-at-point', secondary values are never parsed since the function focuses on elements,
   not on objects.
 
 - ~org-element-context ::
@@ -3500,7 +3500,7 @@ its section can be found.  There is no such limitation when DATUM belongs to a f
 
 **** org-element-nested-p
 
-#+attr_texinfo: :options elem-A elem-B
+#+attr_texinfo: :options org-element-nested-p elem-A elem-B
 #+begin_defun
 Non-nil when elements ELEM-A and ELEM-B are nested.
 #+end_defun
