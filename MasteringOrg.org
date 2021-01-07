@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2020-10-16 07:17
-#+macro:version Version 0.10.4
+#+date:2021-01-07 00:11
+#+macro:version Version 0.10.5
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -4013,6 +4013,7 @@ List all ancestors of a given element or object.
   # credentials into ~/.aws/credentials.
   AWS := aws
   S3  := $(AWS) s3
+  CFD := $(AWS) --no-paginate cloudfront list-distributions
 
   # The AWS region of choice; this can also be in .aws/config
   REGION := --region us-west-2
@@ -4027,6 +4028,7 @@ List all ancestors of a given element or object.
 
   ### NOTE: there can be only one Org file in the project directory;
   # so far this has not been a problem, but it might be.
+  # NOTE: It is now a problem that needs to be resolved and fixed.
 
   PWD  := $(shell pwd)
   ORG  := $(shell ls *.org)
@@ -4112,7 +4114,7 @@ List all ancestors of a given element or object.
 	  '(with-current-buffer (find-file-noselect "$(ORG)") \
 		  (save-excursion \
 		    (goto-char (point-min)) \
-		    (re-search-forward "^\#[+]\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+[.]?\\)\\{3\\}\\)") \
+		    (re-search-forward "^\#\\+\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+\\.?\\)\\{3\\}\\)") \
 		    (match-string-no-properties 1)))')/
 
   ### AWS
