@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2021-01-07 00:11
-#+macro:version Version 0.10.5
+#+date:2021-01-07 23:57
+#+macro:version Version 0.10.6
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -21,7 +21,7 @@
 
 - [[https://orgmode.org/worg/][Worg Home]]
 
-- [[https://code.orgmode.org/bzg/org-mode][Org Code]]
+- [[https://code.orgmode.org/bzg/org-mode][All Org Code]] and [[https://code.orgmode.org/explore/repos][Repos]] and [[https://code.orgmode.org/bzg/org-mode/][Org-Mode Code]]
 
 - [[https://orgmode.org/worg/dev/org-syntax.html][Org Syntax]]
 
@@ -2160,6 +2160,9 @@ find its method both non-intrusive and easy to edit by hand.
 
     - [[https://www.baty.net/2015/publishing-my-notes-using-org-mode/][Publishing My Notes Using Org Mode]]
 
+* Reproducible Research
+- https://github.com/bzg/org-mode-rr
+
 * Variables
 
 - ~org-agenda-dim-blocked-tasks~ ::
@@ -3947,7 +3950,7 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:org-template-version: 0.6.40
+:org-template-version: 0.6.42
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -3965,9 +3968,10 @@ List all ancestors of a given element or object.
 :env_var2: GITHUB_TOKEN: holds the GitHub personal access token
 :env_var3: EDITOR: must hold a reference to a working emacsclient server
 :env_var4: COLORS
-:org-template-version: 0.6.40
+:org-template-version: 0.6.42
 :END:
 
+#+pindex:Makefile
 #+name:Makefile
 #+header: :tangle Makefile
 #+begin_src makefile
@@ -4013,10 +4017,7 @@ List all ancestors of a given element or object.
   # credentials into ~/.aws/credentials.
   AWS := aws
   S3  := $(AWS) s3
-  CFD := $(AWS) --no-paginate cloudfront list-distributions
-
-  # The AWS region of choice; this can also be in .aws/config
-  REGION := --region us-west-2
+  CFD := $(AWS) cloudfront
 
   ### END OF USER-DEPENDENT VARIABLES
   ###############################################################################
@@ -4028,7 +4029,6 @@ List all ancestors of a given element or object.
 
   ### NOTE: there can be only one Org file in the project directory;
   # so far this has not been a problem, but it might be.
-  # NOTE: It is now a problem that needs to be resolved and fixed.
 
   PWD  := $(shell pwd)
   ORG  := $(shell ls *.org)
@@ -4062,7 +4062,7 @@ List all ancestors of a given element or object.
   # both, and  so this code  finds the url's  that are in  my Cloudfront
   # account, which presumably will serve https.  If the url is not here,
   # then this must be set up to serve http instead.
-  HTTP_S := $(shell $(CFD) | perl -MJSON::PP -e \
+  HTTP_S := $(shell $(CFD) list-distributions | perl -MJSON::PP -e \
 	  '$$/=""; \
 	   my @urls = (); \
 	   my $$json=JSON::PP->new->decode(<STDIN>); \
@@ -4114,7 +4114,7 @@ List all ancestors of a given element or object.
 	  '(with-current-buffer (find-file-noselect "$(ORG)") \
 		  (save-excursion \
 		    (goto-char (point-min)) \
-		    (re-search-forward "^\#\\+\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+\\.?\\)\\{3\\}\\)") \
+		    (re-search-forward "^\#[+]\\(?:macro\\|MACRO\\):version Version \\(\\(?:[[:digit:]]+[.]?\\)\\{3\\}\\)") \
 		    (match-string-no-properties 1)))')/
 
   ### AWS
@@ -4209,11 +4209,11 @@ List all ancestors of a given element or object.
   EXCL_INCL	:= --exclude "*" --include "*.html"
   INCL_IMAGES	:= --exclude "*" --include "*.jpg" --include "*.png"
   GRANTS	:= --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-  S3SYNC	:= $(S3) sync --delete $(EXCL_INCL) $(SRC) $(DST_OLD) $(REGION) $(GRANTS)
-  S3MOVE	:= $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(REGION) $(GRANTS)
-  S3COPY	:= $(S3) cp $(INDEX) $(S3_BUCKET) $(REGION) $(GRANTS)
+  S3SYNC	:= $(S3) sync --delete $(EXCL_INCL) $(SRC) $(DST_OLD) $(GRANTS)
+  S3MOVE	:= $(S3) mv --recursive $(DST_OLD) $(DST_NEW) $(GRANTS)
+  S3COPY	:= $(S3) cp $(INDEX) $(S3_BUCKET) $(GRANTS)
   S3REMOVE	:= $(S3) rm $(S3_BUCKET)/$(S3PROJ) --recursive
-  S3IMAGESYNC	:= $(S3) sync $(INCL_IMAGES) $(IMAGES) $(S3_BUCKET)/$(IMAGES) $(REGIONS) $(GRANTS)
+  S3IMAGESYNC	:= $(S3) sync $(INCL_IMAGES) $(IMAGES) $(S3_BUCKET)/$(IMAGES) $(GRANTS)
 
   ###############################################################################
 
@@ -4637,6 +4637,52 @@ of   =custom_id=  and   value  ~cid-value~,   or   =nil=  if   not.   It   uses
 #+end_src
 
 #+call: run-org-tree-cid-p(dir="/usr/local/dev/programming/MasteringEmacs")
+
+*** Keywords and Values
+This function takes  an Org file name and optionally  a directory (otherwise it
+uses the default  directory) and returns the  value of a keyword.   It does not
+use a parse tree, but rather loops through the file line-by-line until it finds
+the keyword and then returns its value.
+
+#+name:get-keyword-value
+#+begin_src emacs-lisp
+  (defun get-keyword-value (keyword-to-get org-file-name &optional dir)
+    "Returns the value of a keyword in an Org buffer identified by ORG-FILE-NAME.
+  Uses the current directory unless an optional DIR is supplied.
+  Returns NIL if none is found.  Rather than parsing the whole Org
+  buffer into a tree, this function simply starts at the beginning
+  of the file and loops line by line through the file, returning
+  when the key has been found or it reaches the end of the file."
+    (with-current-buffer
+	(find-file-noselect
+	 (concat
+	  (if dir (file-name-as-directory dir) default-directory)
+	  org-file-name))
+      (save-excursion
+	(goto-char (point-min))
+	(let ((done nil)
+	      (ans nil))
+	  (while (not done)
+	    (let* ((el (org-element-at-point))
+		   (ty (org-element-type el))
+		   (key (org-element-property :key el))
+		   (val (org-element-property :value el)))
+	      (when (and
+		     (string-equal ty "keyword")
+		     (string-equal key keyword-to-get))
+		(setq ans val done t))
+	      (forward-line)
+	      (when (eobp)
+		(setq done t))))
+	  ans))))
+#+end_src
+
+#+name:get-title-for-org-buffer
+#+begin_src emacs-lisp
+(defun get-title-for-org-buffer (org-file-name &optional dir)
+"A wrapper around `get-keyword-value' to find a TITLE in an Org buffer."
+  (get-keyword-value "TITLE" org-file-name dir))
+#+end_src
 
 ** Bucket Index HTML
 The bucket should contain a master ~index.html~  file that links to each of the
