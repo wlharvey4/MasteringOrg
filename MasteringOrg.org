@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2021-01-07 23:57
-#+macro:version Version 0.10.6
+#+date:2021-01-28 08:15
+#+macro:version Version 0.10.7
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1320,6 +1320,11 @@ Additional back-ends can be loaded in either of two ways:
 For example, to load the Markdown back-end, add this to your Emacs config:
 
 : (require 'ox-md)
+
+*** Exporting Markdown
+
+#+cindex:markdown, export
+ - [[https://christiantietze.de/posts/2020/10/org-babel-markdown-to-html/][Convert org-babel Markdown Blocks to HTML]]
 
 ** Time
 
