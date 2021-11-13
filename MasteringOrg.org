@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2021-11-13 09:35
-#+macro:version Version 0.10.12
+#+date:2021-11-13 09:45
+#+macro:version Version 0.10.13
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -4035,7 +4035,7 @@ List all ancestors of a given element or object.
 :PROPERTIES:
 :appendix: t
 :custom_id: build-tools
-:org-template-version: 0.6.50
+:org-template-version: 0.6.51
 :END:
 ** Makefile					:dependencies:env_vars:perl:
 :PROPERTIES:
@@ -4057,7 +4057,7 @@ List all ancestors of a given element or object.
 :env_var3: EMACS: reference to the Emacs executable
 :env_var4: EDITOR: reference to a working emacsclient server
 :env_var5: COLORS
-:org-template-version: 0.6.50
+:org-template-version: 0.6.51
 :END:
 
 #+pindex:Makefile
