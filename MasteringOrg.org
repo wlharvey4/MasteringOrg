@@ -4,8 +4,8 @@
 #+subtitle:Version {{{version}}} Last Updated {{{time(%F %R)}}}
 #+author:Pinecone062
 #+email:pinecone062@gmail.com
-#+date:2022-01-21 07:23
-#+macro:version Version 0.11.0
+#+date:2022-01-21 07:53
+#+macro:version Version 0.11.1
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -24,15 +24,55 @@
 
 - [[https://orgmode.org/worg/][Worg Home]]
 
+** Org-mode For Developers
+
+[[https://orgmode.org/worg/dev/index.html][Org-mode for Developers]]
+
+Org development uses a two-branches git workflow.
+
+  1. ~main~ ::
+
+     This branch contains the latest development  for Org. Temporary feature branches (either local
+     or  remote) should  branch  out from  main.  New features  should be  introduced  into org  on
+     main. This branch is merged to the bugfix branch when a major release is made.
+
+  2. ~bugfix~ ::
+
+     This branch  is the "production"  branch for  Org. It contains  stable releases and  bug fixes
+     against them. Bugs present in a release should always be fixed on bugfix, which is then merged
+     back into  main so that the  two branches keep the  same bugfixes. Minor releases  are made so
+     that not too many bug fixes are pending on bugfix. The Org version on this branch is regularly
+     sync'ed with the Emacs repository.
+
+*** Git Repositories
+
+The git repository for Org is on ~orgmode.org~:
+
+  - [[https://git.savannah.gnu.org/cgit/emacs/org-mode.git/][orgmode.org]]
+
+If you are a developer, you can clone it like this:
+
+: $ git clone git://git.savannah.gnu.org/emacs/org-mode.git
+
+To clone a read-only version of the repo:
+
+: $ git clone https://git.savannah.gnu.org/git/emacs/org-mode.git
+  
+** All Org Code
+
 - [[https://code.orgmode.org/bzg/org-mode][All Org Code]] and [[https://code.orgmode.org/explore/repos][Repos]] and [[https://code.orgmode.org/bzg/org-mode/][Org-Mode Code]]
+
+** Org Syntax---Element API---Parse API
 
 - [[https://orgmode.org/worg/dev/org-syntax.html][Org Syntax]]
 
 - [[https://orgmode.org/worg/dev/org-element-api.html][Org Element API]]
 
-- [[https://orgmode.org/worg/exporters/org-element-docstrings.html][org-element.el]]
+  - [[https://orgmode.org/worg/exporters/org-element-docstrings.html][Docstrings from org-element.el]]
 
-- [[http://ergoemacs.org/emacs/elisp_parse_org_mode.html][Parse Org Mode]]
+- [[http://xahlee.info/emacs/emacs/elisp_parse_org_mode.html][Xah Lee's Parse Org Mode]]
+
+** Advanced Features
 
 - [[https://orgmode.org/worg/exporters/][Org Exporters]]
 
@@ -45,6 +85,7 @@
 - [[http://doc.norang.ca/org-mode.html][Organize Your LIfe]]
 
 * Glossary
+
 ** Agenda
 
   - Agenda :: Org can select items based on various criteria and display them in a separate
